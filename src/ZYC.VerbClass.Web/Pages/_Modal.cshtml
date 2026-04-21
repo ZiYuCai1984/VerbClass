@@ -1,0 +1,14 @@
+﻿<dialog id="verbclass-modal" class="modal-shell">
+    <div class="surface modal-frame">
+        <div class="surface__head modal-toolbar">
+            <button type="button" class="modal-close" data-modal-close>Close</button>
+        </div>
+        <div id="verbclass-modal-content"
+             class="surface__body modal-content"
+             hx-target="this"
+             hx-swap="innerHTML"></div>
+    </div>
+</dialog>
+<button id="verbclass-modal-request" type="button" hidden hx-sync="this:replace"></button>
+<script src="/js/app-modal.js"></script>
+

@@ -1,0 +1,220 @@
+﻿<Project>
+
+  <ItemGroup>
+    <Compile Update="**\*.razor.cs">
+      <DependentUpon>_</DependentUpon>
+    </Compile>
+    <Compile Update="**\*.cshtml.cs">
+      <DependentUpon>_</DependentUpon>
+    </Compile>
+    <Compile Update="**\*.cs">
+      <DependentUpon>_</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <PropertyGroup>
+    <V_Volo_Abp>10.2.0-rc.4</V_Volo_Abp>
+  </PropertyGroup>
+
+
+  <!--ZYC.VerbClass.Application-->
+
+  <ItemGroup>
+    <PackageReference Update="Volo.Abp.AutoMapper" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.Authorization" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.Ddd.Application" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.PermissionManagement.Application" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.FeatureManagement.Application" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.SettingManagement.Application" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.Account.Application" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.Identity.Application" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.TenantManagement.Application" Version="$(V_Volo_Abp)" />
+  </ItemGroup>
+
+  <!--ZYC.VerbClass.Application.Contracts-->
+  <ItemGroup>
+    <PackageReference Update="Volo.Abp.Ddd.Application.Contracts" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.PermissionManagement.Application.Contracts" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.FeatureManagement.Application.Contracts" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.SettingManagement.Application.Contracts" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.Identity.Application.Contracts" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.Account.Application.Contracts" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.TenantManagement.Application.Contracts" Version="$(V_Volo_Abp)" />
+  </ItemGroup>
+
+  <!--ZYC.VerbClass.DbMigrator-->
+
+  <ItemGroup>
+    <PackageReference Update="Serilog.AspNetCore" Version="9.0.0" />
+    <PackageReference Update="Serilog.Sinks.Async" Version="2.1.0" />
+    <PackageReference Update="Microsoft.Extensions.Hosting" Version="10.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Volo.Abp.Autofac" Version="$(V_Volo_Abp)" />
+  </ItemGroup>
+
+
+  <!--ZYC.VerbClass.Domain-->
+
+  <ItemGroup>
+    <PackageReference Update="Volo.Abp.Ddd.Domain" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.Emailing" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.Caching" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.PermissionManagement.Domain.Identity" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.PermissionManagement.Domain.OpenIddict" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.BackgroundJobs.Domain" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.AuditLogging.Domain" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.FeatureManagement.Domain" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.SettingManagement.Domain" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.BlobStoring.Database.Domain" Version="$(V_Volo_Abp)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Volo.Abp.OpenIddict.Domain" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.Identity.Domain" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.TenantManagement.Domain" Version="$(V_Volo_Abp)" />
+  </ItemGroup>
+
+
+  <!--ZYC.VerbClass.Domain.Shared-->
+
+
+  <ItemGroup>
+    <PackageReference Update="Volo.Abp.Ddd.Domain.Shared" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.BackgroundJobs.Domain.Shared" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.AuditLogging.Domain.Shared" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.FeatureManagement.Domain.Shared" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.PermissionManagement.Domain.Shared" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.SettingManagement.Domain.Shared" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.BlobStoring.Database.Domain.Shared" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.GlobalFeatures" Version="$(V_Volo_Abp)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Volo.Abp.OpenIddict.Domain.Shared" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.Identity.Domain.Shared" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.TenantManagement.Domain.Shared" Version="$(V_Volo_Abp)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Microsoft.Extensions.FileProviders.Embedded" Version="10.0.2" />
+  </ItemGroup>
+
+  <!--ZYC.VerbClass.EntityFrameworkCore-->
+
+
+  <ItemGroup>
+    <PackageReference Update="Volo.Abp.EntityFrameworkCore.Sqlite" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.PermissionManagement.EntityFrameworkCore" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.SettingManagement.EntityFrameworkCore" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.BackgroundJobs.EntityFrameworkCore" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.AuditLogging.EntityFrameworkCore" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.FeatureManagement.EntityFrameworkCore" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.BlobStoring.Database.EntityFrameworkCore" Version="$(V_Volo_Abp)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Volo.Abp.OpenIddict.EntityFrameworkCore" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.Identity.EntityFrameworkCore" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.TenantManagement.EntityFrameworkCore" Version="$(V_Volo_Abp)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Microsoft.EntityFrameworkCore.Tools" Version="10.0.2">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+      <PrivateAssets>compile; contentFiles; build; buildMultitargeting; buildTransitive; analyzers; native</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+
+  <!--ZYC.VerbClass.HttpApi-->
+
+  <ItemGroup>
+    <PackageReference Update="Volo.Abp.AspNetCore.Mvc" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.PermissionManagement.HttpApi" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.FeatureManagement.HttpApi" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.SettingManagement.HttpApi" Version="$(V_Volo_Abp)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Volo.Abp.Identity.HttpApi" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.Account.HttpApi" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.TenantManagement.HttpApi" Version="$(V_Volo_Abp)" />
+  </ItemGroup>
+
+  <!--ZYC.VerbClass.HttpApi.Client-->
+
+  <ItemGroup>
+    <PackageReference Update="Volo.Abp.Http.Client" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.PermissionManagement.HttpApi.Client" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.FeatureManagement.HttpApi.Client" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.SettingManagement.HttpApi.Client" Version="$(V_Volo_Abp)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Volo.Abp.Identity.HttpApi.Client" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.Account.HttpApi.Client" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.TenantManagement.HttpApi.Client" Version="$(V_Volo_Abp)" />
+  </ItemGroup>
+
+
+  <!--ZYC.VerbClass.Web-->
+
+  <ItemGroup>
+    <PackageReference Update="AspNetCore.HealthChecks.UI" Version="9.0.0" />
+    <PackageReference Update="KubernetesClient" Version="18.0.5" />
+    <PackageReference Update="IdentityModel" Version="7.0.0" />
+    <PackageReference Update="AspNetCore.HealthChecks.UI.Client" Version="9.0.0" />
+    <PackageReference Update="AspNetCore.HealthChecks.UI.InMemory.Storage" Version="9.0.0" />
+    <PackageReference Update="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="10.0.2" />
+    <PackageReference Update="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.2" />
+    <PackageReference Update="Serilog.AspNetCore" Version="9.0.0" />
+    <PackageReference Update="Serilog.Sinks.Async" Version="2.1.0" />
+    <PackageReference Update="System.Reactive" Version="7.0.0-preview.1" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <PackageReference Update="Volo.Abp.Autofac" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.AspNetCore.Serilog" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.AspNetCore.Authentication.JwtBearer" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.AspNetCore.MultiTenancy" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.Swashbuckle" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.FeatureManagement.Web" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.Identity.AspNetCore" Version="$(V_Volo_Abp)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Volo.Abp.Account.Web.OpenIddict" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.Identity.Web" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.TenantManagement.Web" Version="$(V_Volo_Abp)" />
+  </ItemGroup>
+
+
+
+  <ItemGroup>
+    <PackageReference Update="Volo.Abp.AspNetCore.Mvc.UI" Version="$(V_Volo_Abp)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Volo.Abp.MultiTenancy.Abstractions" Version="$(V_Volo_Abp)" />
+    <PackageReference Update="Volo.Abp.Security" Version="$(V_Volo_Abp)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="ZYC.CoreToolkit" Version="3.8.7" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <PackageReference Update="Autofac" Version="8.4.0" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Content Remove="$(NuGetPackageRoot)**\*.abppkg.analyze.json" />
+  </ItemGroup>
+
+
+</Project>

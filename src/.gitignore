@@ -1,0 +1,10 @@
+bin/
+obj/
+_*/
+.vs/
+Logs/
+node_modules/
+libs/
+
+*.db
+*.user

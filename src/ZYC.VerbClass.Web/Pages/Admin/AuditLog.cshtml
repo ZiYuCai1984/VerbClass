@@ -1,0 +1,176 @@
+﻿@page
+@model ZYC.VerbClass.Web.Pages.Admin.AuditLogModel
+
+
+@section Styles {
+    <link rel="stylesheet" href="/css/admin-master-detail.css"/>
+}
+
+<div class="master-detail-page">
+    @if (Model.AuditLogs.Length == 0)
+    {
+        <section class="surface l-fill">
+            <div class="surface__head">
+                <strong>Audit Logs</strong>
+            </div>
+            <div class="surface__body">
+                <div class="master-detail-empty">
+                    <p>No audit logs available.</p>
+                </div>
+            </div>
+        </section>
+    }
+    else
+    {
+        <div class="page-master master-detail-page__master">
+            <section class="surface master-detail-page__list">
+                <div class="surface__head">
+                    <strong>Audit Logs</strong>
+                    <span class="u-muted u-push-end">@Model.PageStart-@Model.PageEnd of @Model.TotalCount log(s)</span>
+                </div>
+                <div class="surface__body scroll-area">
+                    <table class="compact-table audit-log-table">
+                        <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>User</th>
+                            <th>Request</th>
+                            <th>Status</th>
+                            <th>Duration</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var log in Model.AuditLogs)
+                        {
+                            <tr class="audit-log-row@(Model.AuditLogId == log.Id ? " is-selected" : string.Empty)"
+                                data-audit-log-row
+                                data-audit-log-id="@log.Id"
+                                hx-get="@Url.Page(null, "Select", new { auditLogId = log.Id, pageNumber = Model.PageNumber })"
+                                hx-trigger="click"
+                                hx-target="#audit-log-detail"
+                                hx-swap="innerHTML"
+                                hx-replace-url="@Url.Page(null, null, new { auditLogId = log.Id, pageNumber = Model.PageNumber })">
+                                <td>
+                                    <div class="audit-log-cell">
+                                        <strong class="u-truncate">@log.ExecutionTime.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")</strong>
+                                        <span class="audit-log-cell__secondary u-truncate">@(string.IsNullOrWhiteSpace(log.ClientIpAddress) ? "-" : log.ClientIpAddress)</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="audit-log-cell">
+                                        <strong class="u-truncate">@(string.IsNullOrWhiteSpace(log.UserName) ? "-" : log.UserName)</strong>
+                                        <span class="audit-log-cell__secondary u-truncate">@(string.IsNullOrWhiteSpace(log.TenantName) ? "Host" : log.TenantName)</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="audit-log-cell">
+                                        <strong class="u-truncate">@(string.IsNullOrWhiteSpace(log.HttpMethod) ? "-" : log.HttpMethod)</strong>
+                                        <span class="audit-log-cell__secondary u-truncate">@(string.IsNullOrWhiteSpace(log.Url) ? "-" : log.Url)</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="audit-log-status">
+                                        <span>@(log.HttpStatusCode?.ToString() ?? "-")</span>
+                                        @if (!string.IsNullOrWhiteSpace(log.Exceptions))
+                                        {
+                                            <span class="audit-log-status__exception">Exception</span>
+                                        }
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="u-nowrap">@log.ExecutionDuration ms</span>
+                                </td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="surface__foot pager">
+                    <span class="u-muted">Page @Model.PageNumber of @Model.TotalPages</span>
+                    <div class="pager__actions">
+                        
+                        @{
+                            var first = "<< First";
+                            var previous = "< Previous";
+                            var next = "next >";
+                            var last = "last >>";
+                        }
+                        
+                        
+
+                        @if (Model.HasPreviousPage)
+                        {
+                            <a class="pager__link" href="@Url.Page(null, null, new { pageNumber = 1 })">@first</a>
+                            <a class="pager__link" href="@Url.Page(null, null, new { pageNumber = Model.PreviousPageNumber })">@previous</a>
+                        }
+                        else
+                        {
+                            <span class="pager__link is-disabled">@first</span>
+                            <span class="pager__link is-disabled">@previous</span>
+                        }
+
+                        @if (Model.HasNextPage)
+                        {
+                            <a class="pager__link" href="@Url.Page(null, null, new { pageNumber = Model.NextPageNumber })">@next</a>
+                            <a class="pager__link" href="@Url.Page(null, null, new { pageNumber = Model.TotalPages })">@last</a>
+                        }
+                        else
+                        {
+                            <span class="pager__link is-disabled">@next</span>
+                            <span class="pager__link is-disabled">@last</span>
+                        }
+                    </div>
+                </div>
+            </section>
+
+            <section class="surface master-detail-page__detail">
+                <div class="surface__head">
+                    <strong>Log Details</strong>
+                </div>
+                <div id="audit-log-detail" class="surface__body scroll-area">
+                    @if (Model.SelectedAuditLog is null)
+                    {
+                        <div class="master-detail-empty">
+                            <p>Select an audit log from the list to view details.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <partial name="_AuditLogInfo" model="Model.SelectedAuditLog"/>
+                    }
+                </div>
+            </section>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const rowSelector = '[data-audit-log-row]';
+
+            function setSelectedRow(auditLogId) {
+                document.querySelectorAll(rowSelector).forEach(row => {
+                    row.classList.toggle('is-selected', row.dataset.auditLogId === auditLogId);
+                });
+            }
+
+            document.addEventListener('click', event => {
+                const row = event.target.closest(rowSelector);
+                if (!row) {
+                    return;
+                }
+
+                setSelectedRow(row.dataset.auditLogId ?? '');
+            });
+
+            window.addEventListener('popstate', () => {
+                const query = new URLSearchParams(window.location.search);
+                setSelectedRow(query.get('auditLogId') ?? '');
+            });
+
+            const query = new URLSearchParams(window.location.search);
+            setSelectedRow(query.get('auditLogId') ?? '');
+        })();
+    </script>
+}

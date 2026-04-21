@@ -1,0 +1,13 @@
+@model ZYC.VerbClass.Application.Contracts.Roles.RolePermissionItemDto
+
+<div class="role-editor__permission-item">
+    <label class="role-editor__permission-choice">
+        <input type="checkbox"
+               name="GrantedPermissionNames"
+               value="@Model.Name"
+               checked="@(Model.IsGranted ? "checked" : null)"/>
+        <span>@Model.DisplayName</span>
+    </label>
+
+    <div class="role-editor__permission-caption u-mono">@Model.Name</div>
+</div>

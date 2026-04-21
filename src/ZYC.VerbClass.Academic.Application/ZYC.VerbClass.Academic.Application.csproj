@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\ZYC.VerbClass.Academic.Domain\ZYC.VerbClass.Academic.Domain.csproj" />
+    <ProjectReference Include="..\ZYC.VerbClass.Academic.Application.Contracts\ZYC.VerbClass.Academic.Application.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Volo.Abp.Ddd.Application" />
+    <PackageReference Include="Volo.Abp.Identity.Domain" />
+  </ItemGroup>
+
+</Project>

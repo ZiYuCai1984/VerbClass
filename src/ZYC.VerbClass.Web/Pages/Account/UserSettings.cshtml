@@ -1,0 +1,296 @@
+﻿@page
+@model ZYC.VerbClass.Web.Pages.Account.UserSettingsModel
+
+@section Styles {
+    <link rel="stylesheet" href="/css/account-user-settings.css"/>
+}
+
+<div class="shell__workspace">
+    <header class="shell__workspace-header">
+        <div class="page-heading">
+            <div class="page-heading__eyebrow">Account</div>
+            <h1 class="page-heading__title">User Settings</h1>
+            <div class="page-heading__meta">Manage your account profile, personal details, and password.</div>
+        </div>
+    </header>
+
+    <div class="shell__workspace-body user-settings-page">
+        <section class="surface user-settings-summary">
+            <div class="user-settings-summary__body">
+                <img src="@($"{Url.Page(Routes.Account_Avatar)}?v={Model.AvatarVersion}")"
+                     alt="Avatar"
+                     class="user-settings-summary__avatar"/>
+
+                <div class="user-settings-summary__main">
+                    <div class="user-settings-summary__title-row">
+                        <strong class="user-settings-summary__title">@Model.DisplayName</strong>
+                        <span class="tag @(Model.IsActive ? "is-success" : "is-danger")">
+                            @(Model.IsActive ? "Active" : "Disabled")
+                        </span>
+                    </div>
+
+                    <div class="user-settings-summary__subtitle">@($"@{Model.UserNameDisplay}")</div>
+
+                    <div class="user-settings-summary__meta">
+                        <span class="tag @(Model.EmailConfirmed ? "is-success" : "is-warning")">
+                            @(Model.EmailConfirmed ? "Email confirmed" : "Email not confirmed")
+                        </span>
+                        <span class="tag">@(Model.HasCustomAvatar ? "Custom avatar" : "Generated avatar")</span>
+                        @if (!Model.CanUpdate)
+                        {
+                            <span class="tag">Read only</span>
+                        }
+
+                        @if (Model.Roles.Length == 0)
+                        {
+                            <span class="tag">No roles assigned</span>
+                        }
+                        else
+                        {
+                            @foreach (var role in Model.Roles)
+                            {
+                                <span class="tag">@role</span>
+                            }
+                        }
+                    </div>
+                </div>
+
+                <div class="user-settings-summary__actions">
+                    @if (Model.CanUpdate)
+                    {
+                        <form method="post"
+                              enctype="multipart/form-data"
+                              asp-page-handler="UploadAvatar"
+                              class="user-settings-avatar-form">
+                            <input id="user-settings-avatar-input"
+                                   class="user-settings-avatar-form__file-input"
+                                   type="file"
+                                   name="avatar"
+                                   accept="image/jpeg,image/png,image/webp,image/gif"
+                                   data-user-settings-avatar-input/>
+
+                            <div class="user-settings-avatar-form__action-row">
+                                <label for="user-settings-avatar-input" class="user-settings-avatar-form__trigger">Choose Avatar</label>
+                            </div>
+
+                            <small class="u-muted">Selecting a file uploads it immediately. JPG, PNG, WEBP, or GIF up to 2 MB.</small>
+                        </form>
+
+                        @if (Model.HasCustomAvatar)
+                        {
+                            <form method="post" asp-page-handler="RemoveAvatar" class="user-settings-avatar-form user-settings-avatar-form--inline">
+                                <div class="user-settings-avatar-form__action-row">
+                                    <button type="submit">Remove Avatar</button>
+                                </div>
+                            </form>
+                        }
+                    }
+                </div>
+            </div>
+        </section>
+
+        <form method="post" class="surface form-shell user-settings-form">
+            <div class="form-shell__body">
+                <fieldset class="form-layout user-settings-form__fields" disabled="@(!Model.CanUpdate)">
+                    <div asp-validation-summary="ModelOnly"></div>
+
+                    <section class="form-section">
+                        <div class="form-section__title">Account</div>
+                        <div class="form-grid form-grid--two">
+                            <div class="field">
+                                <label class="field__label" asp-for="Input.UserName"></label>
+                                <input asp-for="Input.UserName" autocomplete="username"/>
+                                <span asp-validation-for="Input.UserName"></span>
+                            </div>
+
+                            <div class="field">
+                                <label class="field__label" asp-for="Input.Email"></label>
+                                <input asp-for="Input.Email" autocomplete="email"/>
+                                <span asp-validation-for="Input.Email"></span>
+                            </div>
+
+                            <div class="field">
+                                <label class="field__label" asp-for="Input.Surname"></label>
+                                <input asp-for="Input.Surname" autocomplete="family-name"/>
+                                <span asp-validation-for="Input.Surname"></span>
+                            </div>
+
+                            <div class="field">
+                                <label class="field__label" asp-for="Input.Name"></label>
+                                <input asp-for="Input.Name" autocomplete="given-name"/>
+                                <span asp-validation-for="Input.Name"></span>
+                            </div>
+
+                            <div class="field">
+                                <label class="field__label" asp-for="Input.PhoneNumber"></label>
+                                <input asp-for="Input.PhoneNumber" autocomplete="tel"/>
+                                <span asp-validation-for="Input.PhoneNumber"></span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="form-section">
+                        <div class="form-section__title">Profile</div>
+                        <div class="form-grid form-grid--two">
+                            <div class="field">
+                                <label class="field__label" asp-for="Input.SurnameKanji"></label>
+                                <input asp-for="Input.SurnameKanji"/>
+                                <span asp-validation-for="Input.SurnameKanji"></span>
+                            </div>
+
+                            <div class="field">
+                                <label class="field__label" asp-for="Input.NameKanji"></label>
+                                <input asp-for="Input.NameKanji"/>
+                                <span asp-validation-for="Input.NameKanji"></span>
+                            </div>
+
+                            <div class="field">
+                                <label class="field__label" asp-for="Input.SurnameKana"></label>
+                                <input asp-for="Input.SurnameKana"/>
+                                <span asp-validation-for="Input.SurnameKana"></span>
+                            </div>
+
+                            <div class="field">
+                                <label class="field__label" asp-for="Input.NameKana"></label>
+                                <input asp-for="Input.NameKana"/>
+                                <span asp-validation-for="Input.NameKana"></span>
+                            </div>
+
+                            <div class="field">
+                                <label class="field__label" asp-for="Input.SurnameRomanized"></label>
+                                <input asp-for="Input.SurnameRomanized"/>
+                                <span asp-validation-for="Input.SurnameRomanized"></span>
+                            </div>
+
+                            <div class="field">
+                                <label class="field__label" asp-for="Input.NameRomanized"></label>
+                                <input asp-for="Input.NameRomanized"/>
+                                <span asp-validation-for="Input.NameRomanized"></span>
+                            </div>
+
+                            <div class="field">
+                                <label class="field__label" asp-for="Input.BirthDate"></label>
+                                <input asp-for="Input.BirthDate"/>
+                                <span asp-validation-for="Input.BirthDate"></span>
+                            </div>
+
+                            <div class="field">
+                                <label class="field__label" asp-for="Input.Gender"></label>
+                                <select asp-for="Input.Gender" asp-items="Model.GenderOptions"></select>
+                                <span asp-validation-for="Input.Gender"></span>
+                            </div>
+
+                            <div class="field">
+                                <label class="field__label" asp-for="Input.BloodType"></label>
+                                <input asp-for="Input.BloodType"/>
+                                <span asp-validation-for="Input.BloodType"></span>
+                            </div>
+
+                            <div class="field">
+                                <label class="field__label" asp-for="Input.Nationality"></label>
+                                <input asp-for="Input.Nationality"/>
+                                <span asp-validation-for="Input.Nationality"></span>
+                            </div>
+
+                            <div class="field">
+                                <label class="field__label" asp-for="Input.EnrollmentYear"></label>
+                                <input asp-for="Input.EnrollmentYear"/>
+                                <span asp-validation-for="Input.EnrollmentYear"></span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="form-section">
+                        <div class="form-section__title">Address</div>
+                        <div class="form-grid form-grid--two">
+                            <div class="field">
+                                <label class="field__label" asp-for="Input.Country"></label>
+                                <input asp-for="Input.Country"/>
+                                <span asp-validation-for="Input.Country"></span>
+                            </div>
+
+                            <div class="field">
+                                <label class="field__label" asp-for="Input.Prefecture"></label>
+                                <input asp-for="Input.Prefecture"/>
+                                <span asp-validation-for="Input.Prefecture"></span>
+                            </div>
+
+                            <div class="field">
+                                <label class="field__label" asp-for="Input.City"></label>
+                                <input asp-for="Input.City"/>
+                                <span asp-validation-for="Input.City"></span>
+                            </div>
+
+                            <div class="field">
+                                <label class="field__label" asp-for="Input.PostalCode"></label>
+                                <input asp-for="Input.PostalCode"/>
+                                <span asp-validation-for="Input.PostalCode"></span>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label class="field__label" asp-for="Input.Street"></label>
+                            <input asp-for="Input.Street"/>
+                            <span asp-validation-for="Input.Street"></span>
+                        </div>
+                    </section>
+
+                    <section class="form-section">
+                        <div class="form-section__title">Security</div>
+                        <div class="form-grid form-grid--two">
+                            <div class="field">
+                                <label class="field__label" asp-for="Input.CurrentPassword"></label>
+                                <input asp-for="Input.CurrentPassword" autocomplete="current-password"/>
+                                <span asp-validation-for="Input.CurrentPassword"></span>
+                            </div>
+
+                            <div class="field">
+                                <label class="field__label" asp-for="Input.NewPassword"></label>
+                                <input asp-for="Input.NewPassword" autocomplete="new-password"/>
+                                <span asp-validation-for="Input.NewPassword"></span>
+                            </div>
+
+                            <div class="field">
+                                <label class="field__label" asp-for="Input.ConfirmNewPassword"></label>
+                                <input asp-for="Input.ConfirmNewPassword" autocomplete="new-password"/>
+                                <span asp-validation-for="Input.ConfirmNewPassword"></span>
+                            </div>
+                        </div>
+
+                        <div class="u-muted">Leave the password fields empty to keep your current password.</div>
+                    </section>
+                </fieldset>
+            </div>
+
+            @if (Model.CanUpdate)
+            {
+                <div class="form-shell__footer user-settings-form__footer">
+
+                    <button type="submit" class="is-primary">Save Changes</button>
+                
+                    <button type="submit"
+                            formmethod="get"
+                            formaction="@Routes.Account_UserSettings"
+                            formnovalidate>
+                        Cancel
+                    </button>
+                </div>
+            }
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            document.addEventListener('change', event => {
+                const input = event.target.closest('[data-user-settings-avatar-input]');
+                if (!input || !input.form || !input.files || input.files.length === 0) {
+                    return;
+                }
+
+                input.form.requestSubmit();
+            });
+        })();
+    </script>
+}

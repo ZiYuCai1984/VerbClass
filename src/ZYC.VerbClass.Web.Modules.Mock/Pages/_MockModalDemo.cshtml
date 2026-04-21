@@ -1,0 +1,17 @@
+<article style="margin:0;">
+    <header>
+        <strong>HTMX Modal Demo</strong>
+        <p style="margin:0.35rem 0 0;">
+            This partial view was loaded into the shared modal container from a url.
+        </p>
+    </header>
+
+    <p style="margin:0 0 1rem;">
+        Server time: <strong>@DateTimeOffset.Now.ToString("yyyy-MM-dd HH:mm:ss zzz")</strong>
+    </p>
+
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+        <button type="button" hx-get="@Url.Page("/Mock", "ModalDemo")">Reload Partial</button>
+        <button type="button" class="secondary" data-modal-close>Close</button>
+    </div>
+</article>

@@ -1,0 +1,245 @@
+@model ZYC.VerbClass.Web.Pages.Admin.UserEditorModel
+@{
+    var submitUrl = Model.IsCreate
+        ? Url.Page(null, "Create")
+        : Url.Page(null, "Update", new { userId = Model.UserId });
+    var cancelUrl = Url.Page(
+        null,
+        "View",
+        Model.IsCreate
+            ? new { userId = Model.ReturnUserId }
+            : new { userId = Model.UserId }
+    );
+    var selectedDepartmentIds = Model.DepartmentIds.ToHashSet();
+    var selectedRoleNames = Model.RoleNames.ToHashSet(StringComparer.OrdinalIgnoreCase);
+}
+
+<form method="post"
+      hx-post="@submitUrl"
+      hx-target="#user-manager-content"
+      hx-swap="innerHTML"
+      class="user-editor">
+    <input type="hidden" asp-for="ReturnUserId"/>
+
+    @if (Model.HasErrors)
+    {
+        <div class="user-editor__summary">
+            @if (Model.SummaryErrors.Count == 0)
+            {
+                <div>Please correct the highlighted fields.</div>
+            }
+            else
+            {
+                <ul>
+                    @foreach (var error in Model.SummaryErrors)
+                    {
+                        <li>@error</li>
+                    }
+                </ul>
+            }
+        </div>
+    }
+
+    <div class="user-editor__body form-layout">
+        <section class="form-section">
+            <div class="form-section__title">Account</div>
+            <div class="form-grid form-grid--two">
+                <div class="field">
+                    <label class="field__label" asp-for="UserName"></label>
+                    <input asp-for="UserName" autocomplete="username"/>
+                    @foreach (var error in Model.GetErrors(nameof(Model.UserName)))
+                    {
+                        <div class="user-editor__field-error">@error</div>
+                    }
+                </div>
+
+                <div class="field">
+                    <label class="field__label" asp-for="Email"></label>
+                    <input asp-for="Email" autocomplete="email"/>
+                    @foreach (var error in Model.GetErrors(nameof(Model.Email)))
+                    {
+                        <div class="user-editor__field-error">@error</div>
+                    }
+                </div>
+
+                <div class="field">
+                    <label class="field__label" asp-for="Surname"></label>
+                    <input asp-for="Surname" autocomplete="family-name"/>
+                    @foreach (var error in Model.GetErrors(nameof(Model.Surname)))
+                    {
+                        <div class="user-editor__field-error">@error</div>
+                    }
+                </div>
+
+                <div class="field">
+                    <label class="field__label" asp-for="Name"></label>
+                    <input asp-for="Name" autocomplete="given-name"/>
+                    @foreach (var error in Model.GetErrors(nameof(Model.Name)))
+                    {
+                        <div class="user-editor__field-error">@error</div>
+                    }
+                </div>
+
+                <div class="field">
+                    <label class="field__label" asp-for="PhoneNumber"></label>
+                    <input asp-for="PhoneNumber" autocomplete="tel"/>
+                    @foreach (var error in Model.GetErrors(nameof(Model.PhoneNumber)))
+                    {
+                        <div class="user-editor__field-error">@error</div>
+                    }
+                </div>
+
+                <div class="field user-editor__checkbox-field">
+                    <span class="field__label">@Html.DisplayNameFor(x => x.IsActive)</span>
+                    <label class="user-editor__checkbox">
+                        <input asp-for="IsActive"/>
+                        <span>Enable this user account</span>
+                    </label>
+                </div>
+
+                <div class="field user-editor__checkbox-field">
+                    <span class="field__label">@Html.DisplayNameFor(x => x.DepartmentIds)</span>
+
+                    @if (Model.DepartmentOptions.Count == 0)
+                    {
+                        <div class="u-muted">No assignable departments are available in the current tenant.</div>
+                    }
+                    else
+                    {
+                        <div class="user-editor__department-selector" data-user-department-selector>
+                            <input type="radio"
+                                   name="PrimaryDepartmentId"
+                                   value=""
+                                   class="user-editor__hidden-input"
+                                   data-user-department-primary-none
+                                   checked="@(Model.PrimaryDepartmentId.HasValue ? null : "checked")"/>
+
+                            <div class="user-editor__department-head">
+                                <span>Department</span>
+                                <span>Primary</span>
+                            </div>
+
+                            @foreach (var option in Model.DepartmentOptions)
+                            {
+                                var isSelected = selectedDepartmentIds.Contains(option.Id);
+                                var isPrimary = Model.PrimaryDepartmentId == option.Id;
+
+                                <div class="user-editor__department-item" data-user-department-item>
+                                    <label class="user-editor__department-choice">
+                                        <input type="checkbox"
+                                               name="DepartmentIds"
+                                               value="@option.Id"
+                                               data-user-department-checkbox
+                                               checked="@(isSelected ? "checked" : null)"/>
+                                        <span class="u-truncate">@option.Label</span>
+                                    </label>
+
+                                    <label class="user-editor__department-primary">
+                                        <input type="radio"
+                                               name="PrimaryDepartmentId"
+                                               value="@option.Id"
+                                               data-user-department-primary
+                                               checked="@(isPrimary ? "checked" : null)"/>
+                                        <span>Primary</span>
+                                    </label>
+                                </div>
+                            }
+                        </div>
+
+                        <div class="u-muted">Select one or more departments. One selected department is stored as the primary department.</div>
+                    }
+
+                    @foreach (var error in Model.GetErrors(nameof(Model.DepartmentIds)))
+                    {
+                        <div class="user-editor__field-error">@error</div>
+                    }
+
+                    @foreach (var error in Model.GetErrors(nameof(Model.PrimaryDepartmentId)))
+                    {
+                        <div class="user-editor__field-error">@error</div>
+                    }
+                </div>
+
+                @if (Model.CanAssignRoles)
+                {
+                    <div class="field user-editor__checkbox-field">
+                        <span class="field__label">@Html.DisplayNameFor(x => x.RoleNames)</span>
+
+                        @if (Model.RoleOptions.Count == 0)
+                        {
+                            <div class="u-muted">No roles are available in the current tenant.</div>
+                        }
+                        else
+                        {
+                            <div class="user-editor__role-list">
+                                @foreach (var roleName in Model.RoleOptions)
+                                {
+                                    <label class="user-editor__role-item">
+                                        <input type="checkbox"
+                                               name="RoleNames"
+                                               value="@roleName"
+                                               checked="@(selectedRoleNames.Contains(roleName) ? "checked" : null)"/>
+                                        <span>@roleName</span>
+                                    </label>
+                                }
+                            </div>
+
+                            <div class="u-muted">Select one or more roles to grant to this user.</div>
+                        }
+
+                        @foreach (var error in Model.GetErrors(nameof(Model.RoleNames)))
+                        {
+                            <div class="user-editor__field-error">@error</div>
+                        }
+                    </div>
+                }
+            </div>
+        </section>
+
+        <section class="form-section">
+            <div class="form-section__title">@(Model.IsCreate ? "Initial Password" : "Reset Password")</div>
+            <div class="form-grid form-grid--two">
+                <div class="field">
+                    <label class="field__label" for="Password">@(Model.IsCreate ? "Initial password" : "New password")</label>
+                    <input asp-for="Password" autocomplete="new-password"/>
+                    @foreach (var error in Model.GetErrors(nameof(Model.Password)))
+                    {
+                        <div class="user-editor__field-error">@error</div>
+                    }
+                </div>
+
+                <div class="field">
+                    <label class="field__label" for="ConfirmPassword">@(Model.IsCreate ? "Confirm password" : "Confirm new password")</label>
+                    <input asp-for="ConfirmPassword" autocomplete="new-password"/>
+                    @foreach (var error in Model.GetErrors(nameof(Model.ConfirmPassword)))
+                    {
+                        <div class="user-editor__field-error">@error</div>
+                    }
+                </div>
+
+                <div class="field user-editor__checkbox-field">
+                    <span class="field__label">@Html.DisplayNameFor(x => x.ForcePasswordChangeOnNextLogin)</span>
+                    <label class="user-editor__checkbox">
+                        <input asp-for="ForcePasswordChangeOnNextLogin"/>
+                        <span>Ask the user to change the password on next sign-in</span>
+                    </label>
+                </div>
+            </div>
+
+            @if (!Model.IsCreate)
+            {
+                <div class="u-muted">Leave the password fields empty to keep the current password.</div>
+            }
+        </section>
+    </div>
+
+    <div class="user-editor__foot">
+        <button type="submit" class="is-primary">@Model.SubmitText</button>
+        <button type="button"
+                hx-get="@cancelUrl"
+                hx-target="#user-manager-content"
+                hx-swap="innerHTML">
+            Cancel
+        </button>
+    </div>
+</form>

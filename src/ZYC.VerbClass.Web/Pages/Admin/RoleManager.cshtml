@@ -1,0 +1,51 @@
+@page
+@model ZYC.VerbClass.Web.Pages.Admin.RoleManagerModel
+
+@section Styles {
+    <link rel="stylesheet" href="/css/admin-master-detail.css"/>
+}
+
+<div id="role-manager-content" class="master-detail-page">
+    <partial name="_RoleManagerContent" model="Model.State"/>
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const rowSelector = '[data-role-manager-row]';
+
+            function setSelectedRow(roleName) {
+                document.querySelectorAll(rowSelector).forEach(row => {
+                    row.classList.toggle('is-selected', row.dataset.roleName === roleName);
+                });
+            }
+
+            document.addEventListener('click', event => {
+                const row = event.target.closest(rowSelector);
+                if (!row) {
+                    return;
+                }
+
+                setSelectedRow(row.dataset.roleName ?? '');
+            });
+
+            window.addEventListener('popstate', () => {
+                const query = new URLSearchParams(window.location.search);
+                setSelectedRow(query.get('roleName') ?? '');
+            });
+
+            document.body.addEventListener('htmx:afterSwap', () => {
+                const query = new URLSearchParams(window.location.search);
+                setSelectedRow(query.get('roleName') ?? '');
+            });
+
+            const query = new URLSearchParams(window.location.search);
+            setSelectedRow(query.get('roleName') ?? '');
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const selected = document.querySelector('.role-manager-row.is-selected');
+                selected?.scrollIntoView({ block: 'nearest' });
+            });
+        })();
+    </script>
+}

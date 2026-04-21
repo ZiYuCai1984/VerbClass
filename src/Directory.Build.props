@@ -1,0 +1,67 @@
+﻿<Project>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Version>1.0.0</Version>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <NuGetAudit>false</NuGetAudit>
+    <AbpProjectType>app</AbpProjectType>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+
+  <PropertyGroup>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <OutputPath>$(MSBuildThisFileDirectory)_bin/</OutputPath>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+
+
+  <PropertyGroup>
+    <SatelliteResourceLanguages>_</SatelliteResourceLanguages>
+    <ResolveAssemblyReferencesFindRelatedSatellites>false</ResolveAssemblyReferencesFindRelatedSatellites>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
+  </PropertyGroup>
+
+
+  <PropertyGroup>
+    <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
+  </PropertyGroup>
+
+
+  <PropertyGroup>
+    <EnableFody Condition="'$(EnableFody)' == ''">false</EnableFody>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(EnableFody)' == 'true'">
+    <None Include="$(MSBuildThisFileDirectory)FodyWeavers.xml"
+          Link="FodyWeavers.xml" 
+          Visible="false"/>
+    <PackageReference Include="PropertyChanged.Fody" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Compile Remove="Logs\**" />
+    <Content Remove="Logs\**" />
+    <EmbeddedResource Remove="Logs\**" />
+    <None Remove="Logs\**" />
+  </ItemGroup>
+
+
+</Project>

@@ -1,0 +1,122 @@
+﻿@page
+@model ZYC.VerbClass.Web.Pages.Admin.UserManagerModel
+
+@section Styles {
+    <link rel="stylesheet" href="/css/admin-master-detail.css"/>
+}
+
+<div id="user-manager-content" class="master-detail-page">
+    <partial name="_UserManagerContent" model="Model.State"/>
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const rowSelector = '[data-user-manager-row]';
+            const departmentSelector = '[data-user-department-selector]';
+            const departmentItemSelector = '[data-user-department-item]';
+            const departmentCheckboxSelector = 'input[data-user-department-checkbox]';
+            const departmentPrimarySelector = 'input[data-user-department-primary]';
+            const departmentPrimaryNoneSelector = 'input[data-user-department-primary-none]';
+
+            function setSelectedRow(userId) {
+                document.querySelectorAll(rowSelector).forEach(row => {
+                    row.classList.toggle('is-selected', row.dataset.userId === userId);
+                });
+            }
+
+            function syncDepartmentSelectors() {
+                document.querySelectorAll(departmentSelector).forEach(selector => {
+                    const items = Array.from(selector.querySelectorAll(departmentItemSelector));
+                    const checkedItems = items.filter(item => item.querySelector(departmentCheckboxSelector)?.checked);
+                    let hasPrimary = false;
+
+                    items.forEach(item => {
+                        const checkbox = item.querySelector(departmentCheckboxSelector);
+                        const radio = item.querySelector(departmentPrimarySelector);
+                        const isChecked = checkbox?.checked === true;
+
+                        if (!radio) {
+                            return;
+                        }
+
+                        radio.disabled = !isChecked;
+
+                        if (!isChecked && radio.checked) {
+                            radio.checked = false;
+                        }
+
+                        if (isChecked && radio.checked) {
+                            hasPrimary = true;
+                        }
+                    });
+
+                    const noneRadio = selector.querySelector(departmentPrimaryNoneSelector);
+                    if (checkedItems.length === 0) {
+                        if (noneRadio) {
+                            noneRadio.checked = true;
+                        }
+
+                        return;
+                    }
+
+                    if (!hasPrimary) {
+                        const firstPrimaryRadio = checkedItems[0]?.querySelector(departmentPrimarySelector);
+                        if (firstPrimaryRadio) {
+                            firstPrimaryRadio.checked = true;
+                        }
+                    }
+                });
+            }
+
+            document.addEventListener('click', event => {
+                const row = event.target.closest(rowSelector);
+                if (!row) {
+                    return;
+                }
+
+                setSelectedRow(row.dataset.userId ?? '');
+            });
+
+            document.addEventListener('change', event => {
+                if (event.target.matches(departmentCheckboxSelector)) {
+                    syncDepartmentSelectors();
+                    return;
+                }
+
+                if (!event.target.matches(departmentPrimarySelector)) {
+                    return;
+                }
+
+                const item = event.target.closest(departmentItemSelector);
+                const checkbox = item?.querySelector(departmentCheckboxSelector);
+                if (checkbox) {
+                    checkbox.checked = true;
+                }
+
+                syncDepartmentSelectors();
+            });
+
+            window.addEventListener('popstate', () => {
+                const query = new URLSearchParams(window.location.search);
+                setSelectedRow(query.get('userId') ?? '');
+            });
+
+            document.body.addEventListener('htmx:afterSwap', () => {
+                const query = new URLSearchParams(window.location.search);
+                setSelectedRow(query.get('userId') ?? '');
+                syncDepartmentSelectors();
+            });
+
+            const query = new URLSearchParams(window.location.search);
+            setSelectedRow(query.get('userId') ?? '');
+            syncDepartmentSelectors();
+
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const selected = document.querySelector('.user-manager-row.is-selected');
+                selected?.scrollIntoView({ block: 'nearest' });
+            });
+        })();
+    </script>
+}

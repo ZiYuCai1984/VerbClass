@@ -1,0 +1,51 @@
+﻿@page
+@model ZYC.VerbClass.Web.Pages.Admin.DepartmentManagerModel
+@{
+    ViewData["Title"] = "Department Manager";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="/css/admin-master-detail.css"/>
+}
+
+<div id="department-manager-content" class="master-detail-page">
+    <partial name="_DepartmentManagerContent" model="Model.State"/>
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const itemSelector = '[data-department-manager-item]';
+
+            function setSelectedItem(departmentId) {
+                document.querySelectorAll(itemSelector).forEach(item => {
+                    item.classList.toggle('is-selected', item.dataset.departmentId === departmentId);
+                });
+            }
+
+            document.addEventListener('click', event => {
+                const item = event.target.closest(itemSelector);
+                if (!item) {
+                    return;
+                }
+
+                setSelectedItem(item.dataset.departmentId ?? '');
+            });
+
+            window.addEventListener('popstate', () => {
+                const query = new URLSearchParams(window.location.search);
+                setSelectedItem(query.get('departmentId') ?? '');
+            });
+
+            const query = new URLSearchParams(window.location.search);
+            setSelectedItem(query.get('departmentId') ?? '');
+
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const selected = document.querySelector('.department-manager-item.is-selected');
+                selected?.scrollIntoView({ block: 'nearest' });
+            });
+
+        })();
+    </script>
+}

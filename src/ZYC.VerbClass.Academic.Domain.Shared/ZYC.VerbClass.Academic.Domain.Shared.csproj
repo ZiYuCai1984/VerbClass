@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="Volo.Abp.Ddd.Domain.Shared" />
+  </ItemGroup>
+
+</Project>

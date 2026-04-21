@@ -1,0 +1,100 @@
+﻿@using ZYC.VerbClass.Web.Pages.Academic
+@model ZYC.VerbClass.Web.Pages.Academic.CourseOfferingsContentModel
+@{
+    var createOfferingModalUrl = Url.Page(
+        "/Academic/CourseOfferings",
+        "CreateModal",
+        new
+        {
+            courseDefinitionId = Model.SelectedOffering?.CourseDefinitionId,
+            returnTo = CourseOfferingReturnTargets.Offerings
+        });
+}
+
+<div class="page-master master-detail-page__master">
+    <section class="surface master-detail-page__list">
+        <div class="surface__head">
+            <strong>Course Offerings</strong>
+            <span class="u-muted">@Model.OfferingCount offering(s)</span>
+            <button type="button"
+                    class="u-push-end"
+                    data-modal-url="@createOfferingModalUrl">
+                Create Course Offering
+            </button>
+        </div>
+        <div class="surface__body scroll-area">
+            @if (Model.Offerings.Length == 0)
+            {
+                <div class="master-detail-empty">
+                    <div class="academic-empty-state">
+                        <p>No course offerings have been created yet.</p>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="record-list course-offering-list">
+                    @foreach (var offering in Model.Offerings)
+                    {
+                        <button type="button"
+                                class="record-list__item course-offering-item@(Model.ActiveCourseOfferingId == offering.Id ? " is-selected" : string.Empty)"
+                                data-course-offering-item
+                                data-course-offering-id="@offering.Id"
+                                hx-get="@Url.Page(null, "Select", new { courseOfferingId = offering.Id })"
+                                hx-trigger="click"
+                                hx-target="#course-offering-detail"
+                                hx-swap="innerHTML"
+                                hx-replace-url="@Url.Page(null, null, new { courseOfferingId = offering.Id })">
+                            <div class="record-list__main">
+                                <div class="course-offering-item__title-row">
+                                    <strong class="record-list__title u-truncate">@offering.TermLabel</strong>
+                                    <span class="tag @(offering.Status is ZYC.VerbClass.Academic.Domain.Shared.CourseOfferingStatus.Active or ZYC.VerbClass.Academic.Domain.Shared.CourseOfferingStatus.Published ? "is-success" : offering.Status is ZYC.VerbClass.Academic.Domain.Shared.CourseOfferingStatus.Draft ? "is-warning" : "is-danger")">
+                                        @offering.Status
+                                    </span>
+                                    @if (offering.IsLocked)
+                                    {
+                                        <span class="tag is-warning">Locked</span>
+                                    }
+                                </div>
+                                <div class="course-offering-item__meta">
+                                    <span class="u-mono">@offering.CourseDefinitionCode</span>
+                                    <span>@offering.CourseDefinitionName</span>
+                                </div>
+                                <div class="course-offering-item__meta">
+                                    <span>@offering.ScheduleLabel</span>
+                                    <span>@offering.LocationLabel</span>
+                                </div>
+                            </div>
+                        </button>
+                    }
+                </div>
+            }
+        </div>
+    </section>
+
+    <section class="surface master-detail-page__detail">
+        <div class="surface__head">
+            <strong>Course Offering Detail</strong>
+        </div>
+        <div id="course-offering-detail" class="surface__body scroll-area">
+            @if (Model.SelectedOffering is not null)
+            {
+                <partial name="_CourseOfferingDetail" model="Model.SelectedOffering"/>
+            }
+            else if (Model.Offerings.Length == 0)
+            {
+                <div class="master-detail-empty">
+                    <div class="academic-empty-state">
+                        <p>No course offerings have been created yet.</p>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="master-detail-empty">
+                    <p>Select a course offering from the list to review its details.</p>
+                </div>
+            }
+        </div>
+    </section>
+</div>

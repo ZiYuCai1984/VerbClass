@@ -1,0 +1,8 @@
+﻿@using ZYC.VerbClass.Web.Toast
+@{
+    var initialToastsJson = TempData[ToastManager.ToastTempDataKey] as string ?? "[]";
+}
+
+<verbclass-toast-region></verbclass-toast-region>
+<script id="verbclass-initial-toasts" type="application/json">@Html.Raw(initialToastsJson)</script>
+<script src="/js/app-toast.js"></script>

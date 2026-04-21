@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+
+  <ItemGroup>
+    <PackageReference Include="Autofac" />
+    <PackageReference Include="Volo.Abp.AspNetCore.Mvc.UI" />
+    <PackageReference Include="Volo.Abp.Identity.Domain" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <ProjectReference Include="..\ZYC.VerbClass.Domain.Shared\ZYC.VerbClass.Domain.Shared.csproj" />
+    <ProjectReference Include="..\ZYC.VerbClass.Web.Abstractions\ZYC.VerbClass.Web.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>

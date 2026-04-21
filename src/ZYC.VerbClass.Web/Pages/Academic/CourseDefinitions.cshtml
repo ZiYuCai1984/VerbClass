@@ -1,0 +1,63 @@
+﻿@page
+@model ZYC.VerbClass.Web.Pages.Academic.CourseDefinitionsModel
+
+@section Styles {
+    <link rel="stylesheet" href="/css/admin-master-detail.css"/>
+    <link rel="stylesheet" href="/css/academic-course-management.css"/>
+}
+
+<div class="shell__workspace">
+    <header class="shell__workspace-header">
+        <div class="page-heading">
+            <h1 class="page-heading__title">Course Definitions</h1>
+            <div class="page-heading__meta">
+                Maintain reusable course definitions. Each course definition can open multiple course offerings.
+            </div>
+        </div>
+    </header>
+
+    <div class="shell__workspace-body">
+        <div id="course-definitions-content" class="master-detail-page">
+            <partial name="_CourseDefinitionsContent" model="Model.State"/>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const itemSelector = '[data-course-definition-item]';
+
+            function setSelectedItem(courseDefinitionId) {
+                document.querySelectorAll(itemSelector).forEach(item => {
+                    item.classList.toggle('is-selected', item.dataset.courseDefinitionId === courseDefinitionId);
+                });
+            }
+
+            function syncSelectedItem() {
+                const query = new URLSearchParams(window.location.search);
+                const selectedId = query.get('courseDefinitionId') ?? '';
+                setSelectedItem(selectedId);
+            }
+
+            document.addEventListener('click', event => {
+                const item = event.target.closest(itemSelector);
+                if (!item) {
+                    return;
+                }
+
+                setSelectedItem(item.dataset.courseDefinitionId ?? '');
+            });
+
+            window.addEventListener('popstate', syncSelectedItem);
+            document.body.addEventListener('htmx:afterSwap', syncSelectedItem);
+
+            syncSelectedItem();
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const selected = document.querySelector('.course-definition-item.is-selected');
+                selected?.scrollIntoView({ block: 'nearest' });
+            });
+        })();
+    </script>
+}

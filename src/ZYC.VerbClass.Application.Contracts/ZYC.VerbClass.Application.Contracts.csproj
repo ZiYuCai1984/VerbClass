@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\ZYC.VerbClass.Academic.Application.Contracts\ZYC.VerbClass.Academic.Application.Contracts.csproj" />
+    <ProjectReference Include="..\ZYC.VerbClass.Domain.Shared\ZYC.VerbClass.Domain.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Volo.Abp.PermissionManagement.Application.Contracts" />
+    <PackageReference Include="Volo.Abp.FeatureManagement.Application.Contracts" />
+    <PackageReference Include="Volo.Abp.SettingManagement.Application.Contracts" />
+    <PackageReference Include="Volo.Abp.Identity.Application.Contracts" />
+    <PackageReference Include="Volo.Abp.Account.Application.Contracts" />
+    <PackageReference Include="Volo.Abp.TenantManagement.Application.Contracts" />
+  </ItemGroup>
+
+</Project>

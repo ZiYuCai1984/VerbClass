@@ -1,0 +1,119 @@
+﻿@page
+@model ZYC.VerbClass.Web.Pages.Academic.MyCoursesModel
+
+<div class="shell__workspace">
+    <header class="shell__workspace-header">
+        <div class="page-heading">
+            <h1 class="page-heading__title">My Courses</h1>
+            <div class="page-heading__meta">Review the course offerings you are currently participating in.</div>
+        </div>
+    </header>
+
+    <div class="shell__workspace-body">
+@*         <section class="surface surface--alt">
+            <div class="surface__body pad">
+                <div class="summary-grid">
+                    <article class="summary-card">
+                        <span class="summary-card__label">Total</span>
+                        <strong class="summary-card__value">@Model.Courses.Length</strong>
+                        <span class="summary-card__meta">All visible memberships</span>
+                    </article>
+                    <article class="summary-card">
+                        <span class="summary-card__label">Active</span>
+                        <strong class="summary-card__value">@Model.ActiveCourseCount</strong>
+                        <span class="summary-card__meta">Currently active memberships</span>
+                    </article>
+                    <article class="summary-card">
+                        <span class="summary-card__label">Pending</span>
+                        <strong class="summary-card__value">@Model.PendingCourseCount</strong>
+                        <span class="summary-card__meta">Waiting to become active</span>
+                    </article>
+                    <article class="summary-card">
+                        <span class="summary-card__label">Locked</span>
+                        <strong class="summary-card__value">@Model.LockedCourseCount</strong>
+                        <span class="summary-card__meta">Offerings currently locked</span>
+                    </article>
+                </div>
+            </div>
+        </section>
+ *@
+        <section class="surface l-fill">
+            <div class="surface__head">
+                <strong>My Courses</strong>
+                <span class="u-muted u-push-end">@Model.Courses.Length course(s)</span>
+            </div>
+
+            @if (Model.Courses.Length == 0)
+            {
+                <div class="surface__body pad">
+                    <p class="u-muted">You are not enrolled in any course offerings yet.</p>
+                </div>
+            }
+            else
+            {
+                <div class="surface__body scroll-area table-wrap">
+                    <table class="compact-table data-table">
+                        <thead>
+                        <tr>
+                            <th>Course</th>
+                            <th>Term</th>
+                            <th>Schedule</th>
+                            <th>Offering</th>
+                            <th>My Membership</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var course in Model.Courses)
+                        {
+                            <tr>
+                                <td>
+                                    <div>
+                                        <strong class="u-nowrap">@course.CourseName</strong>
+                                    </div>
+                                    <div class="u-muted u-nowrap">
+                                        @course.CourseCode
+                                        @if (!string.IsNullOrWhiteSpace(course.CourseShortName))
+                                        {
+                                            <span> · @course.CourseShortName</span>
+                                        }
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <strong class="u-nowrap">@Model.GetTermText(course)</strong>
+                                    </div>
+                                    <div class="u-muted u-nowrap">Offering</div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <strong class="u-nowrap">@Model.GetScheduleTimeText(course)</strong>
+                                    </div>
+                                    <div class="u-muted u-nowrap">@Model.GetScheduleLocationText(course)</div>
+                                </td>
+                                <td>
+                                    <div class="l-cluster">
+                                        <span class="tag @Model.GetOfferingStatusTagClass(course.OfferingStatus)">
+                                            @Model.GetOfferingStatusText(course.OfferingStatus)
+                                        </span>
+                                        <span class="tag @(course.IsLocked ? "is-warning" : string.Empty)">
+                                            @(course.IsLocked ? "Locked" : "Unlocked")
+                                        </span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="l-cluster">
+                                        <span class="tag">@Model.GetMembershipRoleText(course.MembershipRole)</span>
+                                        <span class="tag @Model.GetMembershipStatusTagClass(course.MembershipStatus)">
+                                            @Model.GetMembershipStatusText(course.MembershipStatus)
+                                        </span>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </section>
+    </div>
+</div>

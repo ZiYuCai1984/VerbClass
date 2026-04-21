@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\ZYC.VerbClass.Academic.Application.Contracts\ZYC.VerbClass.Academic.Application.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Volo.Abp.Http.Client" />
+  </ItemGroup>
+
+</Project>

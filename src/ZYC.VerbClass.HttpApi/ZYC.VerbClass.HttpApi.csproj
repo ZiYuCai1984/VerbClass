@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\ZYC.VerbClass.Academic.HttpApi\ZYC.VerbClass.Academic.HttpApi.csproj" />
+    <ProjectReference Include="..\ZYC.VerbClass.Application.Contracts\ZYC.VerbClass.Application.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Volo.Abp.PermissionManagement.HttpApi" />
+    <PackageReference Include="Volo.Abp.FeatureManagement.HttpApi" />
+    <PackageReference Include="Volo.Abp.SettingManagement.HttpApi" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Volo.Abp.Identity.HttpApi" />
+    <PackageReference Include="Volo.Abp.Account.HttpApi" />
+    <PackageReference Include="Volo.Abp.TenantManagement.HttpApi" />
+  </ItemGroup>
+
+</Project>

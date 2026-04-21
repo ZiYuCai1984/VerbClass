@@ -1,0 +1,80 @@
+@model ZYC.VerbClass.Web.Pages.Admin.RolePermissionEditorModel
+@{
+    var submitUrl = Url.Page(null, "Update", new { roleName = Model.RoleName });
+    var cancelUrl = Url.Page(null, "View", new { roleName = Model.RoleName });
+}
+
+<form method="post"
+      hx-post="@submitUrl"
+      hx-target="#role-manager-content"
+      hx-swap="innerHTML"
+      class="role-editor">
+    @if (Model.HasErrors)
+    {
+        <div class="role-editor__summary">
+            @if (Model.SummaryErrors.Count == 0)
+            {
+                <div>Please correct the highlighted fields.</div>
+            }
+            else
+            {
+                <ul>
+                    @foreach (var error in Model.SummaryErrors)
+                    {
+                        <li>@error</li>
+                    }
+                </ul>
+            }
+        </div>
+    }
+
+    <div class="role-editor__body form-layout">
+        <section class="form-section">
+            <div class="form-section__title">Role</div>
+            <div class="form-grid form-grid--two">
+                <div class="field">
+                    <label class="field__label" asp-for="RoleName"></label>
+                    <input asp-for="RoleName" readonly/>
+                    @foreach (var error in Model.GetErrors(nameof(Model.RoleName)))
+                    {
+                        <div class="role-editor__field-error">@error</div>
+                    }
+                </div>
+            </div>
+        </section>
+
+        <section class="form-section">
+            <div class="form-section__title">Permissions</div>
+            <div class="field role-editor__permissions-field">
+                @if (Model.Permissions.Length == 0)
+                {
+                    <div class="u-muted">No configurable permissions are available.</div>
+                }
+                else
+                {
+                    <div class="role-editor__permission-list">
+                        @foreach (var permission in Model.Permissions)
+                        {
+                            <partial name="_RolePermissionNode" model="permission"/>
+                        }
+                    </div>
+                }
+
+                @foreach (var error in Model.GetErrors(nameof(Model.GrantedPermissionNames)))
+                {
+                    <div class="role-editor__field-error">@error</div>
+                }
+            </div>
+        </section>
+    </div>
+
+    <div class="role-editor__foot">
+        <button type="submit" class="is-primary">@Model.SubmitText</button>
+        <button type="button"
+                hx-get="@cancelUrl"
+                hx-target="#role-manager-content"
+                hx-swap="innerHTML">
+            Cancel
+        </button>
+    </div>
+</form>

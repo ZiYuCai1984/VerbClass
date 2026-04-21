@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\ZYC.VerbClass.Academic.Domain\ZYC.VerbClass.Academic.Domain.csproj" />
+    <ProjectReference Include="..\ZYC.VerbClass.Domain.Shared\ZYC.VerbClass.Domain.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Volo.Abp.Emailing" />
+    <PackageReference Include="Volo.Abp.Caching" />
+    <PackageReference Include="Volo.Abp.PermissionManagement.Domain.Identity" />
+    <PackageReference Include="Volo.Abp.PermissionManagement.Domain.OpenIddict" />
+    <PackageReference Include="Volo.Abp.BackgroundJobs.Domain" />
+    <PackageReference Include="Volo.Abp.AuditLogging.Domain" />
+    <PackageReference Include="Volo.Abp.FeatureManagement.Domain" />
+    <PackageReference Include="Volo.Abp.SettingManagement.Domain" />
+    <PackageReference Include="Volo.Abp.BlobStoring.Database.Domain" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Volo.Abp.OpenIddict.Domain" />
+    <PackageReference Include="Volo.Abp.Identity.Domain" />
+    <PackageReference Include="Volo.Abp.TenantManagement.Domain" />
+  </ItemGroup>
+
+</Project>

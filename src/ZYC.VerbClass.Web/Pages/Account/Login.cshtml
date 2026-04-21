@@ -1,0 +1,46 @@
+﻿@page
+@model ZYC.VerbClass.Web.Pages.Account.LoginModel
+
+<section class="login-page l-fill">
+    <article class="login-panel login-panel--single">
+        <section class="login-panel__main">
+            <div class="l-stack">
+                <div class="l-row">
+                    <h1 class="login-panel__title">Sign in</h1>
+                    <span class="tag is-accent u-push-end">@Model.CurrentTenantDisplayName</span>
+                </div>
+                <p class="u-secondary">Enter your credentials to continue.</p>
+                <small class="u-muted">Tenant selection is locked for this sign-in page.</small>
+                <span asp-validation-for="Input.TenantName"></span>
+            </div>
+
+            <form method="post" class="login-form">
+                <input type="hidden" asp-for="ReturnUrl"/>
+                <input type="hidden" asp-for="Input.TenantName"/>
+
+                <div asp-validation-summary="ModelOnly"></div>
+
+                <div class="field">
+                    <label class="field__label" asp-for="Input.UserNameOrEmail"></label>
+                    <input asp-for="Input.UserNameOrEmail" autocomplete="username"/>
+                    <span asp-validation-for="Input.UserNameOrEmail"></span>
+                </div>
+
+                <div class="field">
+                    <label class="field__label" asp-for="Input.Password"></label>
+                    <input asp-for="Input.Password" autocomplete="current-password"/>
+                    <span asp-validation-for="Input.Password"></span>
+                </div>
+
+                <div class="login-actions">
+                    <label class="l-row">
+                        <input asp-for="Input.RememberMe"/>
+                        <span>@Html.DisplayNameFor(model => model.Input.RememberMe)</span>
+                    </label>
+
+                    <button type="submit" class="is-primary">Sign in</button>
+                </div>
+            </form>
+        </section>
+    </article>
+</section>

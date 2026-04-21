@@ -1,0 +1,25 @@
+@page "/mock"
+@model ZYC.VerbClass.Web.Modules.Mock.Pages.MockModel
+@{
+    ViewData["Title"] = "Mock";
+    var modalDemoUrl = Url.Page(null, "ModalDemo");
+}
+
+<section style="display:grid;gap:1rem;max-width:48rem;">
+    <article>
+        <header>
+            <strong>Mock Playground</strong>
+            <p style="margin:0.35rem 0 0;">
+                This page exposes small integration samples for shared UI infrastructure.
+            </p>
+        </header>
+
+        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+            <button type="button" data-modal-url="@modalDemoUrl">Open Modal by Url</button>
+            <button type="button" onclick="window.appModal?.open('@modalDemoUrl')">Open Modal by JS</button>
+            <button type="button" onclick="window.appToast?.info('This is an info toast.', 'Info test')">Info Toast</button>
+            <button type="button" onclick="window.appToast?.warn('This is a warn toast.', 'Warn test')">Warn Toast</button>
+            <button type="button" onclick="window.appToast?.error('This is an error toast.', 'Error test')">Error Toast</button>
+        </div>
+    </article>
+</section>

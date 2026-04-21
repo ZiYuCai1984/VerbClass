@@ -1,0 +1,25 @@
+{
+  "Culture": "en",
+  "Texts": {
+    "AppName": "VerbClass",
+    "Course Manager": "Course Manager",
+    "Menu:Home": "Home",
+    "My Courses": "My Courses",
+    "LongWelcomeMessage": "Welcome to the application. This is a startup project based on the ABP framework. For more information visit",
+    "Welcome": "Welcome",
+    "Permission:Users.Access": "Access user management",
+    "Permission:Users.Create": "Create users",
+    "Permission:Users.Update": "Update users",
+    "Permission:Users.Delete": "Delete users",
+    "Permission:Users.AssignRoles": "Assign user roles",
+    "Permission:Departments.Access": "Access department management",
+    "Permission:Departments.Create": "Create departments",
+    "Permission:Departments.Update": "Update departments",
+    "Permission:Departments.Delete": "Delete departments",
+    "Permission:AuditLogs.Access": "Access audit logs",
+    "Permission:UserSettings.Access": "Access user settings",
+    "Permission:UserSettings.Update": "Update user settings",
+    "Permission:Roles.Access": "Access role management",
+    "Permission:Roles.ManagePermissions": "Manage role permissions"
+  }
+}

@@ -1,0 +1,191 @@
+﻿@using System.Text
+@using System.Text.Json
+@using Microsoft.Extensions.Localization
+@using Volo.Abp.MultiTenancy
+@using Volo.Abp.Users
+@using ZYC.VerbClass.Application.Contracts.UserProfiles
+@using ZYC.VerbClass.Domain.Shared.Localization
+@using ZYC.VerbClass.Web
+@using ZYC.VerbClass.Web.Abstractions.AccountMenu
+@using ZYC.VerbClass.Web.Abstractions.MainMenu
+
+@inject ICurrentTenant CurrentTenant
+@inject ICurrentUser CurrentUser
+@inject IMainMenuManager MainMenuManager
+@inject IAccountMenuManager AccountMenuManager
+@inject IStringLocalizer<VerbClassResource> L
+@inject IUserProfileAppService UserProfileAppService
+@inject UserTenantContext UserTenantContext
+
+
+@functions {
+
+    private object MapMenuItem(IMainMenuItem item)
+    {
+        var label = item.Localization ? L[item.Title].Value : item.Title;
+        return new
+        {
+            label,
+            href = item.Href,
+            icon = item.Icon,
+            anchor = item.Anchor,
+            children = item.SubItems.Select(MapMenuItem).ToArray()
+        };
+    }
+}
+
+@{
+    var pageTitle = ViewData["Title"] as string;
+    var title = string.IsNullOrWhiteSpace(pageTitle) ? "VerbClass" : $"{pageTitle} | VerbClass";
+
+    var tenantName = string.IsNullOrWhiteSpace(CurrentTenant.Name) ? null : CurrentTenant.Name;
+
+    var mainMenuItems = await MainMenuManager.GetItemsAsync(UserTenantContext);
+    var mainMenuItemsJson = JsonSerializer.Serialize(mainMenuItems.Select(MapMenuItem).ToArray());
+
+
+
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>@title</title>
+    <link rel="stylesheet" href="/css/tokens.css"/>
+    <link rel="stylesheet" href="/css/base.css"/>
+    <link rel="stylesheet" href="/css/layout.css"/>
+    <link rel="stylesheet" href="/css/pages.css"/>
+
+    @await RenderSectionAsync("Styles", false)
+</head>
+<body>
+
+<div class="site-root">
+    <div class="shell">
+        <header class="shell__topbar">
+            <div class="brand">
+                <div class="brand__mark">V</div>
+                <div class="brand__copy">
+                    <span class="brand__title">VerbClass</span>
+                    <span class="brand__sub">@tenantName</span>
+                </div>
+            </div>
+            <app-menu></app-menu>
+
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <div class="l-cluster u-push-end">
+                    <div class="user-menu" data-user-menu="">
+                        <button type="button"
+                                class="user-menu__trigger"
+                                data-user-menu-trigger
+                                aria-expanded="false">
+
+                            @{
+                                var userProfileDto = await UserProfileAppService.GetAsync();
+
+
+                                var userAvatarUrl = CurrentUser.Id.HasValue ? Url.Page(Routes.Account_Avatar) : null;
+                            }
+
+                            <img src="@userAvatarUrl" alt="Avatar" class="user-menu__avatar"/>
+
+
+                            <span class="user-menu__meta">
+                                <span class="user-menu__name">@UserTenantContext.GetTenantUserDisplayName()</span>
+
+                                @{
+                                    var roles = userProfileDto.Roles;
+                                    var rolesStr = new StringBuilder();
+
+                                    for (var i = 0; i < roles.Length; ++i)
+                                    {
+                                        rolesStr.Append(roles[i]);
+                                        if (i != roles.Length - 1)
+                                        {
+                                            rolesStr.Append(",");
+                                        }
+
+                                        <span class="user-menu__role">@rolesStr.ToString()</span>
+                                    }
+                                }
+                            </span>
+                        </button>
+                        <div class="user-menu__dropdown">
+                            <div class="user-menu__panel">
+                                <div class="user-menu__summary">
+                                    <div>
+                                        <strong>@userProfileDto.DisplayName</strong>
+                                    </div>
+                                    <div class="user-menu__email">@CurrentUser.Email</div>
+                                </div>
+                                <div class="user-menu__list">
+
+                                    @{
+                                        var accountMenuItems = await AccountMenuManager.GetItemsAsync(UserTenantContext);
+                                        foreach (var item in accountMenuItems)
+                                        {
+                                            <a class="user-menu__item" href="@item.Href">@item.Title</a>
+                                        }
+                                    }
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </header>
+        <div class="shell__body">
+            @RenderBody()
+        </div>
+    </div>
+</div>
+
+<script src="/js/site.js"></script>
+<script src="/js/htmx.min.js"></script>
+
+<partial name="_Toast"/>
+<partial name="_Modal"/>
+
+<script id="verbclass-main-menu-data" type="application/json">@Html.Raw(mainMenuItemsJson)</script>
+<script src="/js/app-menu.js"></script>
+<script>
+        (() => {
+        const menu = document.querySelector('app-menu');
+        const dataElement = document.getElementById('verbclass-main-menu-data');
+        if (!menu || !dataElement) {
+            return;
+        }
+
+        try {
+        menu.items = JSON.parse(dataElement.textContent || '[]');
+        } catch (error) {
+        console.error('Failed to load main menu items.', error);
+        menu.items = [];
+        }
+
+        menu.addEventListener('menu-select', event => {
+        const item = event.detail ?? {};
+        const href = typeof item.href === 'string' ? item.href.trim() : '';
+        const anchorValue = typeof item.anchor === 'string' ? item.anchor.trim() : '';
+        const anchor = !anchorValue ? '' : anchorValue.startsWith('#') ? anchorValue : `#${anchorValue}`;
+        const currentPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+        const resolvedHref = href.includes('@DebugQuickLoginOptions.ReturnUrlPlaceholder')
+        ? href.replaceAll('@DebugQuickLoginOptions.ReturnUrlPlaceholder', encodeURIComponent(currentPath))
+        : href;
+        const target = resolvedHref || anchor ? `${resolvedHref || currentPath}${anchor}` : '';
+        if (target)
+        {
+        window.location.assign(target);
+        }
+        });
+        })();
+
+    </script>
+@await RenderSectionAsync("Scripts", false)
+</body>
+</html>

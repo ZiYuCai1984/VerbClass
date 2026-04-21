@@ -1,0 +1,90 @@
+﻿@model ZYC.VerbClass.Web.Pages.Admin.DepartmentManagerContentModel
+
+<div class="page-master master-detail-page__master">
+    <section class="surface master-detail-page__list">
+        <div class="surface__head">
+            <strong>Departments</strong>
+            <span class="u-muted">@Model.Departments.Length department(s)</span>
+            @if (Model.CanCreate)
+            {
+                <button type="button"
+                        class="u-push-end"
+                        hx-get="@Url.Page(null, "Create", new { returnDepartmentId = Model.ActiveDepartmentId })"
+                        hx-target="#department-manager-content"
+                        hx-swap="innerHTML"
+                        hx-replace-url="@Url.Page(null, null)">
+                    New Department
+                </button>
+            }
+        </div>
+        <div class="surface__body scroll-area">
+            @if (Model.Departments.Length == 0)
+            {
+                <div class="master-detail-empty">
+                    <p>No departments found in the current tenant.</p>
+                </div>
+            }
+            else
+            {
+                <div class="record-list department-manager-list">
+                    @foreach (var department in Model.Departments)
+                    {
+                        <button type="button"
+                                class="record-list__item department-manager-item department-manager-item--depth-@(Math.Min(department.Depth, 6))@(Model.ActiveDepartmentId == department.Id ? " is-selected" : string.Empty)"
+                                data-department-manager-item
+                                data-department-id="@department.Id"
+                                hx-get="@Url.Page(null, "Select", new { departmentId = department.Id })"
+                                hx-trigger="click"
+                                hx-target="#department-detail"
+                                hx-swap="innerHTML"
+                                hx-replace-url="@Url.Page(null, null, new { departmentId = department.Id })">
+                            <div class="record-list__main">
+                                <div class="department-manager-item__title-row">
+                                    <strong class="record-list__title u-truncate">@department.Name</strong>
+                                    <span class="tag @(department.IsActive ? "is-success" : "is-danger")">
+                                        @(department.IsActive ? "Active" : "Disabled")
+                                    </span>
+                                    @if (!department.CanAssignUsers)
+                                    {
+                                        <span class="tag is-warning">No assignment</span>
+                                    }
+                                </div>
+                                <div class="department-manager-item__meta">
+                                    <span class="u-mono">@department.Code</span>
+                                    @if (!string.IsNullOrWhiteSpace(department.ShortName))
+                                    {
+                                        <span>@department.ShortName</span>
+                                    }
+                                    <span>@department.CurrentUserCount user(s)</span>
+                                </div>
+                                <div class="department-manager-item__path u-truncate">@department.PathDisplay</div>
+                            </div>
+                        </button>
+                    }
+                </div>
+            }
+        </div>
+    </section>
+
+    <section class="surface master-detail-page__detail">
+        <div class="surface__head">
+            <strong>@Model.DetailTitle</strong>
+        </div>
+        <div id="department-detail" class="surface__body scroll-area">
+            @if (Model.Editor is not null)
+            {
+                <partial name="_DepartmentEditor" model="Model.Editor"/>
+            }
+            else if (Model.SelectedDepartment is not null)
+            {
+                <partial name="_DepartmentInfo" model="Model.SelectedDepartment"/>
+            }
+            else
+            {
+                <div class="master-detail-empty">
+                    <p>Select a department from the list to view details.</p>
+                </div>
+            }
+        </div>
+    </section>
+</div>
