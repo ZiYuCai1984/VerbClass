@@ -1,9 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <ItemGroup>
-    <ProjectReference Include="..\ZYC.VerbClass.Academic.Domain.Shared\ZYC.VerbClass.Academic.Domain.Shared.csproj" />
-  </ItemGroup>
-
   <PropertyGroup>
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
   </PropertyGroup>

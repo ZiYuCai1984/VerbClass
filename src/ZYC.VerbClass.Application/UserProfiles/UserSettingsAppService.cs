@@ -39,17 +39,12 @@ public class UserSettingsAppService : VerbClassAppService, IUserSettingsAppServi
         var user = await GetCurrentUserAsync();
         var profile = await _userProfileRepository.FindAsync(x => x.UserId == user.Id);
 
-        return new UserSettingsDto
-        {
-            DisplayName = IdentityUserDisplayNameSupport.BuildDisplayName(user, UserSettingsDto.DefaultDisplayName),
-            UserNameDisplay = user.UserName ?? string.Empty,
-            IsActive = user.IsActive,
-            EmailConfirmed = user.EmailConfirmed,
-            HasCustomAvatar = profile?.AvatarFileId.HasValue == true,
-            AvatarVersion = profile?.AvatarFileId?.ToString("N") ?? UserSettingsDto.DefaultAvatarVersion,
-            Roles = (await _userManager.GetRolesAsync(user)).ToArray(),
-            Input = MapInput(user, profile)
-        };
+        return VerbClassApplicationMappers.ToUserSettingsDto(
+            user,
+            profile,
+            (await _userManager.GetRolesAsync(user)).ToArray(),
+            VerbClassApplicationMappers.ToUpdateUserSettingsInput(user, profile)
+        );
     }
 
     [Authorize(VerbClassPermissions.UserSettings.Update)]
@@ -247,34 +242,6 @@ public class UserSettingsAppService : VerbClassAppService, IUserSettingsAppServi
         {
             await _userProfileRepository.UpdateAsync(targetProfile, true);
         }
-    }
-
-    private static UpdateUserSettingsInput MapInput(IdentityUser user, UserProfile? profile)
-    {
-        return new UpdateUserSettingsInput
-        {
-            UserName = user.UserName ?? string.Empty,
-            Surname = user.Surname ?? string.Empty,
-            Name = user.Name ?? string.Empty,
-            Email = user.Email ?? string.Empty,
-            PhoneNumber = user.PhoneNumber,
-            SurnameKanji = profile?.NameInfo.SurnameKanji,
-            NameKanji = profile?.NameInfo.NameKanji,
-            SurnameKana = profile?.NameInfo.SurnameKana,
-            NameKana = profile?.NameInfo.NameKana,
-            SurnameRomanized = profile?.NameInfo.SurnameRomanized,
-            NameRomanized = profile?.NameInfo.NameRomanized,
-            BirthDate = profile?.BirthDate,
-            Gender = profile?.Gender,
-            BloodType = profile?.BloodType,
-            Nationality = profile?.Nationality,
-            Country = profile?.AddressInfo.Country,
-            Prefecture = profile?.AddressInfo.Prefecture,
-            City = profile?.AddressInfo.City,
-            Street = profile?.AddressInfo.Street,
-            PostalCode = profile?.AddressInfo.PostalCode,
-            EnrollmentYear = profile?.EnrollmentYear
-        };
     }
 
     private static void NormalizeInput(UpdateUserSettingsInput input)

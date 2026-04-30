@@ -4,11 +4,11 @@ namespace ZYC.VerbClass.Domain.Data;
 
 internal partial class SakuradaUniversitySeedData
 {
-    public const string InitialTenantName = VerbClassConsts.InitialTenantName;
+    public const string DemoTenantName = VerbClassConsts.SakuradaUniversityDemoTenantName;
 
-    public const string InitialTenantAdminEmail = VerbClassConsts.InitialTenantAdminEmail;
+    public const string DemoTenantAdminEmail = VerbClassConsts.SakuradaUniversityDemoTenantAdminEmail;
 
-    public const string InitialAdminPassword = VerbClassConsts.InitialAdminPassword;
+    public const string DemoAdminPassword = VerbClassConsts.SakuradaUniversityDemoAdminPassword;
 
     private static readonly HashSet<string> OperationsAdminUserNames = new(StringComparer.OrdinalIgnoreCase)
     {

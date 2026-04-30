@@ -1,0 +1,73 @@
+@model ZYC.VerbClass.Web.Modules.Academic.Pages.Academic.CourseDefinitionManagerPartials.CourseDefinitionInfoModel
+
+<div class="academic-course-definition-info">
+    <section class="academic-course-definition-info__summary">
+        <div class="academic-course-definition-info__title">
+            <strong class="user-info__name">@Model.Name</strong>
+            <span class="u-mono academic-course-definition-info__code">@Model.Code</span>
+        </div>
+        <div class="academic-course-definition-info__meta">
+            <span class="tag@(Model.IsActive ? string.Empty : " is-warning")">
+                @(Model.IsActive ? "Active" : "Inactive")
+            </span>
+        </div>
+        <div class="academic-course-definition-info__actions">
+            <button type="button"
+                    hx-get="@Url.Page(null, "Edit", new { courseDefinitionId = Model.Id })"
+                    hx-target="#course-definition-manager-content"
+                    hx-swap="innerHTML">
+                Edit Course
+            </button>
+            @if (Model.IsActive)
+            {
+                <button type="button"
+                        hx-post="@Url.Page(null, "Deactivate", new { courseDefinitionId = Model.Id })"
+                        hx-target="#course-definition-manager-content"
+                        hx-swap="innerHTML"
+                        hx-confirm="Deactivate this course?">
+                    Deactivate
+                </button>
+            }
+            else
+            {
+                <button type="button"
+                        hx-post="@Url.Page(null, "Activate", new { courseDefinitionId = Model.Id })"
+                        hx-target="#course-definition-manager-content"
+                        hx-swap="innerHTML">
+                    Activate
+                </button>
+            }
+            <button type="button"
+                    hx-post="@Url.Page(null, "Delete", new { courseDefinitionId = Model.Id })"
+                    hx-target="#course-definition-manager-content"
+                    hx-swap="innerHTML"
+                    hx-confirm="Delete this course?">
+                Delete Course
+            </button>
+        </div>
+    </section>
+
+    <div class="academic-course-definition-info__sections">
+        <section class="detail-section">
+            <div class="detail-section__title">Course</div>
+            <div class="kv-grid academic-course-definition-info__kv">
+                <div class="kv-grid__row">
+                    <div class="kv-grid__key">Code</div>
+                    <div class="u-mono">@Model.Code</div>
+                </div>
+                <div class="kv-grid__row">
+                    <div class="kv-grid__key">Name</div>
+                    <div>@Model.Name</div>
+                </div>
+                <div class="kv-grid__row">
+                    <div class="kv-grid__key">Status</div>
+                    <div>@(Model.IsActive ? "Active" : "Inactive")</div>
+                </div>
+                <div class="kv-grid__row">
+                    <div class="kv-grid__key">Description</div>
+                    <div>@(string.IsNullOrWhiteSpace(Model.Description) ? "-" : Model.Description)</div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>

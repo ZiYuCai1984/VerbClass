@@ -1,0 +1,131 @@
+﻿@model ZYC.VerbClass.Web.Pages.Admin.DepartmentManagerPartials.DepartmentInfoModel
+
+<div class="department-info">
+    <section class="department-info__summary">
+        <div class="department-info__title">
+            <strong class="user-info__name">@Model.Name</strong>
+            <span class="u-mono department-info__code">@Model.Code</span>
+        </div>
+        <div class="department-info__meta">
+            <span class="tag @(Model.IsActive ? "is-success" : "is-danger")">
+                @(Model.IsActive ? "Active" : "Disabled")
+            </span>
+            <span class="tag @(Model.CanAssignUsers ? "is-accent" : "is-warning")">
+                @(Model.CanAssignUsers ? "Assignable" : "No assignment")
+            </span>
+            <span class="tag">@Model.CurrentUserCount user(s)</span>
+            @if (Model.HasChildren)
+            {
+                <span class="tag">Has children</span>
+            }
+        </div>
+
+        @if (Model.CanCreateChild || Model.CanUpdate || Model.CanDelete)
+        {
+            <div class="department-info__actions">
+                @if (Model.CanCreateChild)
+                {
+                    <button type="button"
+                            hx-get="@Url.Page(null, "Create", new { parentDepartmentId = Model.Id, returnDepartmentId = Model.Id })"
+                            hx-target="#department-manager-content"
+                            hx-swap="innerHTML">
+                        Add Child
+                    </button>
+                }
+
+                @if (Model.CanUpdate)
+                {
+                    <button type="button"
+                            hx-get="@Url.Page(null, "Edit", new { departmentId = Model.Id })"
+                            hx-target="#department-manager-content"
+                            hx-swap="innerHTML">
+                        Edit Department
+                    </button>
+                }
+
+                @if (Model.CanDelete)
+                {
+                    <button type="button"
+                            hx-post="@Url.Page(null, "Delete", new { departmentId = Model.Id })"
+                            hx-target="#department-manager-content"
+                            hx-swap="innerHTML"
+                            hx-confirm="Delete this department?">
+                        Delete Department
+                    </button>
+                }
+            </div>
+        }
+    </section>
+
+    <div class="department-info__sections">
+        <section class="detail-section">
+            <div class="detail-section__title">Department</div>
+            <div class="kv-grid department-info__kv">
+                <div class="kv-grid__row">
+                    <div class="kv-grid__key">Id</div>
+                    <div class="u-mono">@Model.Id</div>
+                </div>
+                <div class="kv-grid__row">
+                    <div class="kv-grid__key">Code</div>
+                    <div class="u-mono">@Model.Code</div>
+                </div>
+                <div class="kv-grid__row">
+                    <div class="kv-grid__key">Short name</div>
+                    <div>@(string.IsNullOrWhiteSpace(Model.ShortName) ? "-" : Model.ShortName)</div>
+                </div>
+                <div class="kv-grid__row">
+                    <div class="kv-grid__key">Parent</div>
+                    <div>@(string.IsNullOrWhiteSpace(Model.ParentDepartmentName) ? "-" : Model.ParentDepartmentName)</div>
+                </div>
+                <div class="kv-grid__row">
+                    <div class="kv-grid__key">Path</div>
+                    <div>@Model.PathDisplay</div>
+                </div>
+                <div class="kv-grid__row">
+                    <div class="kv-grid__key">Sort</div>
+                    <div>@Model.Sort</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="detail-section">
+            <div class="detail-section__title">Availability</div>
+            <div class="kv-grid department-info__kv">
+                <div class="kv-grid__row">
+                    <div class="kv-grid__key">Status</div>
+                    <div>@(Model.IsActive ? "Active" : "Disabled")</div>
+                </div>
+                <div class="kv-grid__row">
+                    <div class="kv-grid__key">Assignments</div>
+                    <div>@(Model.CanAssignUsers ? "Allowed" : "Blocked")</div>
+                </div>
+                <div class="kv-grid__row">
+                    <div class="kv-grid__key">Effective from</div>
+                    <div>@(Model.EffectiveFrom?.ToString("yyyy-MM-dd") ?? "-")</div>
+                </div>
+                <div class="kv-grid__row">
+                    <div class="kv-grid__key">Effective to</div>
+                    <div>@(Model.EffectiveTo?.ToString("yyyy-MM-dd") ?? "-")</div>
+                </div>
+                <div class="kv-grid__row">
+                    <div class="kv-grid__key">Current users</div>
+                    <div>@Model.CurrentUserCount</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="detail-section">
+            <div class="detail-section__title">Audit</div>
+            <div class="kv-grid department-info__kv">
+                <div class="kv-grid__row">
+                    <div class="kv-grid__key">Created</div>
+                    <div>@Model.CreationTime.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")</div>
+                </div>
+                <div class="kv-grid__row">
+                    <div class="kv-grid__key">Updated</div>
+                    <div>@(Model.LastModificationTime?.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss") ?? "-")</div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>

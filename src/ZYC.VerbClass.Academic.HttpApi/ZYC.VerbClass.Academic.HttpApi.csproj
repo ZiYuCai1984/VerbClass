@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\ZYC.VerbClass.Academic.Application\ZYC.VerbClass.Academic.Application.csproj" />
     <ProjectReference Include="..\ZYC.VerbClass.Academic.Application.Contracts\ZYC.VerbClass.Academic.Application.Contracts.csproj" />
   </ItemGroup>
 

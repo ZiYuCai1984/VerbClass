@@ -1,10 +1,12 @@
-using Volo.Abp;
+﻿using Volo.Abp;
+using Volo.Abp.Auditing;
 using Volo.Abp.Domain.Entities.Auditing;
 using Volo.Abp.MultiTenancy;
 using ZYC.VerbClass.Domain.Shared;
 
 namespace ZYC.VerbClass.Domain.UserProfiles;
 
+[Audited]
 public class UserProfile : FullAuditedAggregateRoot<Guid>, IMultiTenant
 {
     protected UserProfile()

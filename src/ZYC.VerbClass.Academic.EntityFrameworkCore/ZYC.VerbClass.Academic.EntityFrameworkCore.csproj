@@ -2,11 +2,18 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ZYC.VerbClass.Academic.Domain\ZYC.VerbClass.Academic.Domain.csproj" />
+    <ProjectReference Include="..\ZYC.VerbClass.Domain\ZYC.VerbClass.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Volo.Abp.EntityFrameworkCore.Sqlite" />
-    <PackageReference Include="Volo.Abp.Identity.Domain" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+      <PrivateAssets>compile; contentFiles; build; buildMultitargeting; buildTransitive; analyzers; native</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
 
 </Project>

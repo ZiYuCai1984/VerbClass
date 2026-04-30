@@ -12,13 +12,11 @@ using Volo.Abp.SettingManagement;
 using Volo.Abp.TenantManagement;
 using Volo.Abp.Validation.Localization;
 using Volo.Abp.VirtualFileSystem;
-using ZYC.VerbClass.Academic.Domain.Shared;
 using ZYC.VerbClass.Domain.Shared.Localization;
 
 namespace ZYC.VerbClass.Domain.Shared;
 
 [DependsOn(
-    typeof(AcademicDomainSharedModule),
     typeof(AbpAuditLoggingDomainSharedModule),
     typeof(AbpBackgroundJobsDomainSharedModule),
     typeof(AbpFeatureManagementDomainSharedModule),

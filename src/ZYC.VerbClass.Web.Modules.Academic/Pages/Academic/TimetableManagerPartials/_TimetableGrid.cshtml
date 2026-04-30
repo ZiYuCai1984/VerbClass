@@ -1,0 +1,66 @@
+﻿@model ZYC.VerbClass.Web.Modules.Academic.Pages.Academic.TimetableManagerPartials.TimetableViewModel
+
+<div class="academic-timetable-grid-wrap">
+    <table class="academic-timetable-grid">
+        <thead>
+        <tr>
+            <th class="academic-timetable-grid__period-head">Period</th>
+            @foreach (var weekday in Model.WeekdayLabels)
+            {
+                <th>@weekday</th>
+            }
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var row in Model.Rows)
+        {
+            <tr>
+                <th class="academic-timetable-period">
+                    <strong>@row.Period.Label</strong>
+                    @*<span>@row.Period.PeriodNo</span>*@
+                    <span>@row.Period.TimeRange</span>
+                </th>
+                @foreach (var cell in row.Cells)
+                {
+                    <td class="academic-timetable-cell@(cell.Offerings.Length == 0 ? " is-empty" : string.Empty)">
+                        @if (cell.Offerings.Length == 0)
+                        {
+                            @* <span class="academic-timetable-empty-cell">-</span> *@
+                        }
+                        else
+                        {
+                            foreach (var offering in cell.Offerings)
+                            {
+                                if (string.IsNullOrWhiteSpace(offering.OfferingUrl))
+                                {
+                                    <div class="academic-timetable-card">
+                                        <span class="academic-timetable-card__code">@offering.OfferingCode</span>
+                                        <strong>@offering.CourseNameSnapshot</strong>
+                                        <span class="u-mono">@offering.CourseCodeSnapshot</span>
+                                        @if (!string.IsNullOrWhiteSpace(offering.TeacherLine))
+                                        {
+                                            <span>@offering.TeacherLine</span>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <a class="academic-timetable-card" href="@offering.OfferingUrl">
+                                        <span class="academic-timetable-card__code">@offering.OfferingCode</span>
+                                        <strong>@offering.CourseNameSnapshot</strong>
+                                        <span class="u-mono">@offering.CourseCodeSnapshot</span>
+                                        @if (!string.IsNullOrWhiteSpace(offering.TeacherLine))
+                                        {
+                                            <span>@offering.TeacherLine</span>
+                                        }
+                                    </a>
+                                }
+                            }
+                        }
+                    </td>
+                }
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

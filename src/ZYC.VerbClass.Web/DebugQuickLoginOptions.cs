@@ -5,7 +5,7 @@ namespace ZYC.VerbClass.Web;
 
 public static class DebugQuickLoginOptions
 {
-    public const string LockedTenantName = VerbClassConsts.InitialTenantName;
+    public const string LockedTenantName = VerbClassConsts.SakuradaUniversityDemoTenantName;
 
     public const string ReturnUrlPlaceholder = "__current_url__";
 
@@ -23,7 +23,7 @@ public static class DebugQuickLoginOptions
                     "teaching-manager",
                     "Teaching manager",
                     "TeachingManager demo account",
-                    "misaki.kuroda",
+                    "rei.sakurada",
                     VerbClassConsts.AdminPasswordDefaultValue
                 ),
                 new QuickLoginOption(
@@ -37,7 +37,7 @@ public static class DebugQuickLoginOptions
                     "assistant",
                     "Assistant",
                     "Assistant demo account",
-                    "naoki.fujimoto",
+                    "daiki.ishikawa",
                     VerbClassConsts.AdminPasswordDefaultValue
                 ),
                 new QuickLoginOption(

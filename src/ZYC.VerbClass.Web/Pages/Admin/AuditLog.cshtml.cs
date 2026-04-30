@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Volo.Abp.AuditLogging;
 using Volo.Abp.Domain.Repositories;
 using ZYC.VerbClass.Domain.Shared;
+using ZYC.VerbClass.Web.Pages.Admin.AuditLogPartials;
 
 namespace ZYC.VerbClass.Web.Pages.Admin;
 
@@ -82,7 +83,7 @@ public class AuditLogModel : VerbClassPageModel
     private async Task<PartialViewResult> BuildAuditLogInfoPartialAsync(Guid auditLogId)
     {
         var model = await BuildAuditLogInfoModelAsync(auditLogId);
-        return Partial("_AuditLogInfo", model);
+        return Partial("~/Pages/Admin/AuditLogPartials/_AuditLogInfo.cshtml", model);
     }
 
     private async Task<AuditLogInfoModel> BuildAuditLogInfoModelAsync(Guid auditLogId)

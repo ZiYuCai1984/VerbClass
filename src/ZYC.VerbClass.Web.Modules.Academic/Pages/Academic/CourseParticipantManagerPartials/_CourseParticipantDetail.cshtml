@@ -1,0 +1,160 @@
+﻿@model ZYC.VerbClass.Web.Modules.Academic.Pages.Academic.CourseParticipantManagerPartials.CourseParticipantDetailModel
+
+<div class="academic-course-participant-info">
+    <section class="academic-course-participant-info__summary">
+        <div class="academic-course-participant-info__title">
+            <strong class="user-info__name">@Model.OfferingTitle</strong>
+        </div>
+        <div class="academic-course-participant-info__meta">
+            <span class="tag">@Model.Participants.Length participant(s)</span>
+        </div>
+    </section>
+
+    <div class="academic-course-participant-info__sections">
+        <section class="detail-section">
+            <div class="detail-section__title">Add Participant</div>
+            <form method="post"
+                  hx-post="@Url.Page(null, "Add", new { courseOfferingId = Model.CourseOfferingId })"
+                  hx-target="#course-participant-manager-content"
+                  hx-swap="innerHTML"
+                  class="academic-course-participant-form">
+                <input type="hidden" name="ReturnTermId" value="@Model.AcademicTermId"/>
+                <input type="hidden" name="ReturnOfferingId" value="@Model.CourseOfferingId"/>
+
+                @if (Model.Editor.HasErrors)
+                {
+                    <div class="academic-course-participant-editor__summary">
+                        @if (Model.Editor.SummaryErrors.Count == 0)
+                        {
+                            <div>Please correct the highlighted fields.</div>
+                        }
+                        else
+                        {
+                            <ul>
+                                @foreach (var error in Model.Editor.SummaryErrors)
+                                {
+                                    <li>@error</li>
+                                }
+                            </ul>
+                        }
+                    </div>
+                }
+
+                <div class="form-grid form-grid--two">
+                    <div class="field">
+                        <label class="field__label" for="course-participant-user">User</label>
+                        <select id="course-participant-user" name="UserId">
+                            <option value="">Select user</option>
+                            @foreach (var user in Model.Editor.UserOptions)
+                            {
+                                if (Model.Editor.UserId == user.UserId)
+                                {
+                                    <option value="@user.UserId" selected>@user.DisplayText</option>
+                                }
+                                else
+                                {
+                                    <option value="@user.UserId">@user.DisplayText</option>
+                                }
+                            }
+                        </select>
+                        @foreach (var error in Model.Editor.GetErrors(nameof(Model.Editor.UserId)))
+                        {
+                            <div class="academic-course-participant-editor__field-error">@error</div>
+                        }
+                    </div>
+
+                    <div class="field">
+                        <label class="field__label" for="course-participant-role">Role</label>
+                        <select id="course-participant-role" name="Role">
+                            <option value="">Select role</option>
+                            @foreach (var role in Model.Editor.RoleOptions)
+                            {
+                                if (Model.Editor.Role == role.Value)
+                                {
+                                    <option value="@role.Value" selected>@role.Label</option>
+                                }
+                                else
+                                {
+                                    <option value="@role.Value">@role.Label</option>
+                                }
+                            }
+                        </select>
+                        @foreach (var error in Model.Editor.GetErrors(nameof(Model.Editor.Role)))
+                        {
+                            <div class="academic-course-participant-editor__field-error">@error</div>
+                        }
+                    </div>
+                </div>
+
+                <div class="academic-editor__actions">
+                    <button type="submit" class="is-primary">Add Participant</button>
+                </div>
+            </form>
+        </section>
+
+        @foreach (var role in Model.RoleOptions)
+        {
+            var participants = Model.Participants
+                .Where(participant => participant.Role == role.Value)
+                .OrderBy(participant => participant.DisplayName, StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+
+            <section class="detail-section">
+                <div class="detail-section__title">@role.Label</div>
+                @if (participants.Length == 0)
+                {
+                    <div class="master-detail-empty">
+                        <p>No @role.Label.ToLowerInvariant() assigned.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="academic-participant-list">
+                        @foreach (var participant in participants)
+                        {
+                            <form method="post"
+                                  hx-post="@Url.Page(null, "ChangeRole", new { participantId = participant.Id })"
+                                  hx-target="#course-participant-manager-content"
+                                  hx-swap="innerHTML"
+                                  class="academic-participant-row">
+                                <input type="hidden" name="termId" value="@Model.AcademicTermId"/>
+                                <input type="hidden" name="offeringId" value="@Model.CourseOfferingId"/>
+
+                                <div class="academic-participant-row__user">
+                                    <strong>@participant.DisplayName</strong>
+                                    <span class="u-muted">@participant.UserName</span>
+                                    <span class="u-muted">@participant.Email</span>
+                                </div>
+
+                                <select name="role">
+                                    @foreach (var roleOption in Model.RoleOptions)
+                                    {
+                                        if (participant.Role == roleOption.Value)
+                                        {
+                                            <option value="@roleOption.Value" selected>@roleOption.Label</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@roleOption.Value">@roleOption.Label</option>
+                                        }
+                                    }
+                                </select>
+
+                                <div class="academic-participant-row__actions">
+                                    <button type="submit">Save</button>
+                                    <button type="button"
+                                            hx-post="@Url.Page(null, "Remove", new { participantId = participant.Id, termId = Model.AcademicTermId, offeringId = Model.CourseOfferingId })"
+                                            hx-target="#course-participant-manager-content"
+                                            hx-swap="innerHTML"
+                                            hx-confirm="Remove this participant?">
+                                        Remove
+                                    </button>
+                                </div>
+                            </form>
+                        }
+                    </div>
+                }
+            </section>
+        }
+    </div>
+</div>

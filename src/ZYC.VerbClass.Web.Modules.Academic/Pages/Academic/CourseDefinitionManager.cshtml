@@ -1,0 +1,47 @@
+﻿@page
+@model ZYC.VerbClass.Web.Modules.Academic.Pages.Academic.CourseDefinitionManagerModel
+
+@section Styles {
+    <link rel="stylesheet" href="/css/admin-master-detail.css"/>
+    <link rel="stylesheet" href="/css/academic-master-detail.css"/>
+}
+
+<div id="course-definition-manager-content" class="master-detail-page">
+    <partial name="~/Pages/Academic/CourseDefinitionManagerPartials/_CourseDefinitionManagerContent.cshtml" model="Model.State"/>
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const itemSelector = '[data-course-definition-item]';
+
+            function setSelectedItem(courseDefinitionId) {
+                document.querySelectorAll(itemSelector).forEach(item => {
+                    item.classList.toggle('is-selected', item.dataset.courseDefinitionId === courseDefinitionId);
+                });
+            }
+
+            document.addEventListener('click', event => {
+                const item = event.target.closest(itemSelector);
+                if (!item) {
+                    return;
+                }
+
+                setSelectedItem(item.dataset.courseDefinitionId ?? '');
+            });
+
+            window.addEventListener('popstate', () => {
+                const query = new URLSearchParams(window.location.search);
+                setSelectedItem(query.get('CourseDefinitionId') ?? '');
+            });
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const query = new URLSearchParams(window.location.search);
+                setSelectedItem(query.get('CourseDefinitionId') ?? '');
+
+                const selected = document.querySelector('.academic-manager-item.is-selected');
+                selected?.scrollIntoView({ block: 'nearest' });
+            });
+        })();
+    </script>
+}

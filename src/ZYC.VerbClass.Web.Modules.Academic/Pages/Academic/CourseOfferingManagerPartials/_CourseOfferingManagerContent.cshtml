@@ -1,0 +1,107 @@
+@model ZYC.VerbClass.Web.Modules.Academic.Pages.Academic.CourseOfferingManagerPartials.CourseOfferingManagerContentModel
+
+<div class="page-master master-detail-page__master">
+    <section class="surface master-detail-page__list">
+        <div class="surface__head academic-offering-list-head">
+            <strong>Course Offerings</strong>
+            <span class="u-muted">@Model.Offerings.Length offering(s)</span>
+        </div>
+        <div class="academic-offering-term-picker">
+            <select name="termId"
+                    hx-get="@Url.Page(null, "Term")"
+                    hx-trigger="change"
+                    hx-target="#course-offering-manager-content"
+                    hx-swap="innerHTML">
+                <option value="">Select term</option>
+                @foreach (var term in Model.Terms)
+                {
+                    if (Model.ActiveTermId == term.Id)
+                    {
+                        <option value="@term.Id" selected>@term.DisplayName</option>
+                    }
+                    else
+                    {
+                        <option value="@term.Id">@term.DisplayName</option>
+                    }
+                }
+            </select>
+
+            @if (Model.CanCreateOffering)
+            {
+                <button type="button"
+                        hx-get="@Url.Page(null, "Create", new { termId = Model.ActiveTermId, returnOfferingId = Model.ActiveOfferingId })"
+                        hx-target="#course-offering-manager-content"
+                        hx-swap="innerHTML">
+                    New Offering
+                </button>
+            }
+            else
+            {
+                <button type="button" disabled>New Offering</button>
+            }
+        </div>
+        <div class="surface__body scroll-area">
+            @if (!Model.ActiveTermId.HasValue)
+            {
+                <div class="master-detail-empty">
+                    <p>Select a term to view offerings.</p>
+                </div>
+            }
+            else if (Model.Offerings.Length == 0)
+            {
+                <div class="master-detail-empty">
+                    <p>No offerings are available for this term.</p>
+                </div>
+            }
+            else
+            {
+                <div class="record-list">
+                    @foreach (var offering in Model.Offerings)
+                    {
+                        <button type="button"
+                                class="record-list__item academic-manager-item@(Model.ActiveOfferingId == offering.Id ? " is-selected" : string.Empty)"
+                                data-course-offering-item
+                                data-offering-id="@offering.Id"
+                                hx-get="@Url.Page(null, "Select", new { offeringId = offering.Id })"
+                                hx-trigger="click"
+                                hx-target="#course-offering-detail"
+                                hx-swap="innerHTML"
+                                hx-replace-url="@Url.Page(null, null, new { TermId = offering.AcademicTermId, OfferingId = offering.Id })">
+                            <div class="record-list__main">
+                                <div class="academic-manager-item__title-row">
+                                    <strong class="record-list__title u-truncate">@offering.Title</strong>
+                                </div>
+                                <div class="academic-manager-item__meta">
+                                    <span class="u-mono">@offering.CourseCodeSnapshot</span>
+                                    <span>@offering.ScheduleSummary</span>
+                                </div>
+                            </div>
+                        </button>
+                    }
+                </div>
+            }
+        </div>
+    </section>
+
+    <section class="surface master-detail-page__detail">
+        <div class="surface__head">
+            <strong>@Model.DetailTitle</strong>
+        </div>
+        <div id="course-offering-detail" class="surface__body scroll-area">
+            @if (Model.Editor is not null)
+            {
+                <partial name="~/Pages/Academic/CourseOfferingManagerPartials/_CourseOfferingEditor.cshtml" model="Model.Editor"/>
+            }
+            else if (Model.SelectedOffering is not null)
+            {
+                <partial name="~/Pages/Academic/CourseOfferingManagerPartials/_CourseOfferingInfo.cshtml" model="Model.SelectedOffering"/>
+            }
+            else
+            {
+                <div class="master-detail-empty">
+                    <p>Select an offering from the list.</p>
+                </div>
+            }
+        </div>
+    </section>
+</div>

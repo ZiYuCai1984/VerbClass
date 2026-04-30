@@ -1,0 +1,101 @@
+﻿@model ZYC.VerbClass.Web.Modules.Academic.Pages.Academic.TermManagerPartials.TermInfoModel
+
+<div class="academic-term-info">
+    <section class="academic-term-info__summary">
+        <div class="academic-term-info__title">
+            <strong class="user-info__name">@Model.Title</strong>
+            <span class="u-mono academic-term-info__code">@Model.Code</span>
+        </div>
+        <div class="academic-term-info__meta">
+            @if (Model.IsLocked)
+            {
+                <span class="tag is-warning">Locked</span>
+            }
+            <span class="tag">@Model.Periods.Length period(s)</span>
+        </div>
+        <div class="academic-term-info__actions">
+            @if (!Model.IsLocked)
+            {
+                <button type="button"
+                        hx-get="@Url.Page(null, "Edit", new { termId = Model.Id })"
+                        hx-target="#academic-term-manager-content"
+                        hx-swap="innerHTML">
+                    Edit Term
+                </button>
+                <button type="button"
+                        hx-post="@Url.Page(null, "Lock", new { termId = Model.Id })"
+                        hx-target="#academic-term-manager-content"
+                        hx-swap="innerHTML"
+                        hx-confirm="Lock this term?">
+                    Lock Term
+                </button>
+            }
+            <button type="button"
+                    hx-post="@Url.Page(null, "Delete", new { termId = Model.Id })"
+                    hx-target="#academic-term-manager-content"
+                    hx-swap="innerHTML"
+                    hx-confirm="Delete this term?">
+                Delete Term
+            </button>
+        </div>
+    </section>
+
+    <div class="academic-term-info__sections">
+        <section class="detail-section">
+            <div class="detail-section__title">Term</div>
+            <div class="kv-grid academic-term-info__kv">
+                <div class="kv-grid__row">
+                    <div class="kv-grid__key">Year</div>
+                    <div>@Model.AcademicYear</div>
+                </div>
+                <div class="kv-grid__row">
+                    <div class="kv-grid__key">Code</div>
+                    <div class="u-mono">@Model.Code</div>
+                </div>
+                <div class="kv-grid__row">
+                    <div class="kv-grid__key">Name</div>
+                    <div>@Model.Name</div>
+                </div>
+                <div class="kv-grid__row">
+                    <div class="kv-grid__key">Start</div>
+                    <div>@Model.StartDate.ToString("yyyy-MM-dd")</div>
+                </div>
+                <div class="kv-grid__row">
+                    <div class="kv-grid__key">End</div>
+                    <div>@Model.EndDate.ToString("yyyy-MM-dd")</div>
+                </div>
+                <div class="kv-grid__row">
+                    <div class="kv-grid__key">Status</div>
+                    <div>@(Model.IsLocked ? "Locked" : "Open")</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="detail-section">
+            <div class="detail-section__title">Time Definition</div>
+            <div class="academic-period-table-wrap">
+                <table class="compact-table">
+                    <thead>
+                    <tr>
+                        <th>Period</th>
+                        <th>Label</th>
+                        <th>Start</th>
+                        <th>End</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var period in Model.Periods)
+                    {
+                        <tr>
+                            <td>@period.PeriodNo</td>
+                            <td>@period.Label</td>
+                            <td class="u-mono">@period.StartTime</td>
+                            <td class="u-mono">@period.EndTime</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+</div>

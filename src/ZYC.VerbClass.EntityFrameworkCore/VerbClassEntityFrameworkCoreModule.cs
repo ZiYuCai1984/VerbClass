@@ -18,8 +18,8 @@ using ZYC.VerbClass.Domain;
 namespace ZYC.VerbClass.EntityFrameworkCore;
 
 [DependsOn(
-    typeof(AcademicEntityFrameworkCoreModule),
     typeof(VerbClassDomainModule),
+    typeof(AcademicEntityFrameworkCoreModule),
     typeof(AbpPermissionManagementEntityFrameworkCoreModule),
     typeof(AbpSettingManagementEntityFrameworkCoreModule),
     typeof(AbpEntityFrameworkCoreSqliteModule),
@@ -43,8 +43,8 @@ public class VerbClassEntityFrameworkCoreModule : AbpModule
     {
         context.Services.AddAbpDbContext<VerbClassDbContext>(options =>
         {
-                /* Remove "includeAllEntities: true" to create
-                 * default repositories only for aggregate roots */
+            /* Remove "includeAllEntities: true" to create
+             * default repositories only for aggregate roots */
             options.AddDefaultRepositories(includeAllEntities: true);
         });
 
@@ -56,7 +56,7 @@ public class VerbClassEntityFrameworkCoreModule : AbpModule
             options.UseSqlite();
 
         });
-        
+
         context.Services.AddAlwaysDisableUnitOfWorkTransaction();
         Configure<AbpUnitOfWorkDefaultOptions>(options =>
         {

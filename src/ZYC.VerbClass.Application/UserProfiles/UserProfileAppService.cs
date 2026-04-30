@@ -31,16 +31,11 @@ public class UserProfileAppService : VerbClassAppService, IUserProfileAppService
         var user = await GetCurrentUserAsync();
         var profile = await _userProfileRepository.FindAsync(x => x.UserId == user.Id);
 
-        return new UserProfileDto
-        {
-            DisplayName = IdentityUserDisplayNameSupport.BuildDisplayName(user, UserProfileDto.DefaultDisplayName),
-            UserNameDisplay = user.UserName ?? string.Empty,
-            IsActive = user.IsActive,
-            EmailConfirmed = user.EmailConfirmed,
-            HasCustomAvatar = profile?.AvatarFileId.HasValue == true,
-            AvatarVersion = profile?.AvatarFileId?.ToString("N") ?? UserProfileDto.DefaultAvatarVersion,
-            Roles = (await _userManager.GetRolesAsync(user)).ToArray()
-        };
+        return VerbClassApplicationMappers.ToUserProfileDto(
+            user,
+            profile,
+            (await _userManager.GetRolesAsync(user)).ToArray()
+        );
     }
 
     private async Task<IdentityUser> GetCurrentUserAsync()

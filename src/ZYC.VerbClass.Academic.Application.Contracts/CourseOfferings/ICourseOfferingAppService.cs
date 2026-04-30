@@ -4,15 +4,13 @@ namespace ZYC.VerbClass.Academic.Application.Contracts.CourseOfferings;
 
 public interface ICourseOfferingAppService : IApplicationService
 {
-    Task<CourseOfferingListItemDto[]> GetListAsync();
+    Task<CourseOfferingListItemDto[]> GetListAsync(Guid academicTermId);
+
+    Task<CourseOfferingDetailDto> GetAsync(Guid courseOfferingId);
 
     Task<CourseOfferingCommandResultDto> CreateAsync(CreateCourseOfferingInput input);
 
-    Task<CourseOfferingCommandResultDto> UpdateAsync(Guid id, UpdateCourseOfferingInput input);
+    Task<CourseOfferingCommandResultDto> UpdateAsync(Guid courseOfferingId, UpdateCourseOfferingInput input);
 
-    Task<CourseOfferingCommandResultDto> DeleteAsync(Guid id);
-
-    Task<CourseOfferingCommandResultDto> LockAsync(Guid id);
-
-    Task<CourseOfferingCommandResultDto> UnlockAsync(Guid id);
+    Task<CourseOfferingCommandResultDto> DeleteAsync(Guid courseOfferingId);
 }

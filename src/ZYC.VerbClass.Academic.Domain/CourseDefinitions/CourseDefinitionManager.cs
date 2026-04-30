@@ -1,5 +1,4 @@
 using Volo.Abp;
-using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Domain.Services;
 using Volo.Abp.MultiTenancy;
 using ZYC.VerbClass.Academic.Domain.Shared;
@@ -8,46 +7,51 @@ namespace ZYC.VerbClass.Academic.Domain.CourseDefinitions;
 
 public class CourseDefinitionManager : DomainService
 {
-    private readonly IRepository<CourseDefinition, Guid> _courseDefinitionRepository;
     private readonly ICurrentTenant _currentTenant;
+    private readonly ICourseDefinitionRepository _courseDefinitionRepository;
 
     public CourseDefinitionManager(
-        IRepository<CourseDefinition, Guid> courseDefinitionRepository,
-        ICurrentTenant currentTenant)
+        ICurrentTenant currentTenant,
+        ICourseDefinitionRepository courseDefinitionRepository)
     {
-        _courseDefinitionRepository = courseDefinitionRepository;
         _currentTenant = currentTenant;
+        _courseDefinitionRepository = courseDefinitionRepository;
     }
 
     public virtual async Task<CourseDefinition> CreateAsync(
         string code,
         string name,
-        string? shortName = null,
         string? description = null,
         CancellationToken cancellationToken = default)
     {
-        await ValidateCodeAsync(code, null, cancellationToken);
+        var normalizedCode = CourseDefinition.NormalizeCode(code);
+
+        await ValidateCodeAsync(normalizedCode, null, cancellationToken);
 
         var tenantId = _currentTenant.Id
-            ?? throw new AbpException("CourseDefinition must be created within a tenant context.");
+            ?? throw new AbpException("Course definition must be created within a tenant context.");
 
         return new CourseDefinition(
             GuidGenerator.Create(),
             tenantId,
-            code,
+            normalizedCode,
             name,
-            shortName,
             description
         );
     }
 
     public virtual async Task ChangeCodeAsync(
         CourseDefinition courseDefinition,
-        string newCode,
+        string code,
         CancellationToken cancellationToken = default)
     {
-        await ValidateCodeAsync(newCode, courseDefinition.Id, cancellationToken);
-        courseDefinition.SetCode(newCode);
+        Check.NotNull(courseDefinition, nameof(courseDefinition));
+
+        var normalizedCode = CourseDefinition.NormalizeCode(code);
+
+        await ValidateCodeAsync(normalizedCode, courseDefinition.Id, cancellationToken);
+
+        courseDefinition.ChangeCode(normalizedCode);
     }
 
     protected virtual async Task ValidateCodeAsync(
@@ -55,17 +59,16 @@ public class CourseDefinitionManager : DomainService
         Guid? excludeId,
         CancellationToken cancellationToken)
     {
-        var normalizedCode = code.Trim();
-
-        var existingItems = await _courseDefinitionRepository.GetListAsync(
-            x => x.Code == normalizedCode && (!excludeId.HasValue || x.Id != excludeId.Value),
-            cancellationToken: cancellationToken
+        var exists = await _courseDefinitionRepository.IsCodeExistsAsync(
+            code,
+            excludeId,
+            cancellationToken
         );
 
-        if (existingItems.Count > 0)
+        if (exists)
         {
-            throw new BusinessException(AcademicErrorCodes.CourseDefinitionCodeAlreadyExists)
-                .WithData("Code", normalizedCode);
+            throw new BusinessException(CourseDefinitionErrorCodes.CodeAlreadyExists)
+                .WithData(nameof(CourseDefinition.Code), code);
         }
     }
 }

@@ -1,0 +1,83 @@
+@model ZYC.VerbClass.Web.Modules.Academic.Pages.Academic.CourseDefinitionManagerPartials.CourseDefinitionEditorModel
+@{
+    var submitUrl = Model.IsCreate
+        ? Url.Page(null, "Create")
+        : Url.Page(null, "Update", new { courseDefinitionId = Model.CourseDefinitionId });
+    var cancelUrl = Url.Page(
+        null,
+        "View",
+        Model.IsCreate
+            ? new { courseDefinitionId = Model.ReturnCourseDefinitionId }
+            : new { courseDefinitionId = Model.CourseDefinitionId });
+}
+
+<form method="post"
+      hx-post="@submitUrl"
+      hx-target="#course-definition-manager-content"
+      hx-swap="innerHTML"
+      class="academic-course-definition-editor">
+    <input type="hidden" asp-for="ReturnCourseDefinitionId"/>
+
+    @if (Model.HasErrors)
+    {
+        <div class="academic-course-definition-editor__summary">
+            @if (Model.SummaryErrors.Count == 0)
+            {
+                <div>Please correct the highlighted fields.</div>
+            }
+            else
+            {
+                <ul>
+                    @foreach (var error in Model.SummaryErrors)
+                    {
+                        <li>@error</li>
+                    }
+                </ul>
+            }
+        </div>
+    }
+
+    <div class="academic-course-definition-editor__body form-layout">
+        <section class="form-section">
+            <div class="form-section__title">Basic</div>
+            <div class="form-grid form-grid--two">
+                <div class="field">
+                    <label class="field__label" asp-for="Code"></label>
+                    <input asp-for="Code" autocomplete="off"/>
+                    @foreach (var error in Model.GetErrors(nameof(Model.Code)))
+                    {
+                        <div class="academic-course-definition-editor__field-error">@error</div>
+                    }
+                </div>
+
+                <div class="field">
+                    <label class="field__label" asp-for="Name"></label>
+                    <input asp-for="Name" autocomplete="off"/>
+                    @foreach (var error in Model.GetErrors(nameof(Model.Name)))
+                    {
+                        <div class="academic-course-definition-editor__field-error">@error</div>
+                    }
+                </div>
+
+                <div class="field form-grid__full">
+                    <label class="field__label" asp-for="Description"></label>
+                    <textarea asp-for="Description" rows="5"></textarea>
+                    @foreach (var error in Model.GetErrors(nameof(Model.Description)))
+                    {
+                        <div class="academic-course-definition-editor__field-error">@error</div>
+                    }
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="academic-course-definition-editor__foot">
+        <button type="submit" class="is-primary">@Model.SubmitText</button>
+        <button type="button"
+                hx-get="@cancelUrl"
+                hx-target="#course-definition-manager-content"
+                hx-swap="innerHTML">
+            Cancel
+        </button>
+    </div>
+</form>

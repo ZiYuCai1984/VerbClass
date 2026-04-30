@@ -7,14 +7,12 @@ using Volo.Abp.Modularity;
 using Volo.Abp.PermissionManagement.HttpApi;
 using Volo.Abp.SettingManagement;
 using Volo.Abp.TenantManagement;
-using ZYC.VerbClass.Academic.HttpApi;
 using ZYC.VerbClass.Application.Contracts;
 using ZYC.VerbClass.Domain.Shared.Localization;
 
 namespace ZYC.VerbClass.HttpApi;
 
  [DependsOn(
-    typeof(AcademicHttpApiModule),
     typeof(VerbClassApplicationContractsModule),
     typeof(AbpPermissionManagementHttpApiModule),
     typeof(AbpSettingManagementHttpApiModule),

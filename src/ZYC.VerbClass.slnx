@@ -1,28 +1,30 @@
 <Solution>
   <Folder Name="/Solution Items/">
+    <File Path="../.gitignore" />
     <File Path="../AGENTS.md" />
-    <File Path=".gitignore" />
+    <File Path="../code_review.md" />
+    <File Path="../README.md" />
     <File Path="Directory.Build.props" />
     <File Path="Directory.Build.targets" />
   </Folder>
   <Project Path="ZYC.VerbClass.Application.Contracts/ZYC.VerbClass.Application.Contracts.csproj" />
-  <Project Path="ZYC.VerbClass.Academic.Application.Contracts/ZYC.VerbClass.Academic.Application.Contracts.csproj" />
   <Project Path="ZYC.VerbClass.Application/ZYC.VerbClass.Application.csproj" />
+  <Project Path="ZYC.VerbClass.Academic.Application.Contracts/ZYC.VerbClass.Academic.Application.Contracts.csproj" />
   <Project Path="ZYC.VerbClass.Academic.Application/ZYC.VerbClass.Academic.Application.csproj" />
+  <Project Path="ZYC.VerbClass.Academic.Domain.Shared/ZYC.VerbClass.Academic.Domain.Shared.csproj" />
+  <Project Path="ZYC.VerbClass.Academic.Domain/ZYC.VerbClass.Academic.Domain.csproj" />
+  <Project Path="ZYC.VerbClass.Academic.EntityFrameworkCore/ZYC.VerbClass.Academic.EntityFrameworkCore.csproj" />
+  <Project Path="ZYC.VerbClass.Academic.HttpApi.Client/ZYC.VerbClass.Academic.HttpApi.Client.csproj" />
+  <Project Path="ZYC.VerbClass.Academic.HttpApi/ZYC.VerbClass.Academic.HttpApi.csproj" />
   <Project Path="ZYC.VerbClass.DbMigrator/ZYC.VerbClass.DbMigrator.csproj" />
   <Project Path="ZYC.VerbClass.Domain.Shared/ZYC.VerbClass.Domain.Shared.csproj" />
-  <Project Path="ZYC.VerbClass.Academic.Domain.Shared/ZYC.VerbClass.Academic.Domain.Shared.csproj" />
   <Project Path="ZYC.VerbClass.Domain/ZYC.VerbClass.Domain.csproj" />
-  <Project Path="ZYC.VerbClass.Academic.Domain/ZYC.VerbClass.Academic.Domain.csproj" />
   <Project Path="ZYC.VerbClass.EntityFrameworkCore/ZYC.VerbClass.EntityFrameworkCore.csproj" />
-  <Project Path="ZYC.VerbClass.Academic.EntityFrameworkCore/ZYC.VerbClass.Academic.EntityFrameworkCore.csproj" />
   <Project Path="ZYC.VerbClass.HttpApi.Client/ZYC.VerbClass.HttpApi.Client.csproj" />
-  <Project Path="ZYC.VerbClass.Academic.HttpApi.Client/ZYC.VerbClass.Academic.HttpApi.Client.csproj" />
   <Project Path="ZYC.VerbClass.HttpApi/ZYC.VerbClass.HttpApi.csproj" />
-  <Project Path="ZYC.VerbClass.Academic.HttpApi/ZYC.VerbClass.Academic.HttpApi.csproj" />
   <Project Path="ZYC.VerbClass.Web.Abstractions/ZYC.VerbClass.Web.Abstractions.csproj" Id="26ba23d3-46e4-4066-a314-c32045cfb303" />
   <Project Path="ZYC.VerbClass.Web.Core/ZYC.VerbClass.Web.Core.csproj" Id="fffe1d44-b619-49a5-8936-6b1679846bd0" />
-  <Project Path="ZYC.VerbClass.Web.Modules.Mock.Abstractions/ZYC.VerbClass.Web.Modules.Mock.Abstractions.csproj" Id="3003ac8c-197f-494c-b3b4-dfe4ad4ee550" />
+  <Project Path="ZYC.VerbClass.Web.Modules.Academic/ZYC.VerbClass.Web.Modules.Academic.csproj" />
   <Project Path="ZYC.VerbClass.Web.Modules.Mock/ZYC.VerbClass.Web.Modules.Mock.csproj" Id="1ea029f8-5442-4c1e-a80c-f51afd5c4082" />
   <Project Path="ZYC.VerbClass.Web/ZYC.VerbClass.Web.csproj" />
 </Solution>

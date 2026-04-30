@@ -26,6 +26,7 @@
     </Content>
   </ItemGroup>
 
+
   <ItemGroup>
     <PackageReference Include="AspNetCore.HealthChecks.UI" />
     <PackageReference Include="KubernetesClient" />
@@ -39,12 +40,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ZYC.VerbClass.Academic.Application.Contracts\ZYC.VerbClass.Academic.Application.Contracts.csproj" />
+    <ProjectReference Include="..\ZYC.VerbClass.Academic.Application\ZYC.VerbClass.Academic.Application.csproj" />
+    <ProjectReference Include="..\ZYC.VerbClass.Academic.HttpApi\ZYC.VerbClass.Academic.HttpApi.csproj" />
+    <ProjectReference Include="..\ZYC.VerbClass.Academic.EntityFrameworkCore\ZYC.VerbClass.Academic.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\ZYC.VerbClass.Application\ZYC.VerbClass.Application.csproj" />
     <ProjectReference Include="..\ZYC.VerbClass.HttpApi\ZYC.VerbClass.HttpApi.csproj" />
     <ProjectReference Include="..\ZYC.VerbClass.EntityFrameworkCore\ZYC.VerbClass.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\ZYC.VerbClass.Web.Abstractions\ZYC.VerbClass.Web.Abstractions.csproj" />
     <ProjectReference Include="..\ZYC.VerbClass.Web.Core\ZYC.VerbClass.Web.Core.csproj" />
+    
+    <!--//TODO-zyc ProjectReference-->
+    <ProjectReference Include="..\ZYC.VerbClass.Web.Modules.Academic\ZYC.VerbClass.Web.Modules.Academic.csproj" />
     <ProjectReference Include="..\ZYC.VerbClass.Web.Modules.Mock\ZYC.VerbClass.Web.Modules.Mock.csproj" />
   </ItemGroup>
 

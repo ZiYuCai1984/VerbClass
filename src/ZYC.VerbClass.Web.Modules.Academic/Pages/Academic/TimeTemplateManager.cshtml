@@ -1,0 +1,110 @@
+﻿@page
+@model ZYC.VerbClass.Web.Modules.Academic.Pages.Academic.AcademicTimeTemplateManagerModel
+
+@section Styles {
+    <link rel="stylesheet" href="/css/admin-master-detail.css"/>
+    <link rel="stylesheet" href="/css/academic-master-detail.css"/>
+}
+
+<div id="academic-time-template-manager-content" class="master-detail-page">
+    <partial name="~/Pages/Academic/TimeTemplateManagerPartials/_TimeTemplateManagerContent.cshtml" model="Model.State"/>
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const itemSelector = '[data-academic-template-item]';
+            const formSelector = '[data-academic-template-form]';
+
+            function setSelectedItem(templateId) {
+                document.querySelectorAll(itemSelector).forEach(item => {
+                    item.classList.toggle('is-selected', item.dataset.templateId === templateId);
+                });
+            }
+
+            function renumberPeriodRows(form) {
+                form.querySelectorAll('[data-academic-period-row]').forEach((row, index) => {
+                    row.querySelectorAll('[data-period-field]').forEach(input => {
+                        const field = input.dataset.periodField ?? '';
+                        input.name = `Periods[${index}].${field}`;
+                    });
+                });
+            }
+
+            function addPeriodRow(button) {
+                const form = button.closest(formSelector);
+                const tbody = form?.querySelector('[data-academic-template-period-rows]');
+                const template = form?.querySelector('template[data-academic-template-period-row-template]');
+                if (!(tbody instanceof HTMLElement) || !(template instanceof HTMLTemplateElement)) {
+                    return;
+                }
+
+                const rowCount = tbody.querySelectorAll('[data-academic-period-row]').length;
+                const fragment = template.content.cloneNode(true);
+                const periodNoInput = fragment.querySelector('[data-period-field="PeriodNo"]');
+                if (periodNoInput instanceof HTMLInputElement) {
+                    periodNoInput.value = String(rowCount + 1);
+                }
+
+                tbody.appendChild(fragment);
+                renumberPeriodRows(form);
+            }
+
+            function removePeriodRow(button) {
+                const row = button.closest('[data-academic-period-row]');
+                const form = button.closest(formSelector);
+                row?.remove();
+                if (form instanceof HTMLElement) {
+                    renumberPeriodRows(form);
+                }
+            }
+
+            function initialize(root = document) {
+                root.querySelectorAll(formSelector).forEach(renumberPeriodRows);
+            }
+
+            document.addEventListener('click', event => {
+                const item = event.target.closest(itemSelector);
+                if (item) {
+                    setSelectedItem(item.dataset.templateId ?? '');
+                    return;
+                }
+
+                const addButton = event.target.closest('[data-add-academic-period]');
+                if (addButton instanceof HTMLElement) {
+                    addPeriodRow(addButton);
+                    return;
+                }
+
+                const removeButton = event.target.closest('[data-remove-academic-period]');
+                if (removeButton instanceof HTMLElement) {
+                    removePeriodRow(removeButton);
+                }
+            });
+
+            document.addEventListener('htmx:afterSwap', event => {
+                if (!(event.target instanceof HTMLElement)) {
+                    return;
+                }
+
+                if (event.target.id === 'academic-time-template-manager-content') {
+                    initialize(event.target);
+                }
+            });
+
+            window.addEventListener('popstate', () => {
+                const query = new URLSearchParams(window.location.search);
+                setSelectedItem(query.get('TemplateId') ?? '');
+            });
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const query = new URLSearchParams(window.location.search);
+                setSelectedItem(query.get('TemplateId') ?? '');
+                initialize();
+
+                const selected = document.querySelector('.academic-manager-item.is-selected');
+                selected?.scrollIntoView({ block: 'nearest' });
+            });
+        })();
+    </script>
+}

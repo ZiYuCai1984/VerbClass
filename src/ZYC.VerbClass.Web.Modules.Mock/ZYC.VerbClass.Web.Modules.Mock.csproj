@@ -10,6 +10,5 @@
   <ItemGroup>
     <ProjectReference Include="..\ZYC.VerbClass.Web.Abstractions\ZYC.VerbClass.Web.Abstractions.csproj" />
     <ProjectReference Include="..\ZYC.VerbClass.Web.Core\ZYC.VerbClass.Web.Core.csproj" />
-    <ProjectReference Include="..\ZYC.VerbClass.Web.Modules.Mock.Abstractions\ZYC.VerbClass.Web.Modules.Mock.Abstractions.csproj" />
   </ItemGroup>
 </Project>

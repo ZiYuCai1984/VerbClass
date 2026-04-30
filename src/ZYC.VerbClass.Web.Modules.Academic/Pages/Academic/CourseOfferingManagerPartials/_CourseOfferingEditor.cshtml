@@ -1,0 +1,197 @@
+@model ZYC.VerbClass.Web.Modules.Academic.Pages.Academic.CourseOfferingManagerPartials.CourseOfferingEditorModel
+@{
+    var submitUrl = Model.IsCreate
+        ? Url.Page(null, "Create")
+        : Url.Page(null, "Update", new { offeringId = Model.CourseOfferingId });
+    var cancelUrl = Url.Page(
+        null,
+        "View",
+        new { termId = Model.ReturnTermId, offeringId = Model.IsCreate ? Model.ReturnOfferingId : Model.CourseOfferingId });
+}
+
+<form method="post"
+      hx-post="@submitUrl"
+      hx-target="#course-offering-manager-content"
+      hx-swap="innerHTML"
+      class="academic-course-offering-editor"
+      data-course-offering-form>
+    <input type="hidden" asp-for="AcademicTermId"/>
+    <input type="hidden" asp-for="ReturnTermId"/>
+    <input type="hidden" asp-for="ReturnOfferingId"/>
+
+    @if (Model.HasErrors)
+    {
+        <div class="academic-course-offering-editor__summary">
+            @if (Model.SummaryErrors.Count == 0)
+            {
+                <div>Please correct the highlighted fields.</div>
+            }
+            else
+            {
+                <ul>
+                    @foreach (var error in Model.SummaryErrors)
+                    {
+                        <li>@error</li>
+                    }
+                </ul>
+            }
+        </div>
+    }
+
+    <div class="academic-course-offering-editor__body form-layout">
+        <section class="form-section">
+            <div class="form-section__title">Basic</div>
+            <div class="form-grid form-grid--two">
+                <div class="field">
+                    <label class="field__label">Term</label>
+                    <input value="@Model.AcademicTermTitle" disabled/>
+                    @foreach (var error in Model.GetErrors(nameof(Model.AcademicTermId)))
+                    {
+                        <div class="academic-course-offering-editor__field-error">@error</div>
+                    }
+                </div>
+
+                @if (Model.IsCreate)
+                {
+                    <div class="field">
+                        <label class="field__label" asp-for="CourseDefinitionId"></label>
+                        <select asp-for="CourseDefinitionId">
+                            <option value="">Select course</option>
+                            @foreach (var option in Model.CourseDefinitionOptions)
+                            {
+                                <option value="@option.Id">@option.DisplayName</option>
+                            }
+                        </select>
+                        @foreach (var error in Model.GetErrors(nameof(Model.CourseDefinitionId)))
+                        {
+                            <div class="academic-course-offering-editor__field-error">@error</div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <input type="hidden" asp-for="CourseDefinitionId"/>
+                    <div class="field">
+                        <label class="field__label">Course</label>
+                        <input value="@($"{Model.CourseNameSnapshot} ({Model.CourseCodeSnapshot})")" disabled/>
+                    </div>
+                }
+
+                <div class="field">
+                    <label class="field__label" asp-for="OfferingCode"></label>
+                    <input asp-for="OfferingCode" autocomplete="off"/>
+                    @foreach (var error in Model.GetErrors(nameof(Model.OfferingCode)))
+                    {
+                        <div class="academic-course-offering-editor__field-error">@error</div>
+                    }
+                </div>
+            </div>
+        </section>
+
+        <section class="form-section">
+            <div class="form-section__title">Schedule</div>
+            @foreach (var error in Model.GetErrors(nameof(Model.ScheduleSlots)))
+            {
+                <div class="academic-course-offering-editor__field-error">@error</div>
+            }
+            <div class="academic-period-table-wrap">
+                <table class="compact-table">
+                    <thead>
+                    <tr>
+                        <th>Weekday</th>
+                        <th>Period</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody data-course-offering-schedule-rows>
+                    @for (var i = 0; i < Model.ScheduleSlots.Count; i++)
+                    {
+                        var slot = Model.ScheduleSlots[i];
+                        <tr data-course-offering-schedule-row>
+                            <td>
+                                <select name="ScheduleSlots[@i].Weekday" data-schedule-field="Weekday">
+                                    <option value="">Select weekday</option>
+                                    @foreach (var option in Model.WeekdayOptions)
+                                    {
+                                        if (slot.Weekday == option.Value)
+                                        {
+                                            <option value="@option.Value" selected>@option.Label</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@option.Value">@option.Label</option>
+                                        }
+                                    }
+                                </select>
+                                @foreach (var error in Model.GetErrors($"ScheduleSlots[{i}].Weekday"))
+                                {
+                                    <div class="academic-course-offering-editor__field-error">@error</div>
+                                }
+                            </td>
+                            <td>
+                                <select name="ScheduleSlots[@i].PeriodNo" data-schedule-field="PeriodNo">
+                                    <option value="">Select period</option>
+                                    @foreach (var period in Model.TermPeriods)
+                                    {
+                                        if (slot.PeriodNo == period.PeriodNo)
+                                        {
+                                            <option value="@period.PeriodNo" selected>@period.DisplayName</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@period.PeriodNo">@period.DisplayName</option>
+                                        }
+                                    }
+                                </select>
+                                @foreach (var error in Model.GetErrors($"ScheduleSlots[{i}].PeriodNo"))
+                                {
+                                    <div class="academic-course-offering-editor__field-error">@error</div>
+                                }
+                            </td>
+                            <td class="u-right">
+                                <button type="button" data-remove-course-offering-schedule>Remove</button>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+            <template data-course-offering-schedule-row-template>
+                <tr data-course-offering-schedule-row>
+                    <td>
+                        <select data-schedule-field="Weekday">
+                            @foreach (var option in Model.WeekdayOptions)
+                            {
+                                <option value="@option.Value">@option.Label</option>
+                            }
+                        </select>
+                    </td>
+                    <td>
+                        <select data-schedule-field="PeriodNo">
+                            @foreach (var period in Model.TermPeriods)
+                            {
+                                <option value="@period.PeriodNo">@period.DisplayName</option>
+                            }
+                        </select>
+                    </td>
+                    <td class="u-right">
+                        <button type="button" data-remove-course-offering-schedule>Remove</button>
+                    </td>
+                </tr>
+            </template>
+            <div class="academic-editor__actions">
+                <button type="button" data-add-course-offering-schedule>Add Schedule Slot</button>
+            </div>
+        </section>
+    </div>
+
+    <div class="academic-course-offering-editor__foot">
+        <button type="submit" class="is-primary">@Model.SubmitText</button>
+        <button type="button"
+                hx-get="@cancelUrl"
+                hx-target="#course-offering-manager-content"
+                hx-swap="innerHTML">
+            Cancel
+        </button>
+    </div>
+</form>

@@ -1,0 +1,78 @@
+﻿@model ZYC.VerbClass.Web.Pages.Admin.RoleManagerPartials.RoleManagerContentModel
+
+<div class="page-master master-detail-page__master">
+    <section class="surface master-detail-page__list">
+        <div class="surface__head">
+            <strong>Roles</strong>
+            <span class="u-muted">@Model.Roles.Length role(s)</span>
+        </div>
+        <div class="surface__body scroll-area">
+            @if (Model.Roles.Length == 0)
+            {
+                <div class="master-detail-empty">
+                    <p>No roles are available in the current tenant.</p>
+                </div>
+            }
+            else
+            {
+                <table class="compact-table role-manager-table">
+                    <thead>
+                    <tr>
+                        <th>Role</th>
+                        <th>Users</th>
+                        <th>Permissions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var role in Model.Roles)
+                    {
+                        <tr class="role-manager-row@(string.Equals(Model.ActiveRoleName, role.Name, StringComparison.OrdinalIgnoreCase) ? " is-selected" : string.Empty)"
+                            data-role-manager-row
+                            data-role-name="@role.Name"
+                            hx-get="@Url.Page(null, "Select", new { roleName = role.Name })"
+                            hx-trigger="click"
+                            hx-target="#role-detail"
+                            hx-swap="innerHTML"
+                            hx-replace-url="@Url.Page(null, null, new { roleName = role.Name })">
+                            <td>
+                                <div class="role-manager-cell">
+                                    <strong class="u-truncate">@role.Name</strong>
+                                    <span class="role-manager-cell__secondary u-truncate">
+                                        @role.GrantedPermissionCount / @role.AvailablePermissionCount permission(s)
+                                    </span>
+                                </div>
+                            </td>
+                            <td>@role.UserCount</td>
+                            <td>
+                                <span class="u-truncate">@role.GrantedPermissionCount granted</span>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </section>
+
+    <section class="surface master-detail-page__detail">
+        <div class="surface__head">
+            <strong>@Model.DetailTitle</strong>
+        </div>
+        <div id="role-detail" class="surface__body scroll-area">
+            @if (Model.Editor is not null)
+            {
+                <partial name="~/Pages/Admin/RoleManagerPartials/_RolePermissionEditor.cshtml" model="Model.Editor" />
+            }
+            else if (Model.SelectedRole is not null)
+            {
+                <partial name="~/Pages/Admin/RoleManagerPartials/_RoleInfo.cshtml" model="Model.SelectedRole" />
+            }
+            else
+            {
+                <div class="master-detail-empty">
+                    <p>Select a role from the list to view details.</p>
+                </div>
+            }
+        </div>
+    </section>
+</div>

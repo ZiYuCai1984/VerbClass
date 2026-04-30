@@ -1,76 +1,86 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authorization;
 using Volo.Abp;
 using Volo.Abp.Application.Services;
-using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Validation;
+using ZYC.VerbClass.Academic.Application.Contracts.Academic;
 using ZYC.VerbClass.Academic.Application.Contracts.CourseOfferings;
+using ZYC.VerbClass.Academic.Domain.AcademicTerms;
 using ZYC.VerbClass.Academic.Domain.CourseDefinitions;
+using ZYC.VerbClass.Academic.Domain.CourseOfferingParticipants;
 using ZYC.VerbClass.Academic.Domain.CourseOfferings;
-using ZYC.VerbClass.Academic.Domain.Memberships;
 using ZYC.VerbClass.Academic.Domain.Shared;
 
 namespace ZYC.VerbClass.Academic.Application.CourseOfferings;
 
+[Authorize]
 public class CourseOfferingAppService : ApplicationService, ICourseOfferingAppService
 {
+    private readonly IAcademicTermRepository _academicTermRepository;
+    private readonly ICourseDefinitionRepository _courseDefinitionRepository;
+    private readonly ICourseOfferingRepository _courseOfferingRepository;
+    private readonly ICourseOfferingParticipantRepository _participantRepository;
     private readonly CourseOfferingManager _courseOfferingManager;
-    private readonly IRepository<CourseOffering, Guid> _courseOfferingRepository;
-    private readonly IRepository<CourseDefinition, Guid> _courseDefinitionRepository;
-    private readonly IRepository<CourseMembership, Guid> _courseMembershipRepository;
 
     public CourseOfferingAppService(
-        CourseOfferingManager courseOfferingManager,
-        IRepository<CourseOffering, Guid> courseOfferingRepository,
-        IRepository<CourseDefinition, Guid> courseDefinitionRepository,
-        IRepository<CourseMembership, Guid> courseMembershipRepository)
+        IAcademicTermRepository academicTermRepository,
+        ICourseDefinitionRepository courseDefinitionRepository,
+        ICourseOfferingRepository courseOfferingRepository,
+        ICourseOfferingParticipantRepository participantRepository,
+        CourseOfferingManager courseOfferingManager)
     {
-        _courseOfferingManager = courseOfferingManager;
-        _courseOfferingRepository = courseOfferingRepository;
+        _academicTermRepository = academicTermRepository;
         _courseDefinitionRepository = courseDefinitionRepository;
-        _courseMembershipRepository = courseMembershipRepository;
+        _courseOfferingRepository = courseOfferingRepository;
+        _participantRepository = participantRepository;
+        _courseOfferingManager = courseOfferingManager;
     }
 
-    public async Task<CourseOfferingListItemDto[]> GetListAsync()
+    public async Task<CourseOfferingListItemDto[]> GetListAsync(Guid academicTermId)
     {
-        var courseOfferings = await _courseOfferingRepository.GetListAsync();
-        var courseDefinitionsById = await GetCourseDefinitionsByIdAsync(
-            courseOfferings.Select(x => x.CourseDefinitionId)
-        );
+        await EnsureTermExistsAsync(academicTermId);
+
+        var courseOfferings = await _courseOfferingRepository.GetListByTermAsync(academicTermId);
 
         return courseOfferings
-            .OrderByDescending(x => x.AcademicYear)
-            .ThenBy(x => x.TermName)
-            .ThenBy(x => x.ScheduleDayOfWeek.HasValue ? 0 : 1)
-            .ThenBy(x => x.ScheduleDayOfWeek)
-            .ThenBy(x => x.ScheduleStartTime.HasValue ? 0 : 1)
-            .ThenBy(x => x.ScheduleStartTime)
-            .ThenBy(x => x.Id)
-            .Select(x => MapListItem(
-                x,
-                courseDefinitionsById.GetValueOrDefault(x.CourseDefinitionId)
-            ))
+            .OrderBy(x => x.OfferingCode, StringComparer.OrdinalIgnoreCase)
+            .Select(AcademicApplicationDtoMapper.ToCourseOfferingListItemDto)
             .ToArray();
+    }
+
+    public async Task<CourseOfferingDetailDto> GetAsync(Guid courseOfferingId)
+    {
+        var courseOffering = await _courseOfferingRepository.FindAsync(courseOfferingId)
+            ?? throw CreateCourseOfferingNotFoundException();
+
+        var academicTerm = await _academicTermRepository.FindAsync(courseOffering.AcademicTermId)
+            ?? throw CreateTermNotFoundException();
+
+        return MapDetail(courseOffering, academicTerm);
     }
 
     public async Task<CourseOfferingCommandResultDto> CreateAsync(CreateCourseOfferingInput input)
     {
-        ValidateInput(input);
+        ValidateCreateInput(input);
+
+        var academicTerm = await _academicTermRepository.FindAsync(input.AcademicTermId!.Value)
+            ?? throw CreateTermValidationException();
+
+        var courseDefinition = await _courseDefinitionRepository.FindAsync(input.CourseDefinitionId!.Value)
+            ?? throw CreateCourseDefinitionValidationException();
 
         try
         {
             var courseOffering = await _courseOfferingManager.CreateAsync(
-                input.CourseDefinitionId,
-                new AcademicTerm(input.AcademicYear, input.TermName),
-                input.ScheduleDayOfWeek,
-                input.ScheduleStartTime,
-                input.ScheduleEndTime,
-                input.ScheduleLocation,
-                new EnrollmentPolicy(input.EnrollmentStartsAt, input.EnrollmentEndsAt)
+                academicTerm,
+                courseDefinition,
+                input.OfferingCode,
+                ToScheduleSlots(input.ScheduleSlots)
             );
 
             await _courseOfferingRepository.InsertAsync(courseOffering, true);
 
-            return MapCommandResult(courseOffering);
+            return AcademicApplicationDtoMapper.ToCourseOfferingCommandResultDto(courseOffering);
         }
         catch (BusinessException ex)
         {
@@ -78,34 +88,33 @@ public class CourseOfferingAppService : ApplicationService, ICourseOfferingAppSe
         }
     }
 
-    public async Task<CourseOfferingCommandResultDto> UpdateAsync(Guid id, UpdateCourseOfferingInput input)
+    public async Task<CourseOfferingCommandResultDto> UpdateAsync(
+        Guid courseOfferingId,
+        UpdateCourseOfferingInput input)
     {
-        ValidateInput(input);
+        ValidateUpdateInput(input);
 
         try
         {
-            var courseOffering = await _courseOfferingRepository.FindAsync(id)
+            var courseOffering = await _courseOfferingRepository.FindAsync(courseOfferingId)
                 ?? throw CreateCourseOfferingNotFoundException();
 
-            if (courseOffering.CourseDefinitionId != input.CourseDefinitionId)
+            var academicTerm = await _academicTermRepository.FindAsync(courseOffering.AcademicTermId)
+                ?? throw CreateTermNotFoundException();
+
+            if (!string.Equals(courseOffering.OfferingCode, input.OfferingCode, StringComparison.Ordinal))
             {
-                throw new UserFriendlyException("Changing the course definition of an existing course offering is not supported.");
+                await _courseOfferingManager.ChangeOfferingCodeAsync(courseOffering, input.OfferingCode);
             }
 
-            courseOffering.SetTerm(new AcademicTerm(input.AcademicYear, input.TermName));
-            courseOffering.SetSchedule(
-                input.ScheduleDayOfWeek,
-                input.ScheduleStartTime,
-                input.ScheduleEndTime,
-                input.ScheduleLocation
-            );
-            courseOffering.SetEnrollmentPolicy(
-                new EnrollmentPolicy(input.EnrollmentStartsAt, input.EnrollmentEndsAt)
+            courseOffering.ReplaceScheduleSlots(
+                ToScheduleSlots(input.ScheduleSlots),
+                academicTerm.Periods.Select(x => x.PeriodNo)
             );
 
             await _courseOfferingRepository.UpdateAsync(courseOffering, true);
 
-            return MapCommandResult(courseOffering);
+            return AcademicApplicationDtoMapper.ToCourseOfferingCommandResultDto(courseOffering);
         }
         catch (BusinessException ex)
         {
@@ -113,150 +122,77 @@ public class CourseOfferingAppService : ApplicationService, ICourseOfferingAppSe
         }
     }
 
-    public async Task<CourseOfferingCommandResultDto> DeleteAsync(Guid id)
+    public async Task<CourseOfferingCommandResultDto> DeleteAsync(Guid courseOfferingId)
     {
-        var courseOffering = await _courseOfferingRepository.FindAsync(id)
+        var courseOffering = await _courseOfferingRepository.FindAsync(courseOfferingId)
             ?? throw CreateCourseOfferingNotFoundException();
 
-        var memberships = await _courseMembershipRepository.GetListAsync(x => x.CourseOfferingId == id);
-        if (memberships.Count > 0)
+        if (await _participantRepository.HasCourseOfferingAsync(courseOffering.Id))
         {
-            throw new UserFriendlyException("Remove course memberships before deleting this course offering.");
+            throw new UserFriendlyException("Course offerings with participants cannot be deleted.");
         }
 
         await _courseOfferingRepository.DeleteAsync(courseOffering, true);
 
-        return MapCommandResult(courseOffering);
+        return AcademicApplicationDtoMapper.ToCourseOfferingCommandResultDto(courseOffering);
     }
 
-    public async Task<CourseOfferingCommandResultDto> LockAsync(Guid id)
+    private async Task EnsureTermExistsAsync(Guid academicTermId)
     {
-        var courseOffering = await _courseOfferingRepository.FindAsync(id)
-            ?? throw CreateCourseOfferingNotFoundException();
-
-        courseOffering.Lock();
-        await _courseOfferingRepository.UpdateAsync(courseOffering, true);
-
-        return MapCommandResult(courseOffering);
-    }
-
-    public async Task<CourseOfferingCommandResultDto> UnlockAsync(Guid id)
-    {
-        var courseOffering = await _courseOfferingRepository.FindAsync(id)
-            ?? throw CreateCourseOfferingNotFoundException();
-
-        courseOffering.Unlock();
-        await _courseOfferingRepository.UpdateAsync(courseOffering, true);
-
-        return MapCommandResult(courseOffering);
-    }
-
-    private async Task<IReadOnlyDictionary<Guid, CourseDefinition>> GetCourseDefinitionsByIdAsync(
-        IEnumerable<Guid> courseDefinitionIds)
-    {
-        var normalizedIds = courseDefinitionIds
-            .Where(x => x != Guid.Empty)
-            .Distinct()
-            .ToArray();
-
-        if (normalizedIds.Length == 0)
+        if (academicTermId == Guid.Empty)
         {
-            return new Dictionary<Guid, CourseDefinition>();
+            throw CreateTermNotFoundException();
         }
 
-        var courseDefinitions = await _courseDefinitionRepository.GetListAsync(
-            x => normalizedIds.Contains(x.Id)
-        );
-
-        return courseDefinitions.ToDictionary(x => x.Id);
+        _ = await _academicTermRepository.FindAsync(academicTermId)
+            ?? throw CreateTermNotFoundException();
     }
 
-    private static CourseOfferingListItemDto MapListItem(
-        CourseOffering courseOffering,
-        CourseDefinition? courseDefinition)
+    private static CourseOfferingDetailDto MapDetail(CourseOffering courseOffering, AcademicTerm academicTerm)
     {
-        return new CourseOfferingListItemDto
+        return new CourseOfferingDetailDto
         {
             Id = courseOffering.Id,
+            AcademicTermId = courseOffering.AcademicTermId,
+            AcademicYear = academicTerm.AcademicYear,
+            AcademicTermCode = academicTerm.Code,
+            AcademicTermName = academicTerm.Name,
             CourseDefinitionId = courseOffering.CourseDefinitionId,
-            CourseDefinitionCode = courseDefinition?.Code ?? string.Empty,
-            CourseDefinitionName = courseDefinition?.Name ?? string.Empty,
-            AcademicYear = courseOffering.AcademicYear,
-            TermName = courseOffering.TermName,
-            ScheduleDayOfWeek = courseOffering.ScheduleDayOfWeek,
-            ScheduleStartTime = courseOffering.ScheduleStartTime,
-            ScheduleEndTime = courseOffering.ScheduleEndTime,
-            ScheduleLocation = courseOffering.ScheduleLocation,
-            EnrollmentStartsAt = courseOffering.EnrollmentStartsAt,
-            EnrollmentEndsAt = courseOffering.EnrollmentEndsAt,
-            Status = courseOffering.Status,
-            IsLocked = courseOffering.IsLocked
+            OfferingCode = courseOffering.OfferingCode,
+            CourseCodeSnapshot = courseOffering.CourseCodeSnapshot,
+            CourseNameSnapshot = courseOffering.CourseNameSnapshot,
+            ScheduleSlots = AcademicApplicationDtoMapper.ToAcademicScheduleSlotDtos(courseOffering.ScheduleSlots),
+            TermPeriods = AcademicApplicationDtoMapper.ToAcademicPeriodDefinitionDtos(academicTerm.Periods)
         };
     }
 
-    private static CourseOfferingCommandResultDto MapCommandResult(CourseOffering courseOffering)
+    private static CourseOfferingScheduleSlot[] ToScheduleSlots(
+        IEnumerable<AcademicScheduleSlotDto> scheduleSlots)
     {
-        return new CourseOfferingCommandResultDto
-        {
-            Id = courseOffering.Id,
-            CourseDefinitionId = courseOffering.CourseDefinitionId,
-            AcademicYear = courseOffering.AcademicYear,
-            TermName = courseOffering.TermName,
-            Status = courseOffering.Status,
-            IsLocked = courseOffering.IsLocked
-        };
+        return scheduleSlots
+            .Select(scheduleSlot => CourseOfferingScheduleSlot.Create(
+                scheduleSlot.Weekday,
+                scheduleSlot.PeriodNo))
+            .ToArray();
     }
 
-    private static void ValidateInput(CourseOfferingInputBase input)
+    private static void ValidateCreateInput(CreateCourseOfferingInput input)
     {
-        var validationErrors = new List<ValidationResult>();
-        Validator.TryValidateObject(input, new ValidationContext(input), validationErrors, true);
+        var validationErrors = ValidateOfferingInput(input);
 
-        if (input.CourseDefinitionId == Guid.Empty)
+        if (!input.AcademicTermId.HasValue || input.AcademicTermId.Value == Guid.Empty)
+        {
+            validationErrors.Add(new ValidationResult(
+                "Academic term is required.",
+                [nameof(input.AcademicTermId)]
+            ));
+        }
+
+        if (!input.CourseDefinitionId.HasValue || input.CourseDefinitionId.Value == Guid.Empty)
         {
             validationErrors.Add(new ValidationResult(
                 "Course definition is required.",
                 [nameof(input.CourseDefinitionId)]
-            ));
-        }
-
-        var hasScheduleDayOfWeek = input.ScheduleDayOfWeek.HasValue;
-        var hasScheduleStartTime = input.ScheduleStartTime.HasValue;
-        var hasScheduleEndTime = input.ScheduleEndTime.HasValue;
-        var hasScheduleValues = hasScheduleDayOfWeek || hasScheduleStartTime || hasScheduleEndTime;
-
-        if (hasScheduleValues && !(hasScheduleDayOfWeek && hasScheduleStartTime && hasScheduleEndTime))
-        {
-            validationErrors.Add(new ValidationResult(
-                "Schedule day of week, start time, and end time must be provided together or all left empty.",
-                [
-                    nameof(input.ScheduleDayOfWeek),
-                    nameof(input.ScheduleStartTime),
-                    nameof(input.ScheduleEndTime)
-                ]
-            ));
-        }
-        else if (hasScheduleValues && !Enum.IsDefined(typeof(DayOfWeek), input.ScheduleDayOfWeek!.Value))
-        {
-            validationErrors.Add(new ValidationResult(
-                "Schedule day of week is invalid.",
-                [nameof(input.ScheduleDayOfWeek)]
-            ));
-        }
-
-        if (hasScheduleValues && input.ScheduleEndTime!.Value <= input.ScheduleStartTime!.Value)
-        {
-            validationErrors.Add(new ValidationResult(
-                "Schedule end time must be later than start time.",
-                [nameof(input.ScheduleEndTime)]
-            ));
-        }
-
-        if (input.EnrollmentEndsAt <= input.EnrollmentStartsAt)
-        {
-            validationErrors.Add(new ValidationResult(
-                "Enrollment ends at must be later than starts at.",
-                [nameof(input.EnrollmentEndsAt)]
             ));
         }
 
@@ -266,23 +202,88 @@ public class CourseOfferingAppService : ApplicationService, ICourseOfferingAppSe
         }
     }
 
+    private static void ValidateUpdateInput(UpdateCourseOfferingInput input)
+    {
+        var validationErrors = ValidateOfferingInput(input);
+
+        if (validationErrors.Count > 0)
+        {
+            throw new AbpValidationException("Course offering input is invalid.", validationErrors);
+        }
+    }
+
+    private static List<ValidationResult> ValidateOfferingInput(CourseOfferingInputBase input)
+    {
+        var validationErrors = new List<ValidationResult>();
+        Validator.TryValidateObject(input, new ValidationContext(input), validationErrors, true);
+
+        if (input.ScheduleSlots is null)
+        {
+            validationErrors.Add(new ValidationResult(
+                "Schedule slots are required.",
+                [nameof(input.ScheduleSlots)]
+            ));
+
+            return validationErrors;
+        }
+
+        for (var i = 0; i < input.ScheduleSlots.Length; i++)
+        {
+            var scheduleSlot = input.ScheduleSlots[i];
+            if (scheduleSlot is null)
+            {
+                validationErrors.Add(new ValidationResult(
+                    "Schedule slot is required.",
+                    [$"{nameof(input.ScheduleSlots)}[{i}]"]
+                ));
+                continue;
+            }
+
+            var scheduleSlotValidationResults = new List<ValidationResult>();
+            Validator.TryValidateObject(
+                scheduleSlot,
+                new ValidationContext(scheduleSlot),
+                scheduleSlotValidationResults,
+                true
+            );
+
+            foreach (var validationResult in scheduleSlotValidationResults)
+            {
+                var members = validationResult.MemberNames.Any()
+                    ? validationResult.MemberNames.Select(member => $"{nameof(input.ScheduleSlots)}[{i}].{member}")
+                    : [$"{nameof(input.ScheduleSlots)}[{i}]"];
+
+                validationErrors.Add(new ValidationResult(
+                    validationResult.ErrorMessage ?? "Schedule slot is invalid.",
+                    members
+                ));
+            }
+        }
+
+        return validationErrors;
+    }
+
     private static Exception CreateValidationException(BusinessException ex)
     {
         var message = ex.Code switch
         {
-            AcademicErrorCodes.CourseDefinitionNotFound => "Course definition was not found.",
-            AcademicErrorCodes.CourseOfferingTermInvalid => "Term information is invalid.",
-            AcademicErrorCodes.CourseOfferingScheduleSlotInvalid => "Schedule slot is invalid.",
-            AcademicErrorCodes.CourseOfferingEnrollmentWindowInvalid => "Enrollment window is invalid.",
+            CourseOfferingErrorCodes.OfferingCodeAlreadyExists => "Offering code already exists in this term.",
+            CourseOfferingErrorCodes.InvalidWeekday => "Weekday is invalid.",
+            CourseOfferingErrorCodes.InvalidPeriodNo => "Period number must be greater than zero.",
+            CourseOfferingErrorCodes.UnknownTermPeriodNo => "Schedule period does not exist in the selected term.",
+            CourseOfferingErrorCodes.DuplicateScheduleSlot => "Schedule slots must be unique.",
+            CourseDefinitionErrorCodes.CourseDefinitionInactive => "Inactive courses cannot be opened.",
             _ => string.IsNullOrWhiteSpace(ex.Message) ? "Course offering operation failed." : ex.Message
         };
 
         var fieldName = ex.Code switch
         {
-            AcademicErrorCodes.CourseDefinitionNotFound => nameof(CourseOfferingInputBase.CourseDefinitionId),
-            AcademicErrorCodes.CourseOfferingTermInvalid => nameof(CourseOfferingInputBase.TermName),
-            AcademicErrorCodes.CourseOfferingScheduleSlotInvalid => nameof(CourseOfferingInputBase.ScheduleEndTime),
-            AcademicErrorCodes.CourseOfferingEnrollmentWindowInvalid => nameof(CourseOfferingInputBase.EnrollmentEndsAt),
+            CourseOfferingErrorCodes.OfferingCodeAlreadyExists => nameof(CourseOfferingInputBase.OfferingCode),
+            CourseOfferingErrorCodes.InvalidWeekday or
+                CourseOfferingErrorCodes.InvalidPeriodNo or
+                CourseOfferingErrorCodes.UnknownTermPeriodNo or
+                CourseOfferingErrorCodes.DuplicateScheduleSlot => nameof(CourseOfferingInputBase.ScheduleSlots),
+            CourseDefinitionErrorCodes.CourseDefinitionInactive => nameof(CreateCourseOfferingInput.CourseDefinitionId),
             _ => null
         };
 
@@ -300,5 +301,29 @@ public class CourseOfferingAppService : ApplicationService, ICourseOfferingAppSe
     private static UserFriendlyException CreateCourseOfferingNotFoundException()
     {
         return new UserFriendlyException("Course offering was not found.");
+    }
+
+    private static UserFriendlyException CreateTermNotFoundException()
+    {
+        return new UserFriendlyException("Academic term was not found.");
+    }
+
+    private static AbpValidationException CreateTermValidationException()
+    {
+        return new AbpValidationException(
+            "Academic term was not found.",
+            [new ValidationResult("Academic term was not found.", [nameof(CreateCourseOfferingInput.AcademicTermId)])]
+        );
+    }
+
+    private static AbpValidationException CreateCourseDefinitionValidationException()
+    {
+        return new AbpValidationException(
+            "Course definition was not found.",
+            [new ValidationResult(
+                "Course definition was not found.",
+                [nameof(CreateCourseOfferingInput.CourseDefinitionId)]
+            )]
+        );
     }
 }

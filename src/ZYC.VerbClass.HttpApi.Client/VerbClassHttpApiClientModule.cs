@@ -7,13 +7,11 @@ using Volo.Abp.PermissionManagement;
 using Volo.Abp.SettingManagement;
 using Volo.Abp.TenantManagement;
 using Volo.Abp.VirtualFileSystem;
-using ZYC.VerbClass.Academic.HttpApi.Client;
 using ZYC.VerbClass.Application.Contracts;
 
 namespace ZYC.VerbClass.HttpApi.Client;
 
 [DependsOn(
-    typeof(AcademicHttpApiClientModule),
     typeof(VerbClassApplicationContractsModule),
     typeof(AbpPermissionManagementHttpApiClientModule),
     typeof(AbpFeatureManagementHttpApiClientModule),

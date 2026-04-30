@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
+﻿using Microsoft.AspNetCore.Mvc.Filters;
 using Volo.Abp.AspNetCore.Mvc.UI.RazorPages;
 using ZYC.VerbClass.Domain.Shared.Localization;
 
@@ -18,13 +17,16 @@ public abstract partial class VerbClassPageModel : AbpPageModel
 
     protected virtual string PageTitle => "";
 
-    public async Task<PartialViewResult> PartialViewAsync(VerbClassModel model)
-    {
-        var typeName = model.GetType().Name;
-        var partialViewName = $"_{typeName.RemovePostFix("Model")}";
-        await model.InitializeAsync();
-        return PartialView(partialViewName, model);
-    }
+    //TODO-zyc PartialViewAsync
+
+
+    //public async Task<PartialViewResult> PartialViewAsync(VerbClassModel model)
+    //{
+    //    var typeName = model.GetType().Name;
+    //    var partialViewName = $"_{typeName.RemovePostFix("Model")}";
+    //    await model.InitializeAsync();
+    //    return PartialView(partialViewName, model);
+    //}
 
     public override void OnPageHandlerExecuting(PageHandlerExecutingContext context)
     {

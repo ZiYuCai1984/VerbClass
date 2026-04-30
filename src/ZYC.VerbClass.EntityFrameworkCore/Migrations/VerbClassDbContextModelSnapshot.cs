@@ -1976,6 +1976,156 @@ namespace ZYC.VerbClass.EntityFrameworkCore.Migrations
                     b.ToTable("AbpTenantConnectionStrings", (string)null);
                 });
 
+            modelBuilder.Entity("ZYC.VerbClass.Academic.Domain.AcademicTerms.AcademicTerm", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("AcademicYear")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("ConcurrencyStamp");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ExtraProperties")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("ExtraProperties");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<bool>("IsLocked")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("TenantId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "AcademicYear", "Code")
+                        .IsUnique();
+
+                    b.ToTable("AcademicTerms", (string)null);
+                });
+
+            modelBuilder.Entity("ZYC.VerbClass.Academic.Domain.AcademicTimeTemplates.AcademicTimeTemplate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("ConcurrencyStamp");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<string>("ExtraProperties")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("ExtraProperties");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("TenantId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "Code")
+                        .IsUnique();
+
+                    b.ToTable("AcademicTimeTemplates", (string)null);
+                });
+
             modelBuilder.Entity("ZYC.VerbClass.Academic.Domain.CourseDefinitions.CourseDefinition", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2010,6 +2160,7 @@ namespace ZYC.VerbClass.EntityFrameworkCore.Migrations
                         .HasColumnName("DeletionTime");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasMaxLength(1024)
                         .HasColumnType("TEXT");
 
@@ -2037,11 +2188,7 @@ namespace ZYC.VerbClass.EntityFrameworkCore.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ShortName")
-                        .HasMaxLength(64)
+                        .HasMaxLength(256)
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("TenantId")
@@ -2053,116 +2200,10 @@ namespace ZYC.VerbClass.EntityFrameworkCore.Migrations
                     b.HasIndex("TenantId", "Code")
                         .IsUnique();
 
-                    b.HasIndex("TenantId", "Name");
-
                     b.ToTable("AcademicCourseDefinitions", (string)null);
                 });
 
-            modelBuilder.Entity("ZYC.VerbClass.Academic.Domain.CourseOfferings.CourseOffering", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("AcademicYear")
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("TermAcademicYear");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("TEXT")
-                        .HasColumnName("ConcurrencyStamp");
-
-                    b.Property<Guid>("CourseDefinitionId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("CreationTime")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("CreationTime");
-
-                    b.Property<Guid?>("CreatorId")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("CreatorId");
-
-                    b.Property<Guid?>("DeleterId")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("DeleterId");
-
-                    b.Property<DateTime?>("DeletionTime")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("DeletionTime");
-
-                    b.Property<DateTime>("EnrollmentEndsAt")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("EnrollmentClosesAt");
-
-                    b.Property<DateTime>("EnrollmentStartsAt")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("EnrollmentOpensAt");
-
-                    b.Property<string>("ExtraProperties")
-                        .IsRequired()
-                        .HasColumnType("TEXT")
-                        .HasColumnName("ExtraProperties");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasDefaultValue(false)
-                        .HasColumnName("IsDeleted");
-
-                    b.Property<bool>("IsLocked")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime?>("LastModificationTime")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("LastModificationTime");
-
-                    b.Property<Guid?>("LastModifierId")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("LastModifierId");
-
-                    b.Property<int?>("ScheduleDayOfWeek")
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("ScheduleDayOfWeek");
-
-                    b.Property<TimeSpan?>("ScheduleEndTime")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("ScheduleEndTime");
-
-                    b.Property<string>("ScheduleLocation")
-                        .HasMaxLength(128)
-                        .HasColumnType("TEXT")
-                        .HasColumnName("ScheduleLocation");
-
-                    b.Property<TimeSpan?>("ScheduleStartTime")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("ScheduleStartTime");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("TEXT")
-                        .HasColumnName("TenantId");
-
-                    b.Property<string>("TermName")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("TEXT")
-                        .HasColumnName("TermTermName");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CourseDefinitionId");
-
-                    b.HasIndex("TenantId", "CourseDefinitionId");
-
-                    b.ToTable("AcademicCourseOfferings", (string)null);
-                });
-
-            modelBuilder.Entity("ZYC.VerbClass.Academic.Domain.Memberships.CourseMembership", b =>
+            modelBuilder.Entity("ZYC.VerbClass.Academic.Domain.CourseOfferingParticipants.CourseOfferingParticipant", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("TEXT");
@@ -2215,9 +2256,6 @@ namespace ZYC.VerbClass.EntityFrameworkCore.Migrations
                     b.Property<int>("Role")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("INTEGER");
-
                     b.Property<Guid>("TenantId")
                         .HasColumnType("TEXT")
                         .HasColumnName("TenantId");
@@ -2229,14 +2267,95 @@ namespace ZYC.VerbClass.EntityFrameworkCore.Migrations
 
                     b.HasIndex("CourseOfferingId");
 
-                    b.HasIndex("UserId");
-
-                    b.HasIndex("TenantId", "CourseOfferingId", "Status");
-
                     b.HasIndex("TenantId", "CourseOfferingId", "UserId")
+                        .IsUnique()
+                        .HasFilter("\"IsDeleted\" = 0");
+
+                    b.ToTable("AcademicCourseOfferingParticipants", (string)null);
+                });
+
+            modelBuilder.Entity("ZYC.VerbClass.Academic.Domain.CourseOfferings.CourseOffering", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("AcademicTermId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("ConcurrencyStamp");
+
+                    b.Property<string>("CourseCodeSnapshot")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CourseDefinitionId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CourseNameSnapshot")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<Guid?>("DeleterId")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("DeleterId");
+
+                    b.Property<DateTime?>("DeletionTime")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("DeletionTime");
+
+                    b.Property<string>("ExtraProperties")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("ExtraProperties");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(false)
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<string>("OfferingCode")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("TenantId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AcademicTermId");
+
+                    b.HasIndex("CourseDefinitionId");
+
+                    b.HasIndex("TenantId", "AcademicTermId", "OfferingCode")
                         .IsUnique();
 
-                    b.ToTable("AcademicCourseMemberships", (string)null);
+                    b.ToTable("AcademicCourseOfferings", (string)null);
                 });
 
             modelBuilder.Entity("ZYC.VerbClass.Domain.AppFiles.AppFile", b =>
@@ -2729,28 +2848,113 @@ namespace ZYC.VerbClass.EntityFrameworkCore.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ZYC.VerbClass.Academic.Domain.CourseOfferings.CourseOffering", b =>
+            modelBuilder.Entity("ZYC.VerbClass.Academic.Domain.AcademicTerms.AcademicTerm", b =>
                 {
-                    b.HasOne("ZYC.VerbClass.Academic.Domain.CourseDefinitions.CourseDefinition", null)
-                        .WithMany()
-                        .HasForeignKey("CourseDefinitionId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                    b.OwnsMany("ZYC.VerbClass.Academic.Domain.AcademicTerms.TermPeriodDefinition", "Periods", b1 =>
+                        {
+                            b1.Property<Guid>("AcademicTermId")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<int>("PeriodNo")
+                                .HasColumnType("INTEGER");
+
+                            b1.Property<TimeOnly>("EndTime")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("Label")
+                                .IsRequired()
+                                .HasMaxLength(32)
+                                .HasColumnType("TEXT");
+
+                            b1.Property<TimeOnly>("StartTime")
+                                .HasColumnType("TEXT");
+
+                            b1.HasKey("AcademicTermId", "PeriodNo");
+
+                            b1.ToTable("AcademicTermPeriods", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("AcademicTermId");
+                        });
+
+                    b.Navigation("Periods");
                 });
 
-            modelBuilder.Entity("ZYC.VerbClass.Academic.Domain.Memberships.CourseMembership", b =>
+            modelBuilder.Entity("ZYC.VerbClass.Academic.Domain.AcademicTimeTemplates.AcademicTimeTemplate", b =>
+                {
+                    b.OwnsMany("ZYC.VerbClass.Academic.Domain.AcademicTimeTemplates.TimeTemplatePeriodDefinition", "Periods", b1 =>
+                        {
+                            b1.Property<Guid>("AcademicTimeTemplateId")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<int>("PeriodNo")
+                                .HasColumnType("INTEGER");
+
+                            b1.Property<TimeOnly>("EndTime")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("Label")
+                                .IsRequired()
+                                .HasMaxLength(32)
+                                .HasColumnType("TEXT");
+
+                            b1.Property<TimeOnly>("StartTime")
+                                .HasColumnType("TEXT");
+
+                            b1.HasKey("AcademicTimeTemplateId", "PeriodNo");
+
+                            b1.ToTable("AcademicTimeTemplatePeriods", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("AcademicTimeTemplateId");
+                        });
+
+                    b.Navigation("Periods");
+                });
+
+            modelBuilder.Entity("ZYC.VerbClass.Academic.Domain.CourseOfferingParticipants.CourseOfferingParticipant", b =>
                 {
                     b.HasOne("ZYC.VerbClass.Academic.Domain.CourseOfferings.CourseOffering", null)
                         .WithMany()
                         .HasForeignKey("CourseOfferingId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
 
-                    b.HasOne("Volo.Abp.Identity.IdentityUser", null)
+            modelBuilder.Entity("ZYC.VerbClass.Academic.Domain.CourseOfferings.CourseOffering", b =>
+                {
+                    b.HasOne("ZYC.VerbClass.Academic.Domain.AcademicTerms.AcademicTerm", null)
                         .WithMany()
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("AcademicTermId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("ZYC.VerbClass.Academic.Domain.CourseDefinitions.CourseDefinition", null)
+                        .WithMany()
+                        .HasForeignKey("CourseDefinitionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.OwnsMany("ZYC.VerbClass.Academic.Domain.CourseOfferings.CourseOfferingScheduleSlot", "ScheduleSlots", b1 =>
+                        {
+                            b1.Property<Guid>("CourseOfferingId")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<int>("Weekday")
+                                .HasColumnType("INTEGER");
+
+                            b1.Property<int>("PeriodNo")
+                                .HasColumnType("INTEGER");
+
+                            b1.HasKey("CourseOfferingId", "Weekday", "PeriodNo");
+
+                            b1.ToTable("AcademicCourseOfferingScheduleSlots", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("CourseOfferingId");
+                        });
+
+                    b.Navigation("ScheduleSlots");
                 });
 
             modelBuilder.Entity("ZYC.VerbClass.Domain.DepartmentAssignments.DepartmentAssignment", b =>

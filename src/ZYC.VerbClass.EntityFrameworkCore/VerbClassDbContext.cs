@@ -13,9 +13,11 @@ using Volo.Abp.PermissionManagement.EntityFrameworkCore;
 using Volo.Abp.SettingManagement.EntityFrameworkCore;
 using Volo.Abp.TenantManagement;
 using Volo.Abp.TenantManagement.EntityFrameworkCore;
+using ZYC.VerbClass.Academic.Domain.AcademicTerms;
+using ZYC.VerbClass.Academic.Domain.AcademicTimeTemplates;
 using ZYC.VerbClass.Academic.Domain.CourseDefinitions;
+using ZYC.VerbClass.Academic.Domain.CourseOfferingParticipants;
 using ZYC.VerbClass.Academic.Domain.CourseOfferings;
-using ZYC.VerbClass.Academic.Domain.Memberships;
 using ZYC.VerbClass.Academic.EntityFrameworkCore;
 using ZYC.VerbClass.Domain.AppFiles;
 using ZYC.VerbClass.Domain.DepartmentAssignments;
@@ -66,9 +68,11 @@ public class VerbClassDbContext :
     public DbSet<UserProfile> UserProfiles { get; set; }
     public DbSet<DepartmentAssignment> DepartmentAssignments { get; set; }
     public DbSet<AppFile> AppFiles { get; set; }
+    public DbSet<AcademicTerm> AcademicTerms { get; set; }
+    public DbSet<AcademicTimeTemplate> AcademicTimeTemplates { get; set; }
     public DbSet<CourseDefinition> CourseDefinitions { get; set; }
     public DbSet<CourseOffering> CourseOfferings { get; set; }
-    public DbSet<CourseMembership> CourseMemberships { get; set; }
+    public DbSet<CourseOfferingParticipant> CourseOfferingParticipants { get; set; }
 
     public VerbClassDbContext(DbContextOptions<VerbClassDbContext> options)
         : base(options)
@@ -86,7 +90,11 @@ public class VerbClassDbContext :
         builder.ApplyConfiguration(new DepartmentAssignmentConfiguration());
         builder.ApplyConfiguration(new AppFileConfiguration());
         builder.ApplyConfiguration(new UserProfileConfiguration());
-        builder.ConfigureAcademic();
+        builder.ApplyConfiguration(new AcademicTermConfiguration());
+        builder.ApplyConfiguration(new AcademicTimeTemplateConfiguration());
+        builder.ApplyConfiguration(new CourseDefinitionConfiguration());
+        builder.ApplyConfiguration(new CourseOfferingConfiguration());
+        builder.ApplyConfiguration(new CourseOfferingParticipantConfiguration());
 
         builder.ConfigurePermissionManagement();
         builder.ConfigureSettingManagement();
@@ -97,7 +105,7 @@ public class VerbClassDbContext :
         builder.ConfigureOpenIddict();
         builder.ConfigureTenantManagement();
         builder.ConfigureBlobStoring();
-        
+
         /* Configure your own tables/entities inside here */
 
         //builder.Entity<YourEntity>(b =>

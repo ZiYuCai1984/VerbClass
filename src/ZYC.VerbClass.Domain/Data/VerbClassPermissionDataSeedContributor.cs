@@ -11,8 +11,6 @@ namespace ZYC.VerbClass.Domain.Data;
 
 public class VerbClassPermissionDataSeedContributor : IDataSeedContributor, ITransientDependency
 {
-    private const string AdminRoleName = "admin";
-
     private static readonly string[] InitialOperationsAdminPermissions;
 
     private readonly ICurrentTenant _currentTenant;
@@ -54,6 +52,7 @@ public class VerbClassPermissionDataSeedContributor : IDataSeedContributor, ITra
     {
         using (_currentTenant.Change(tenantId))
         {
+            await EnsureManagedRolesAsync(tenantId);
             await SeedRolePermissionsAsync(
                 VerbClassRoles.OperationsAdmin,
                 tenantId,
@@ -62,12 +61,20 @@ public class VerbClassPermissionDataSeedContributor : IDataSeedContributor, ITra
         }
     }
 
-    private async Task<bool> EnsureRoleAsync(string roleName, Guid tenantId)
+    private async Task EnsureManagedRolesAsync(Guid tenantId)
+    {
+        foreach (var roleName in VerbClassRoles.All)
+        {
+            await EnsureRoleAsync(roleName, tenantId);
+        }
+    }
+
+    private async Task EnsureRoleAsync(string roleName, Guid tenantId)
     {
         var role = await _roleManager.FindByNameAsync(roleName);
         if (role != null)
         {
-            return false;
+            return;
         }
 
         role = new IdentityRole(_guidGenerator.Create(), roleName, tenantId);
@@ -77,8 +84,6 @@ public class VerbClassPermissionDataSeedContributor : IDataSeedContributor, ITra
             var errorMessage = string.Join("; ", result.Errors.Select(x => x.Description));
             throw new InvalidOperationException(errorMessage);
         }
-
-        return true;
     }
 
     private async Task SeedRolePermissionsAsync(string roleName, Guid tenantId, string[] permissionNames)

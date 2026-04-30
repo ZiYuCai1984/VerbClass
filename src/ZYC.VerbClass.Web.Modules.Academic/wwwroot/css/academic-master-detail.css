@@ -1,0 +1,444 @@
+﻿.academic-manager-item {
+  min-height: 0;
+}
+
+.academic-manager-item__title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.academic-manager-item__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-2);
+}
+
+.academic-template-info,
+.academic-term-info,
+.academic-course-definition-info,
+.academic-course-offering-info,
+.academic-course-participant-info,
+.academic-template-editor,
+.academic-term-editor,
+.academic-course-definition-editor,
+.academic-course-offering-editor {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 100%;
+}
+
+.academic-template-info__summary,
+.academic-term-info__summary,
+.academic-course-definition-info__summary,
+.academic-course-offering-info__summary,
+.academic-course-participant-info__summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-bottom: var(--border-width) solid var(--color-border);
+  background: var(--color-bg-panel-alt);
+}
+
+.academic-template-info__title,
+.academic-template-info__meta,
+.academic-template-info__actions,
+.academic-term-info__title,
+.academic-term-info__meta,
+.academic-term-info__actions,
+.academic-course-definition-info__title,
+.academic-course-definition-info__meta,
+.academic-course-definition-info__actions,
+.academic-course-offering-info__title,
+.academic-course-offering-info__meta,
+.academic-course-offering-info__actions,
+.academic-course-participant-info__title,
+.academic-course-participant-info__meta,
+.academic-editor__preview-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.academic-template-info__code,
+.academic-term-info__code,
+.academic-course-definition-info__code,
+.academic-course-offering-info__code {
+  color: var(--color-text-secondary);
+}
+
+.academic-template-info__sections,
+.academic-term-info__sections,
+.academic-course-definition-info__sections,
+.academic-course-offering-info__sections,
+.academic-course-participant-info__sections {
+  display: flex;
+  flex-direction: column;
+}
+
+.academic-template-info__kv,
+.academic-term-info__kv,
+.academic-course-definition-info__kv,
+.academic-course-offering-info__kv {
+  grid-template-columns: 1fr;
+}
+
+.academic-template-info__kv .kv-grid__row > :last-child,
+.academic-term-info__kv .kv-grid__row > :last-child,
+.academic-course-definition-info__kv .kv-grid__row > :last-child,
+.academic-course-offering-info__kv .kv-grid__row > :last-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.academic-template-editor__summary,
+.academic-term-editor__summary,
+.academic-course-definition-editor__summary,
+.academic-course-offering-editor__summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-3) var(--space-3) 0;
+  padding: var(--space-2) var(--space-3);
+  border: var(--border-width) solid #ddcfab;
+  background: #faf4e6;
+  color: var(--color-warning);
+}
+
+.academic-course-participant-editor__summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border: var(--border-width) solid #ddcfab;
+  background: #faf4e6;
+  color: var(--color-warning);
+}
+
+.academic-course-participant-editor__summary ul {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.academic-template-editor__summary ul,
+.academic-term-editor__summary ul,
+.academic-course-definition-editor__summary ul,
+.academic-course-offering-editor__summary ul {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.academic-template-editor__body,
+.academic-term-editor__body,
+.academic-course-definition-editor__body,
+.academic-course-offering-editor__body {
+  flex: 1 1 auto;
+}
+
+.academic-template-editor__field-error,
+.academic-term-editor__field-error,
+.academic-course-definition-editor__field-error,
+.academic-course-offering-editor__field-error {
+  color: var(--color-danger);
+  font-size: var(--font-size-2);
+}
+
+.academic-course-participant-editor__field-error {
+  color: var(--color-danger);
+  font-size: var(--font-size-2);
+}
+
+.academic-template-editor__foot,
+.academic-term-editor__foot,
+.academic-course-definition-editor__foot,
+.academic-course-offering-editor__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: auto;
+  padding: var(--space-3);
+  border-top: var(--border-width) solid var(--color-border);
+  background: var(--color-bg-panel-alt);
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+}
+
+.academic-editor__hint,
+.academic-editor__footnote {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-2);
+}
+
+.academic-editor__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.academic-period-table-wrap {
+  overflow: auto;
+  border: var(--border-width) solid var(--color-border);
+  background: var(--color-bg-panel);
+}
+
+.academic-period-table-wrap table {
+  /*min-width: 460px;*/
+}
+
+.academic-period-table-wrap tbody td input {
+  min-width: 88px;
+}
+
+.academic-offering-term-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-bottom: var(--border-width) solid var(--color-border);
+  background: var(--color-bg-panel-alt);
+}
+
+.academic-offering-term-picker select {
+  min-width: 0;
+  flex: 1 1 180px;
+}
+
+.form-grid__full {
+  grid-column: 1 / -1;
+}
+
+.academic-course-participant-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.academic-participant-list {
+  display: flex;
+  flex-direction: column;
+  border-top: var(--border-width) solid var(--color-border);
+}
+
+.academic-participant-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: flex-start;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+
+.academic-participant-row__user {
+  display: flex;
+  flex: 1 1 100%;
+  flex-direction: column;
+  min-width: 0;
+  gap: 2px;
+}
+
+.academic-participant-row__user strong,
+.academic-participant-row__user .u-muted {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.academic-participant-row > select {
+  flex: 1 1 160px;
+  max-width: 220px;
+  min-width: 0;
+}
+
+.academic-participant-row__actions {
+  display: flex;
+  flex-wrap: wrap;
+  flex: 0 1 auto;
+  gap: var(--space-2);
+  justify-content: flex-end;
+}
+
+.academic-timetable-page {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.academic-timetable-shell {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+.academic-timetable-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.academic-timetable-head > div,
+.academic-timetable-head__stats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.academic-timetable-body {
+  display: block;
+  min-height: 0;
+  padding: var(--space-3);
+  gap: var(--space-3);
+}
+
+.academic-timetable-grid-wrap {
+  flex: 1 1 auto;
+  min-height: 0;
+  border: var(--border-width) solid var(--color-border);
+  background: var(--color-bg-panel);
+}
+
+.academic-timetable-grid {
+  min-width: 980px;
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.academic-timetable-grid th,
+.academic-timetable-grid td {
+  text-align:center;
+  border-right: var(--border-width) solid var(--color-border);
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+
+.academic-timetable-grid thead th {
+   background: var(--color-bg-panel-alt);
+}
+
+.academic-timetable-grid__period-head,
+.academic-timetable-period {
+  width: 116px;
+}
+
+.academic-timetable-grid > .academic-timetable-period {
+   background: var(--color-bg-panel-alt);
+}
+
+.academic-timetable-period strong,
+.academic-timetable-period span {
+   display: block;
+   vertical-align: middle;
+}
+
+.academic-timetable-period span {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-2);
+  font-weight: 400;
+}
+
+.academic-timetable-cell {
+  height: 124px;
+  vertical-align: top;
+  padding: var(--space-2);
+  background: var(--color-bg-panel);
+}
+
+.academic-timetable-cell.is-empty {
+  background: var(--color-bg-panel-muted);
+}
+
+.academic-timetable-empty-cell {
+  color: var(--color-text-muted);
+}
+
+.academic-timetable-card,
+.academic-timetable-unscheduled__item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: var(--space-2);
+  border: var(--border-width) solid var(--color-border);
+  background: var(--color-bg-panel-alt);
+  color: var(--color-text);
+  text-decoration: none;
+  text-align: left;
+}
+
+.academic-timetable-card + .academic-timetable-card {
+  margin-top: var(--space-2);
+}
+
+.academic-timetable-card:hover,
+.academic-timetable-unscheduled__item:hover {
+  border-color: var(--color-border-strong);
+  background: var(--color-bg-accent-soft);
+}
+
+.academic-timetable-card strong,
+.academic-timetable-unscheduled__item strong {
+  overflow-wrap: anywhere;
+}
+
+.academic-timetable-card span,
+.academic-timetable-unscheduled__item span {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-2);
+}
+
+.academic-timetable-card__code {
+  color: var(--color-text) !important;
+  font-weight: 600;
+}
+
+.academic-timetable-unscheduled {
+  border: var(--border-width) solid var(--color-border);
+}
+
+.academic-timetable-unscheduled__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-2);
+  padding: var(--space-3);
+}
+
+@media (max-width: 860px) {
+  .academic-period-table-wrap table {
+    min-width: 0;
+  }
+
+  .academic-participant-row {
+    flex-direction: column;
+  }
+
+  .academic-participant-row > select,
+  .academic-participant-row__actions {
+    width: 100%;
+    max-width: none;
+    justify-content: flex-start;
+  }
+
+  .academic-timetable-body {
+    padding: var(--space-2);
+  }
+
+  .academic-timetable-grid {
+    min-width: 820px;
+  }
+}

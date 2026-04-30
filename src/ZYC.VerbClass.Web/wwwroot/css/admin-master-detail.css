@@ -816,7 +816,7 @@
 }
 
 .audit-log-info__table-wrap table {
-  min-width: 520px;
+  /*min-width: 520px;*/
 }
 
 @media (max-width: 1120px) {

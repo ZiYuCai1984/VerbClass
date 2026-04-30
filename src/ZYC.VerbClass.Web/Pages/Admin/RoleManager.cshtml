@@ -1,4 +1,4 @@
-@page
+﻿@page
 @model ZYC.VerbClass.Web.Pages.Admin.RoleManagerModel
 
 @section Styles {
@@ -6,7 +6,7 @@
 }
 
 <div id="role-manager-content" class="master-detail-page">
-    <partial name="_RoleManagerContent" model="Model.State"/>
+    <partial name="~/Pages/Admin/RoleManagerPartials/_RoleManagerContent.cshtml" model="Model.State" />
 </div>
 
 @section Scripts {

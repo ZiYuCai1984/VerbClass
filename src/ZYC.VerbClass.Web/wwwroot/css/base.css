@@ -56,6 +56,13 @@ button:hover {
   background: var(--color-bg-panel-alt);
 }
 
+button:disabled {
+  border-color: var(--color-border);
+  background: var(--color-bg-panel-alt);
+  color: var(--color-text-muted);
+  cursor: default;
+}
+
 button.is-primary {
   border-color: var(--color-accent);
   background: var(--color-accent);
@@ -268,7 +275,6 @@ small {
   border-radius: 999px;
   background: #c0cad5;
 }
-
 
 fieldset {
     min-inline-size: 0;

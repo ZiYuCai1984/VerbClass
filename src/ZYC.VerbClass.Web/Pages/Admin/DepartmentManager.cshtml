@@ -1,15 +1,12 @@
 ﻿@page
 @model ZYC.VerbClass.Web.Pages.Admin.DepartmentManagerModel
-@{
-    ViewData["Title"] = "Department Manager";
-}
 
 @section Styles {
     <link rel="stylesheet" href="/css/admin-master-detail.css"/>
 }
 
 <div id="department-manager-content" class="master-detail-page">
-    <partial name="_DepartmentManagerContent" model="Model.State"/>
+    <partial name="~/Pages/Admin/DepartmentManagerPartials/_DepartmentManagerContent.cshtml" model="Model.State" />
 </div>
 
 @section Scripts {

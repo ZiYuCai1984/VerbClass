@@ -1,0 +1,172 @@
+﻿@model ZYC.VerbClass.Web.Modules.Academic.Pages.Academic.TimeTemplateManagerPartials.TimeTemplateEditorModel
+@{
+    var submitUrl = Model.IsCreate
+        ? Url.Page(null, "Create")
+        : Url.Page(null, "Update", new { templateId = Model.TemplateId });
+    var cancelUrl = Url.Page(
+        null,
+        "View",
+        Model.IsCreate
+            ? new { templateId = Model.ReturnTemplateId }
+            : new { templateId = Model.TemplateId });
+}
+
+<form method="post"
+      hx-post="@submitUrl"
+      hx-target="#academic-time-template-manager-content"
+      hx-swap="innerHTML"
+      class="academic-template-editor"
+      data-academic-template-form>
+    <input type="hidden" asp-for="ReturnTemplateId"/>
+
+    @if (Model.HasErrors)
+    {
+        <div class="academic-template-editor__summary">
+            @if (Model.SummaryErrors.Count == 0)
+            {
+                <div>Please correct the highlighted fields.</div>
+            }
+            else
+            {
+                <ul>
+                    @foreach (var error in Model.SummaryErrors)
+                    {
+                        <li>@error</li>
+                    }
+                </ul>
+            }
+        </div>
+    }
+
+    <div class="academic-template-editor__body form-layout">
+        <section class="form-section">
+            <div class="form-section__title">Basic</div>
+            <div class="form-grid form-grid--two">
+                <div class="field">
+                    <label class="field__label" asp-for="Code"></label>
+                    <input asp-for="Code" autocomplete="off"/>
+                    @foreach (var error in Model.GetErrors(nameof(Model.Code)))
+                    {
+                        <div class="academic-template-editor__field-error">@error</div>
+                    }
+                </div>
+
+                <div class="field">
+                    <label class="field__label" asp-for="Name"></label>
+                    <input asp-for="Name" autocomplete="off"/>
+                    @foreach (var error in Model.GetErrors(nameof(Model.Name)))
+                    {
+                        <div class="academic-template-editor__field-error">@error</div>
+                    }
+                </div>
+            </div>
+        </section>
+
+        <section class="form-section">
+            <div class="form-section__title">Time Definition</div>
+            <div class="academic-editor__hint">Terms copy these period values at creation time.</div>
+            @foreach (var error in Model.GetErrors(nameof(Model.Periods)))
+            {
+                <div class="academic-template-editor__field-error">@error</div>
+            }
+            <div class="academic-period-table-wrap">
+                <table class="compact-table">
+                    <thead>
+                    <tr>
+                        <th>Period</th>
+                        <th>Label</th>
+                        <th>Start</th>
+                        <th>End</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody data-academic-template-period-rows>
+                    @for (var i = 0; i < Model.Periods.Count; i++)
+                    {
+                        var period = Model.Periods[i];
+                        <tr data-academic-period-row>
+                            <td>
+                                <input name="Periods[@i].PeriodNo"
+                                       value="@period.PeriodNo"
+                                       inputmode="numeric"
+                                       data-period-field="PeriodNo"/>
+                                @foreach (var error in Model.GetErrors($"Periods[{i}].PeriodNo"))
+                                {
+                                    <div class="academic-template-editor__field-error">@error</div>
+                                }
+                            </td>
+                            <td>
+                                <input name="Periods[@i].Label"
+                                       value="@period.Label"
+                                       autocomplete="off"
+                                       data-period-field="Label"/>
+                                @foreach (var error in Model.GetErrors($"Periods[{i}].Label"))
+                                {
+                                    <div class="academic-template-editor__field-error">@error</div>
+                                }
+                            </td>
+                            <td>
+                                <input name="Periods[@i].StartTime"
+                                       value="@period.StartTime"
+                                       autocomplete="off"
+                                       placeholder="HH:mm"
+                                       data-period-field="StartTime"/>
+                                @foreach (var error in Model.GetErrors($"Periods[{i}].StartTime"))
+                                {
+                                    <div class="academic-template-editor__field-error">@error</div>
+                                }
+                            </td>
+                            <td>
+                                <input name="Periods[@i].EndTime"
+                                       value="@period.EndTime"
+                                       autocomplete="off"
+                                       placeholder="HH:mm"
+                                       data-period-field="EndTime"/>
+                                @foreach (var error in Model.GetErrors($"Periods[{i}].EndTime"))
+                                {
+                                    <div class="academic-template-editor__field-error">@error</div>
+                                }
+                            </td>
+                            <td class="u-right">
+                                <button type="button" data-remove-academic-period>Remove</button>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+            <template data-academic-template-period-row-template>
+                <tr data-academic-period-row>
+                    <td>
+                        <input value="0" inputmode="numeric" data-period-field="PeriodNo"/>
+                    </td>
+                    <td>
+                        <input value="" autocomplete="off" data-period-field="Label"/>
+                    </td>
+                    <td>
+                        <input value="" autocomplete="off" placeholder="HH:mm" data-period-field="StartTime"/>
+                    </td>
+                    <td>
+                        <input value="" autocomplete="off" placeholder="HH:mm" data-period-field="EndTime"/>
+                    </td>
+                    <td class="u-right">
+                        <button type="button" data-remove-academic-period>Remove</button>
+                    </td>
+                </tr>
+            </template>
+            <div class="academic-editor__actions">
+                <button type="button" data-add-academic-period>Add Period</button>
+            </div>
+        </section>
+    </div>
+
+    <div class="academic-template-editor__foot">
+        <button type="submit" class="is-primary">@Model.SubmitText</button>
+        <button type="button"
+                hx-get="@cancelUrl"
+                hx-target="#academic-time-template-manager-content"
+                hx-swap="innerHTML">
+            Cancel
+        </button>
+    </div>
+</form>

@@ -167,7 +167,7 @@
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
-  gap: var(--space-3);
+  /*gap: var(--space-3);*/
   padding: var(--page-padding);
   overflow: hidden;
 }
@@ -182,15 +182,19 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex: 0 0 28px;
   width: 28px;
   height: 28px;
-  border: var(--border-width) solid #153e66;
+  overflow: hidden;
+  border: 0;
   border-radius: var(--radius-1);
-  background: var(--color-bg-accent-strong);
-  color: #ffffff;
-  font-size: var(--font-size-2);
-  font-weight: 700;
-  letter-spacing: 0.04em;
+  background: transparent;
+}
+
+.brand__mark-image {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .brand__copy {
@@ -451,7 +455,7 @@
 }
 
 .modal-content {
-  min-height: 160px;
+  /*min-height: 160px;*/
   /*overflow: auto;*/
   padding: var(--space-4);
   background:

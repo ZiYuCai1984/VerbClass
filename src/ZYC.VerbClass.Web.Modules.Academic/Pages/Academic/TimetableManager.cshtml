@@ -1,0 +1,12 @@
+﻿@page
+@model ZYC.VerbClass.Web.Modules.Academic.Pages.Academic.TimetableManagerModel
+
+
+@section Styles {
+    <link rel="stylesheet" href="/css/admin-master-detail.css"/>
+    <link rel="stylesheet" href="/css/academic-master-detail.css"/>
+}
+
+<div id="academic-timetable-content" class="academic-timetable-page">
+    <partial name="~/Pages/Academic/TimetableManagerPartials/_TimetableContent.cshtml" model="Model.State"/>
+</div>

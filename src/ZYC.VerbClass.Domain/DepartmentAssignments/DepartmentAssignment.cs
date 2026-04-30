@@ -1,9 +1,11 @@
 ﻿using Volo.Abp;
+using Volo.Abp.Auditing;
 using Volo.Abp.Domain.Entities;
 using Volo.Abp.MultiTenancy;
 
 namespace ZYC.VerbClass.Domain.DepartmentAssignments;
 
+[Audited]
 public class DepartmentAssignment : AggregateRoot<Guid>, IMultiTenant
 {
     public Guid? TenantId { get; protected set; }

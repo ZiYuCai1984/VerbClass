@@ -1,0 +1,103 @@
+﻿@page
+@model ZYC.VerbClass.Web.Modules.Academic.Pages.Academic.CourseOfferingManagerModel
+
+@section Styles {
+    <link rel="stylesheet" href="/css/admin-master-detail.css"/>
+    <link rel="stylesheet" href="/css/academic-master-detail.css"/>
+}
+
+<div id="course-offering-manager-content" class="master-detail-page">
+    <partial name="~/Pages/Academic/CourseOfferingManagerPartials/_CourseOfferingManagerContent.cshtml" model="Model.State"/>
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const itemSelector = '[data-course-offering-item]';
+            const formSelector = '[data-course-offering-form]';
+
+            function setSelectedItem(offeringId) {
+                document.querySelectorAll(itemSelector).forEach(item => {
+                    item.classList.toggle('is-selected', item.dataset.offeringId === offeringId);
+                });
+            }
+
+            function renumberScheduleRows(form) {
+                form.querySelectorAll('[data-course-offering-schedule-row]').forEach((row, index) => {
+                    row.querySelectorAll('[data-schedule-field]').forEach(input => {
+                        const field = input.dataset.scheduleField ?? '';
+                        input.name = `ScheduleSlots[${index}].${field}`;
+                    });
+                });
+            }
+
+            function addScheduleRow(button) {
+                const form = button.closest(formSelector);
+                const tbody = form?.querySelector('[data-course-offering-schedule-rows]');
+                const template = form?.querySelector('template[data-course-offering-schedule-row-template]');
+                if (!(tbody instanceof HTMLElement) || !(template instanceof HTMLTemplateElement)) {
+                    return;
+                }
+
+                tbody.appendChild(template.content.cloneNode(true));
+                renumberScheduleRows(form);
+            }
+
+            function removeScheduleRow(button) {
+                const row = button.closest('[data-course-offering-schedule-row]');
+                const form = button.closest(formSelector);
+                row?.remove();
+                if (form instanceof HTMLElement) {
+                    renumberScheduleRows(form);
+                }
+            }
+
+            function initialize(root = document) {
+                root.querySelectorAll(formSelector).forEach(renumberScheduleRows);
+            }
+
+            document.addEventListener('click', event => {
+                const item = event.target.closest(itemSelector);
+                if (item) {
+                    setSelectedItem(item.dataset.offeringId ?? '');
+                    return;
+                }
+
+                const addButton = event.target.closest('[data-add-course-offering-schedule]');
+                if (addButton instanceof HTMLElement) {
+                    addScheduleRow(addButton);
+                    return;
+                }
+
+                const removeButton = event.target.closest('[data-remove-course-offering-schedule]');
+                if (removeButton instanceof HTMLElement) {
+                    removeScheduleRow(removeButton);
+                }
+            });
+
+            document.addEventListener('htmx:afterSwap', event => {
+                if (!(event.target instanceof HTMLElement)) {
+                    return;
+                }
+
+                if (event.target.id === 'course-offering-manager-content') {
+                    initialize(event.target);
+                }
+            });
+
+            window.addEventListener('popstate', () => {
+                const query = new URLSearchParams(window.location.search);
+                setSelectedItem(query.get('OfferingId') ?? '');
+            });
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const query = new URLSearchParams(window.location.search);
+                setSelectedItem(query.get('OfferingId') ?? '');
+                initialize();
+
+                const selected = document.querySelector('.academic-manager-item.is-selected');
+                selected?.scrollIntoView({ block: 'nearest' });
+            });
+        })();
+    </script>
+}

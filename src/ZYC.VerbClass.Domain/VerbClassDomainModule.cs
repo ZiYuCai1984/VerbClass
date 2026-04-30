@@ -14,13 +14,11 @@ using Volo.Abp.PermissionManagement.Identity;
 using Volo.Abp.PermissionManagement.OpenIddict;
 using Volo.Abp.SettingManagement;
 using Volo.Abp.TenantManagement;
-using ZYC.VerbClass.Academic.Domain;
 using ZYC.VerbClass.Domain.Shared;
 
 namespace ZYC.VerbClass.Domain;
 
 [DependsOn(
-    typeof(AcademicDomainModule),
     typeof(VerbClassDomainSharedModule),
     typeof(AbpAuditLoggingDomainModule),
     typeof(AbpCachingModule),

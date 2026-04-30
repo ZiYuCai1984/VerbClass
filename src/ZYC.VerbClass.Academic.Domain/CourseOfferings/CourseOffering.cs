@@ -1,12 +1,16 @@
-using Volo.Abp;
+﻿using Volo.Abp;
+using Volo.Abp.Auditing;
 using Volo.Abp.Domain.Entities.Auditing;
 using Volo.Abp.MultiTenancy;
 using ZYC.VerbClass.Academic.Domain.Shared;
 
 namespace ZYC.VerbClass.Academic.Domain.CourseOfferings;
 
+[Audited]
 public class CourseOffering : FullAuditedAggregateRoot<Guid>, IMultiTenant
 {
+    private readonly List<CourseOfferingScheduleSlot> _scheduleSlots = [];
+
     protected CourseOffering()
     {
     }
@@ -14,17 +18,22 @@ public class CourseOffering : FullAuditedAggregateRoot<Guid>, IMultiTenant
     public CourseOffering(
         Guid id,
         Guid tenantId,
+        Guid academicTermId,
         Guid courseDefinitionId,
-        AcademicTerm term,
-        DayOfWeek? scheduleDayOfWeek,
-        TimeSpan? scheduleStartTime,
-        TimeSpan? scheduleEndTime,
-        string? scheduleLocation,
-        EnrollmentPolicy enrollmentPolicy) : base(id)
+        string offeringCode,
+        string courseCodeSnapshot,
+        string courseNameSnapshot,
+        IEnumerable<CourseOfferingScheduleSlot> scheduleSlots,
+        IEnumerable<int> validPeriodNos) : base(id)
     {
         if (tenantId == Guid.Empty)
         {
             throw new AbpException("TenantId can not be empty.");
+        }
+
+        if (academicTermId == Guid.Empty)
+        {
+            throw new AbpException("AcademicTermId can not be empty.");
         }
 
         if (courseDefinitionId == Guid.Empty)
@@ -33,172 +42,98 @@ public class CourseOffering : FullAuditedAggregateRoot<Guid>, IMultiTenant
         }
 
         TenantId = tenantId;
+        AcademicTermId = academicTermId;
         CourseDefinitionId = courseDefinitionId;
-        SetTerm(term);
-        SetSchedule(
-            scheduleDayOfWeek,
-            scheduleStartTime,
-            scheduleEndTime,
-            scheduleLocation
-        );
-        SetEnrollmentPolicy(enrollmentPolicy);
-        Status = CourseOfferingStatus.Draft;
-        IsLocked = false;
+        ChangeOfferingCode(offeringCode);
+        CourseCodeSnapshot = NormalizeCourseCodeSnapshot(courseCodeSnapshot);
+        CourseNameSnapshot = NormalizeCourseNameSnapshot(courseNameSnapshot);
+        ReplaceScheduleSlots(scheduleSlots, validPeriodNos);
     }
 
     public Guid? TenantId { get; protected set; }
 
+    public Guid AcademicTermId { get; private set; }
+
     public Guid CourseDefinitionId { get; private set; }
 
-    public int AcademicYear { get; private set; }
+    public string OfferingCode { get; private set; } = string.Empty;
 
-    public string TermName { get; private set; } = string.Empty;
+    public string CourseCodeSnapshot { get; private set; } = string.Empty;
 
-    public DayOfWeek? ScheduleDayOfWeek { get; private set; }
+    public string CourseNameSnapshot { get; private set; } = string.Empty;
 
-    public TimeSpan? ScheduleStartTime { get; private set; }
+    public IReadOnlyList<CourseOfferingScheduleSlot> ScheduleSlots => _scheduleSlots;
 
-    public TimeSpan? ScheduleEndTime { get; private set; }
-
-    public string? ScheduleLocation { get; private set; }
-
-    public DateTime EnrollmentStartsAt { get; private set; }
-
-    public DateTime EnrollmentEndsAt { get; private set; }
-
-    public CourseOfferingStatus Status { get; private set; }
-
-    public bool IsLocked { get; private set; }
-
-    public void SetTerm(AcademicTerm term)
+    public void ChangeOfferingCode(string offeringCode)
     {
-        var validatedTerm = Check.NotNull(term, nameof(term));
-        AcademicYear = validatedTerm.AcademicYear;
-        TermName = validatedTerm.TermName;
+        OfferingCode = NormalizeOfferingCode(offeringCode);
     }
 
-    public void SetSchedule(
-        DayOfWeek? dayOfWeek,
-        TimeSpan? startTime,
-        TimeSpan? endTime,
-        string? location = null)
+    public void ReplaceScheduleSlots(
+        IEnumerable<CourseOfferingScheduleSlot> scheduleSlots,
+        IEnumerable<int> validPeriodNos)
     {
-        var hasDayOfWeek = dayOfWeek.HasValue;
-        var hasStartTime = startTime.HasValue;
-        var hasEndTime = endTime.HasValue;
-        var hasScheduleValues = hasDayOfWeek || hasStartTime || hasEndTime;
+        Check.NotNull(scheduleSlots, nameof(scheduleSlots));
+        Check.NotNull(validPeriodNos, nameof(validPeriodNos));
 
-        if (hasScheduleValues && !(hasDayOfWeek && hasStartTime && hasEndTime))
+        var validPeriodNoSet = validPeriodNos.ToHashSet();
+        var normalizedSlots = scheduleSlots
+            .OrderBy(x => x.Weekday)
+            .ThenBy(x => x.PeriodNo)
+            .ToArray();
+
+        var seenSlots = new HashSet<(AcademicWeekday Weekday, int PeriodNo)>();
+        foreach (var slot in normalizedSlots)
         {
-            throw CreateInvalidScheduleException(dayOfWeek, startTime, endTime);
-        }
+            CourseOfferingScheduleSlot.NormalizeWeekday(slot.Weekday);
+            CourseOfferingScheduleSlot.NormalizePeriodNo(slot.PeriodNo);
 
-        if (hasScheduleValues)
-        {
-            var validatedDayOfWeek = dayOfWeek!.Value;
-            var validatedStartTime = startTime!.Value;
-            var validatedEndTime = endTime!.Value;
-
-            if (!Enum.IsDefined(typeof(DayOfWeek), validatedDayOfWeek) || validatedEndTime <= validatedStartTime)
+            if (!validPeriodNoSet.Contains(slot.PeriodNo))
             {
-                throw CreateInvalidScheduleException(dayOfWeek, startTime, endTime);
+                throw new BusinessException(CourseOfferingErrorCodes.UnknownTermPeriodNo)
+                    .WithData(nameof(CourseOfferingScheduleSlot.PeriodNo), slot.PeriodNo);
+            }
+
+            var key = (slot.Weekday, slot.PeriodNo);
+            if (!seenSlots.Add(key))
+            {
+                throw new BusinessException(CourseOfferingErrorCodes.DuplicateScheduleSlot)
+                    .WithData(nameof(CourseOfferingScheduleSlot.Weekday), slot.Weekday)
+                    .WithData(nameof(CourseOfferingScheduleSlot.PeriodNo), slot.PeriodNo);
             }
         }
 
-        ScheduleDayOfWeek = dayOfWeek;
-        ScheduleStartTime = startTime;
-        ScheduleEndTime = endTime;
-        SetScheduleLocation(location);
+        _scheduleSlots.Clear();
+        _scheduleSlots.AddRange(normalizedSlots);
     }
 
-    public void SetEnrollmentPolicy(EnrollmentPolicy enrollmentPolicy)
+    internal static string NormalizeOfferingCode(string offeringCode)
     {
-        var validatedEnrollmentPolicy = Check.NotNull(enrollmentPolicy, nameof(enrollmentPolicy));
-        EnrollmentStartsAt = validatedEnrollmentPolicy.OpensAt;
-        EnrollmentEndsAt = validatedEnrollmentPolicy.ClosesAt;
+        return Check.NotNullOrWhiteSpace(
+                offeringCode,
+                nameof(offeringCode),
+                CourseOfferingConsts.MaxOfferingCodeLength
+            )
+            .Trim();
     }
 
-    public AcademicTerm GetTerm()
+    private static string NormalizeCourseCodeSnapshot(string courseCodeSnapshot)
     {
-        return new AcademicTerm(AcademicYear, TermName);
+        return Check.NotNullOrWhiteSpace(
+                courseCodeSnapshot,
+                nameof(courseCodeSnapshot),
+                CourseOfferingConsts.MaxCourseCodeSnapshotLength
+            )
+            .Trim();
     }
 
-    public ScheduleSlot? GetScheduleSlot()
+    private static string NormalizeCourseNameSnapshot(string courseNameSnapshot)
     {
-        if (!ScheduleDayOfWeek.HasValue || !ScheduleStartTime.HasValue || !ScheduleEndTime.HasValue)
-        {
-            return null;
-        }
-
-        return new ScheduleSlot(
-            ScheduleDayOfWeek.Value,
-            ScheduleStartTime.Value,
-            ScheduleEndTime.Value,
-            ScheduleLocation
-        );
-    }
-
-    public EnrollmentPolicy GetEnrollmentPolicy()
-    {
-        return new EnrollmentPolicy(EnrollmentStartsAt, EnrollmentEndsAt);
-    }
-
-    public bool IsEnrollmentOpen(DateTime atTime)
-    {
-        return atTime >= EnrollmentStartsAt && atTime <= EnrollmentEndsAt;
-    }
-
-    public void EnsureAllowsStudentJoin(DateTime atTime)
-    {
-        if (IsLocked)
-        {
-            throw new BusinessException(AcademicErrorCodes.CourseOfferingLocked)
-                .WithData("CourseOfferingId", Id);
-        }
-
-        if (!IsEnrollmentOpen(atTime))
-        {
-            throw new BusinessException(AcademicErrorCodes.MembershipEnrollmentNotOpen)
-                .WithData("CourseOfferingId", Id)
-                .WithData("EnrollmentStartsAt", EnrollmentStartsAt)
-                .WithData("EnrollmentEndsAt", EnrollmentEndsAt)
-                .WithData("AtTime", atTime);
-        }
-    }
-
-    public void Lock()
-    {
-        IsLocked = true;
-    }
-
-    public void Unlock()
-    {
-        IsLocked = false;
-    }
-
-    private void SetScheduleLocation(string? location)
-    {
-        if (location.IsNullOrWhiteSpace())
-        {
-            ScheduleLocation = null;
-            return;
-        }
-
-        ScheduleLocation = Check.Length(
-            location.Trim(),
-            nameof(location),
-            CourseOfferingConsts.MaxLocationLength
-        );
-    }
-
-    private static BusinessException CreateInvalidScheduleException(
-        DayOfWeek? dayOfWeek,
-        TimeSpan? startTime,
-        TimeSpan? endTime)
-    {
-        return new BusinessException(AcademicErrorCodes.CourseOfferingScheduleSlotInvalid)
-            .WithData("DayOfWeek", dayOfWeek.HasValue ? (object)(int)dayOfWeek.Value : "(null)")
-            .WithData("StartTime", startTime.HasValue ? (object)startTime.Value : "(null)")
-            .WithData("EndTime", endTime.HasValue ? (object)endTime.Value : "(null)");
+        return Check.NotNullOrWhiteSpace(
+                courseNameSnapshot,
+                nameof(courseNameSnapshot),
+                CourseOfferingConsts.MaxCourseNameSnapshotLength
+            )
+            .Trim();
     }
 }

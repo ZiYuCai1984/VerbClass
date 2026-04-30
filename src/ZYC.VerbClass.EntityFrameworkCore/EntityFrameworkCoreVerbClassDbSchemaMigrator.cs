@@ -23,9 +23,14 @@ public class EntityFrameworkCoreVerbClassDbSchemaMigrator
          * current scope.
          */
 
-        await _serviceProvider
-            .GetRequiredService<VerbClassDbContext>()
-            .Database
-            .MigrateAsync();
+        var dbContext = _serviceProvider.GetRequiredService<VerbClassDbContext>();
+        if (!dbContext.Database.GetMigrations().Any())
+        {
+            throw new InvalidOperationException(
+                $"{nameof(VerbClassDbContext)} has no EF Core migrations. Create migrations in the ZYC.VerbClass.EntityFrameworkCore project before running DbMigrator."
+            );
+        }
+
+        await dbContext.Database.MigrateAsync();
     }
 }

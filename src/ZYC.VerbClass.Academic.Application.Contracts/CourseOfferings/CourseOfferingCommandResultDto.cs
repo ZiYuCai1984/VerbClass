@@ -1,18 +1,12 @@
-using ZYC.VerbClass.Academic.Domain.Shared;
-
 namespace ZYC.VerbClass.Academic.Application.Contracts.CourseOfferings;
 
 public class CourseOfferingCommandResultDto
 {
     public Guid Id { get; set; }
 
-    public Guid CourseDefinitionId { get; set; }
+    public Guid AcademicTermId { get; set; }
 
-    public int AcademicYear { get; set; }
+    public string OfferingCode { get; set; } = string.Empty;
 
-    public string TermName { get; set; } = string.Empty;
-
-    public CourseOfferingStatus Status { get; set; }
-
-    public bool IsLocked { get; set; }
+    public string CourseNameSnapshot { get; set; } = string.Empty;
 }

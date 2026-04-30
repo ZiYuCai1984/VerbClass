@@ -66,7 +66,7 @@ public partial class LoginModel : VerbClassPageModel
             return LocalRedirect(GetSafeReturnUrl());
         }
 
-        var tenant = await _loginTenantService.ResolveTenantAsync(VerbClassConsts.InitialTenantName);
+        var tenant = await _loginTenantService.ResolveTenantAsync(VerbClassConsts.SakuradaUniversityDemoTenantName);
         if (!tenant.IsValid)
         {
             ApplyLockedTenant();
@@ -99,7 +99,7 @@ public partial class LoginModel : VerbClassPageModel
 
         if (result.Succeeded)
         {
-            ToastInfo($"Signed in as {loginName ?? userNameOrEmail}.", "Welcome");
+            ToastInfo($"Signed in as {loginName}.", "Welcome");
             return LocalRedirect(GetSafeReturnUrl());
         }
 
@@ -133,8 +133,8 @@ public partial class LoginModel : VerbClassPageModel
 
     private void ApplyLockedTenant()
     {
-        Input.TenantName = VerbClassConsts.InitialTenantName;
+        Input.TenantName = VerbClassConsts.SakuradaUniversityDemoTenantName;
         ModelState.Remove($"{nameof(Input)}.{nameof(InputModel.TenantName)}");
-        SetCurrentTenantDisplayName(VerbClassConsts.InitialTenantName);
+        SetCurrentTenantDisplayName(VerbClassConsts.SakuradaUniversityDemoTenantName);
     }
 }

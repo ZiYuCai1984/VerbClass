@@ -6,16 +6,18 @@ using ZYC.VerbClass.Academic.Application.Contracts;
 namespace ZYC.VerbClass.Academic.HttpApi.Client;
 
 [DependsOn(
-    typeof(AcademicApplicationContractsModule),
-    typeof(AbpHttpClientModule)
+    typeof(AbpHttpClientModule),
+    typeof(AcademicApplicationContractsModule)
 )]
 public class AcademicHttpApiClientModule : AbpModule
 {
+    public const string RemoteServiceName = "Default";
+
     public override void ConfigureServices(ServiceConfigurationContext context)
     {
         context.Services.AddHttpClientProxies(
             typeof(AcademicApplicationContractsModule).Assembly,
-            AcademicRemoteServiceConsts.RemoteServiceName
+            RemoteServiceName
         );
     }
 }

@@ -10,6 +10,9 @@
 - Prefer reuse of existing layout and page patterns over creating new page-specific structures.
 - Do not introduce a component-library mindset unless the user explicitly asks for it.
 - Keep the UI compact and suitable for a business or back-office system.
+- Remove redundant explanatory copy when the page title, section title, and available actions already make the intent clear.
+- Avoid `page-heading__meta`, long helper paragraphs, and verbose empty-state text unless the information is required for the user to complete the task.
+- Prefer short section labels and action labels over repeating the full page name inside nested panels.
 - Avoid marketing-style layouts, oversized headings, exaggerated whitespace, large shadows, or decorative styling.
 - Minimize border radius. Prefer square or near-square corners unless there is a clear reason otherwise.
 - Prefer borders, separators, and subtle background contrast over shadows for visual hierarchy.

@@ -7,14 +7,14 @@ public static class VerbClassConsts
     public const string DbTablePrefix = "App";
 
     public const string? DbSchema = null;
-    
+
     public const string AdminEmailDefaultValue = IdentityDataSeedContributor.AdminEmailDefaultValue;
-    
+
     public const string AdminPasswordDefaultValue = "123456";
 
-    public const string InitialTenantName = "桜田大学";
+    public const string SakuradaUniversityDemoTenantName = "桜田大学";
 
-    public const string InitialTenantAdminEmail = "admin@sakurada-u.ac.jp";
+    public const string SakuradaUniversityDemoTenantAdminEmail = "admin@sakurada-u.ac.jp";
 
-    public const string InitialAdminPassword = AdminPasswordDefaultValue;
+    public const string SakuradaUniversityDemoAdminPassword = AdminPasswordDefaultValue;
 }

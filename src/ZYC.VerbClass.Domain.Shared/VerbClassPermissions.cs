@@ -38,6 +38,14 @@ public static class VerbClassPermissions
         public const string Update = Prefix + "." + nameof(Update);
     }
 
+    public static class TenantSettings
+    {
+        private const string Prefix = GroupName + "." + nameof(TenantSettings);
+        public const string Access = Prefix + "." + nameof(Access);
+        public const string UpdatePasswordPolicy = Prefix + "." + nameof(UpdatePasswordPolicy);
+        public const string UpdateAcademicSettings = Prefix + "." + nameof(UpdateAcademicSettings);
+    }
+
     public static class Roles
     {
         private const string Prefix = GroupName + "." + nameof(Roles);

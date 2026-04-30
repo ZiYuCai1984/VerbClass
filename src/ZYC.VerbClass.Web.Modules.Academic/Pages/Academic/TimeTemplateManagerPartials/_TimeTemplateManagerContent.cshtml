@@ -1,0 +1,75 @@
+﻿@model ZYC.VerbClass.Web.Modules.Academic.Pages.Academic.TimeTemplateManagerPartials.TimeTemplateManagerContentModel
+
+<div class="page-master master-detail-page__master">
+    <section class="surface master-detail-page__list">
+        <div class="surface__head">
+            <strong>Time Templates</strong>
+            <span class="u-muted">@Model.Templates.Length template(s)</span>
+            <button type="button"
+                    class="u-push-end"
+                    hx-get="@Url.Page(null, "Create", new { ReturnTemplateId = Model.ActiveTemplateId })"
+                    hx-target="#academic-time-template-manager-content"
+                    hx-swap="innerHTML"
+                    hx-replace-url="@Url.Page(null, null)">
+                New Template
+            </button>
+        </div>
+        <div class="surface__body scroll-area">
+            @if (Model.Templates.Length == 0)
+            {
+                <div class="master-detail-empty">
+                    <p>No time templates are available.</p>
+                </div>
+            }
+            else
+            {
+                <div class="record-list">
+                    @foreach (var template in Model.Templates)
+                    {
+                        <button type="button"
+                                class="record-list__item academic-manager-item@(Model.ActiveTemplateId == template.Id ? " is-selected" : string.Empty)"
+                                data-academic-template-item
+                                data-template-id="@template.Id"
+                                hx-get="@Url.Page(null, "Select", new { templateId = template.Id })"
+                                hx-trigger="click"
+                                hx-target="#academic-time-template-detail"
+                                hx-swap="innerHTML"
+                                hx-replace-url="@Url.Page(null, null, new { TemplateId = template.Id })">
+                            <div class="record-list__main">
+                                <div class="academic-manager-item__title-row">
+                                    <strong class="record-list__title u-truncate">@template.Name</strong>
+                                </div>
+                                <div class="academic-manager-item__meta">
+                                    <span class="u-mono">@template.Code</span>
+                                    <span>@template.PeriodCount period(s)</span>
+                                </div>
+                            </div>
+                        </button>
+                    }
+                </div>
+            }
+        </div>
+    </section>
+
+    <section class="surface master-detail-page__detail">
+        <div class="surface__head">
+            <strong>@Model.DetailTitle</strong>
+        </div>
+        <div id="academic-time-template-detail" class="surface__body scroll-area">
+            @if (Model.Editor is not null)
+            {
+                <partial name="~/Pages/Academic/TimeTemplateManagerPartials/_TimeTemplateEditor.cshtml" model="Model.Editor"/>
+            }
+            else if (Model.SelectedTemplate is not null)
+            {
+                <partial name="~/Pages/Academic/TimeTemplateManagerPartials/_TimeTemplateInfo.cshtml" model="Model.SelectedTemplate"/>
+            }
+            else
+            {
+                <div class="master-detail-empty">
+                    <p>Select a template from the list to view details.</p>
+                </div>
+            }
+        </div>
+    </section>
+</div>

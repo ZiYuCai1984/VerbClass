@@ -43,7 +43,7 @@ internal partial class SakuradaUniversitySeedData
             "affiliated-library"
         ];
 
-        string[] bloodTypes = CreateGeneratedBloodTypes();
+        var bloodTypes = CreateGeneratedBloodTypes();
         const int surnameCount = 6;
         var generatedAdministrative = new UniversityUserSeedItem[surnameCount * givenNames.Length];
 

@@ -54,6 +54,7 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@title</title>
+    <link rel="icon" href="/images/verbclass-logo.svg" type="image/svg+xml"/>
     <link rel="stylesheet" href="/css/tokens.css"/>
     <link rel="stylesheet" href="/css/base.css"/>
     <link rel="stylesheet" href="/css/layout.css"/>
@@ -67,9 +68,11 @@
     <div class="shell">
         <header class="shell__topbar">
             <div class="brand">
-                <div class="brand__mark">V</div>
+                <div class="brand__mark">
+                    <img src="/images/verbclass-logo.svg" alt="" class="brand__mark-image"/>
+                </div>
                 <div class="brand__copy">
-                    <span class="brand__title">VerbClass</span>
+                    <a class="brand__title" href="/">VerbClass</a>
                     <span class="brand__sub">@tenantName</span>
                 </div>
             </div>
@@ -148,7 +151,7 @@
 <script src="/js/site.js"></script>
 <script src="/js/htmx.min.js"></script>
 
-<partial name="_Toast"/>
+<partial name="_Toast" />
 <partial name="_Modal"/>
 
 <script id="verbclass-main-menu-data" type="application/json">@Html.Raw(mainMenuItemsJson)</script>

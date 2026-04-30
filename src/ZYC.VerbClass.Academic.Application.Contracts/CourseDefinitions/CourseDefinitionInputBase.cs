@@ -13,11 +13,6 @@ public abstract class CourseDefinitionInputBase
     [StringLength(CourseDefinitionConsts.MaxNameLength)]
     public string Name { get; set; } = string.Empty;
 
-    [StringLength(CourseDefinitionConsts.MaxShortNameLength)]
-    public string? ShortName { get; set; }
-
     [StringLength(CourseDefinitionConsts.MaxDescriptionLength)]
     public string? Description { get; set; }
-
-    public bool IsActive { get; set; } = true;
 }

@@ -50,10 +50,9 @@ public class RoleManagementAppService : VerbClassAppService, IRoleManagementAppS
 
     public async Task<RolePermissionsDto> GetPermissionsAsync()
     {
-        return new RolePermissionsDto
-        {
-            CanManagePermissions = await AuthorizationService.IsGrantedAsync(VerbClassPermissions.Roles.ManagePermissions)
-        };
+        return VerbClassApplicationMappers.ToRolePermissionsDto(
+            await AuthorizationService.IsGrantedAsync(VerbClassPermissions.Roles.ManagePermissions)
+        );
     }
 
     public async Task<RoleListItemDto[]> GetListAsync()
@@ -66,12 +65,15 @@ public class RoleManagementAppService : VerbClassAppService, IRoleManagementAppS
         var permissionCountByRoleName = await GetGrantedPermissionCountByRoleNameAsync(permissionDefinitions.Keys.ToHashSet(StringComparer.Ordinal));
 
         return roleRecords
-            .Select(role => new RoleListItemDto
+            .Select(role =>
             {
-                Name = role.Name ?? string.Empty,
-                UserCount = userCountByRoleName.GetValueOrDefault(role.Name ?? string.Empty),
-                GrantedPermissionCount = permissionCountByRoleName.GetValueOrDefault(role.Name ?? string.Empty),
-                AvailablePermissionCount = permissionDefinitions.Count
+                var roleName = role.Name ?? string.Empty;
+                return VerbClassApplicationMappers.ToRoleListItemDto(
+                    roleName,
+                    userCountByRoleName.GetValueOrDefault(roleName),
+                    permissionCountByRoleName.GetValueOrDefault(roleName),
+                    permissionDefinitions.Count
+                );
             })
             .ToArray();
     }
@@ -87,28 +89,25 @@ public class RoleManagementAppService : VerbClassAppService, IRoleManagementAppS
         var users = await GetUsersInRoleAsync(normalizedRoleName);
         var permissions = await GetPermissionsAsync();
 
-        return new RoleDetailDto
-        {
-            Name = normalizedRoleName,
-            UserCount = users.Length,
-            GrantedPermissionCount = grantedPermissionNames.Count,
-            AvailablePermissionCount = permissionDefinitions.Count,
-            GrantedPermissions = permissionDefinitions.Values
+        var grantedPermissions = permissionDefinitions.Values
                 .Where(permission => grantedPermissionNames.Contains(permission.Name))
                 .Select(BuildPermissionEntry)
-                .ToArray(),
-            AssignedUsers = users
+                .ToArray();
+        var assignedUsers = users
                 .Take(AssignedUserPreviewLimit)
-                .Select(user => new RoleAssignedUserDto
-                {
-                    Id = user.Id,
-                    DisplayName = IdentityUserDisplayNameSupport.BuildDisplayName(user),
-                    UserName = user.UserName ?? string.Empty
-                })
-                .ToArray(),
-            RemainingUserCount = Math.Max(0, users.Length - AssignedUserPreviewLimit),
-            CanManagePermissions = permissions.CanManagePermissions
-        };
+                .Select(VerbClassApplicationMappers.ToRoleAssignedUserDto)
+                .ToArray();
+
+        return VerbClassApplicationMappers.ToRoleDetailDto(
+            normalizedRoleName,
+            users.Length,
+            grantedPermissionNames.Count,
+            permissionDefinitions.Count,
+            grantedPermissions,
+            assignedUsers,
+            Math.Max(0, users.Length - AssignedUserPreviewLimit),
+            permissions.CanManagePermissions
+        );
     }
 
     [Authorize(VerbClassPermissions.Roles.ManagePermissions)]
@@ -121,11 +120,10 @@ public class RoleManagementAppService : VerbClassAppService, IRoleManagementAppS
         var permissionDefinitions = await GetManageablePermissionDefinitionsAsync();
         var grantedPermissionNames = await GetGrantedPermissionNamesAsync(normalizedRoleName, permissionDefinitions.Keys.ToHashSet(StringComparer.Ordinal));
 
-        return new RolePermissionEditorDto
-        {
-            Name = normalizedRoleName,
-            Permissions = BuildPermissionItems(permissionDefinitions, grantedPermissionNames)
-        };
+        return VerbClassApplicationMappers.ToRolePermissionEditorDto(
+            normalizedRoleName,
+            BuildPermissionItems(permissionDefinitions, grantedPermissionNames)
+        );
     }
 
     [Authorize(VerbClassPermissions.Roles.ManagePermissions)]
@@ -155,12 +153,11 @@ public class RoleManagementAppService : VerbClassAppService, IRoleManagementAppS
             permissionDefinitions.Keys.ToHashSet(StringComparer.Ordinal)
         );
 
-        return new RoleCommandResultDto
-        {
-            Name = normalizedRoleName,
-            GrantedPermissionCount = grantedPermissionNames.Count,
-            AvailablePermissionCount = permissionDefinitions.Count
-        };
+        return VerbClassApplicationMappers.ToRoleCommandResultDto(
+            normalizedRoleName,
+            grantedPermissionNames.Count,
+            permissionDefinitions.Count
+        );
     }
 
     private async Task EnsureManagedRolesExistAsync()
@@ -285,22 +282,19 @@ public class RoleManagementAppService : VerbClassAppService, IRoleManagementAppS
         PermissionDefinition permission,
         ISet<string> grantedPermissionNames)
     {
-        return new RolePermissionItemDto
-        {
-            Name = permission.Name,
-            DisplayName = GetPermissionDisplayName(permission),
-            Description = permission.Name,
-            IsGranted = grantedPermissionNames.Contains(permission.Name)
-        };
+        return VerbClassApplicationMappers.ToRolePermissionItemDto(
+            permission,
+            GetPermissionDisplayName(permission),
+            grantedPermissionNames.Contains(permission.Name)
+        );
     }
 
     private RolePermissionEntryDto BuildPermissionEntry(PermissionDefinition permission)
     {
-        return new RolePermissionEntryDto
-        {
-            Name = permission.Name,
-            DisplayName = GetPermissionDisplayName(permission)
-        };
+        return VerbClassApplicationMappers.ToRolePermissionEntryDto(
+            permission,
+            GetPermissionDisplayName(permission)
+        );
     }
 
     private static List<ValidationResult> ValidatePermissionNames(

@@ -23,8 +23,7 @@ public class ChangeIdentityPasswordPolicySettingDefinitionProvider : SettingDefi
         var requiredLength = context.Get(IdentitySettingNames.Password.RequiredLength);
         requiredLength.DefaultValue = "1";
 
-        //var requiredUniqueChars = context.Get(IdentitySettingNames.Password.RequiredUniqueChars);
-        //!TODO Can not be "false" ??
-        //requiredUniqueChars.DefaultValue = false.ToString();
+        var requiredUniqueChars = context.Get(IdentitySettingNames.Password.RequiredUniqueChars);
+        requiredUniqueChars.DefaultValue = "1";
     }
 }

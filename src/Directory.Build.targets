@@ -213,6 +213,20 @@
 
 
   <ItemGroup>
+    <PackageReference Update="Riok.Mapperly" Version="4.3.1" >
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+
+
+
+
+
+
+
+
+  <ItemGroup>
     <Content Remove="$(NuGetPackageRoot)**\*.abppkg.analyze.json" />
   </ItemGroup>
 

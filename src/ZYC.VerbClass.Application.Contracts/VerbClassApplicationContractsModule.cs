@@ -5,13 +5,11 @@ using Volo.Abp.Modularity;
 using Volo.Abp.PermissionManagement;
 using Volo.Abp.SettingManagement;
 using Volo.Abp.TenantManagement;
-using ZYC.VerbClass.Academic.Application.Contracts;
 using ZYC.VerbClass.Domain.Shared;
 
 namespace ZYC.VerbClass.Application.Contracts;
 
 [DependsOn(
-    typeof(AcademicApplicationContractsModule),
     typeof(VerbClassDomainSharedModule),
     typeof(AbpFeatureManagementApplicationContractsModule),
     typeof(AbpSettingManagementApplicationContractsModule),

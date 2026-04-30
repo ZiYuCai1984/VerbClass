@@ -1,0 +1,57 @@
+﻿@model ZYC.VerbClass.Web.Modules.Academic.Pages.Academic.TimetableManagerPartials.TimetableContentModel
+
+<section class="surface academic-timetable-shell">
+    <div class="surface__head academic-timetable-head">
+         <div>
+            <strong>Timetable</strong>
+            @if (Model.Timetable is not null)
+            {
+                <span class="u-muted">@Model.Timetable.TermTitle</span>
+            }
+        </div>
+        @if (Model.Timetable is not null)
+        {
+            <div class="academic-timetable-head__stats">
+                <span class="tag">@Model.Timetable.ScheduledOfferingCount scheduled</span>
+                <span class="tag">@Model.Timetable.UnscheduledOfferings.Length unscheduled</span>
+            </div>
+        }
+    </div>
+    <div class="academic-offering-term-picker">
+        <select name="termId"
+                hx-get="@Url.Page(null, "Term")"
+                hx-trigger="change"
+                hx-target="#academic-timetable-content"
+                hx-swap="innerHTML">
+            <option value="">Select term</option>
+            @foreach (var term in Model.Terms)
+            {
+                if (Model.ActiveTermId == term.Id)
+                {
+                    <option value="@term.Id" selected>@term.DisplayName</option>
+                }
+                else
+                {
+                    <option value="@term.Id">@term.DisplayName</option>
+                }
+            }
+        </select>
+    </div>
+    <div class="surface__body scroll-area academic-timetable-body">
+        @if (!Model.ActiveTermId.HasValue)
+        {
+            <div class="master-detail-empty">
+                <p>Select a term to view its timetable.</p>
+            </div>
+        }
+        else
+        {
+            var timetable = Model.Timetable;
+            @* ?? throw new InvalidOperationException("Timetable state is missing."); *@
+            if (timetable != null)
+            {
+                <partial name="~/Pages/Academic/TimetableManagerPartials/_TimetableGrid.cshtml" model="timetable"/>
+            }
+        }
+    </div>
+</section>

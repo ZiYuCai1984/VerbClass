@@ -1,9 +1,11 @@
-using Volo.Abp;
+﻿using Volo.Abp;
+using Volo.Abp.Auditing;
 using Volo.Abp.Domain.Entities;
 using Volo.Abp.MultiTenancy;
 
 namespace ZYC.VerbClass.Domain.AppFiles;
 
+[Audited]
 public class AppFile : AggregateRoot<Guid>, IMultiTenant
 {
     protected AppFile()

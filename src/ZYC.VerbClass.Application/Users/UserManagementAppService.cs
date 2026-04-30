@@ -11,7 +11,6 @@ using ZYC.VerbClass.Application.Contracts.Departments;
 using ZYC.VerbClass.Application.Contracts.UserProfiles;
 using ZYC.VerbClass.Application.Contracts.Users;
 using ZYC.VerbClass.Application.Departments;
-using ZYC.VerbClass.Application.IdentityUsers;
 using ZYC.VerbClass.Domain.DepartmentAssignments;
 using ZYC.VerbClass.Domain.Departments;
 using ZYC.VerbClass.Domain.Shared;
@@ -22,14 +21,14 @@ namespace ZYC.VerbClass.Application.Users;
 [Authorize(VerbClassPermissions.Users.Access)]
 public class UserManagementAppService : VerbClassAppService, IUserManagementAppService
 {
-    private readonly IRepository<IdentityUser, Guid> _userRepository;
-    private readonly IRepository<IdentityRole, Guid> _roleRepository;
     private readonly IRepository<DepartmentAssignment, Guid> _departmentAssignmentRepository;
     private readonly IRepository<Department, Guid> _departmentRepository;
-    private readonly IRepository<UserProfile, Guid> _userProfileRepository;
+    private readonly IGuidGenerator _guidGenerator;
+    private readonly IRepository<IdentityRole, Guid> _roleRepository;
     private readonly IUserAvatarAppService _userAvatarAppService;
     private readonly IdentityUserManager _userManager;
-    private readonly IGuidGenerator _guidGenerator;
+    private readonly IRepository<UserProfile, Guid> _userProfileRepository;
+    private readonly IRepository<IdentityUser, Guid> _userRepository;
 
     public UserManagementAppService(
         IRepository<IdentityUser, Guid> userRepository,
@@ -64,74 +63,47 @@ public class UserManagementAppService : VerbClassAppService, IUserManagementAppS
             return [];
         }
 
-        var departmentSummariesByUserId = await BuildDepartmentSummariesByUserIdAsync(users.Select(x => x.Id).ToArray());
+        var departmentSummariesByUserId =
+            await BuildDepartmentSummariesByUserIdAsync(users.Select(x => x.Id).ToArray());
 
         return users
-            .Select(user => new UserListItemDto
-            {
-                Id = user.Id,
-                DisplayName = IdentityUserDisplayNameSupport.BuildDisplayName(user),
-                UserName = user.UserName,
-                Email = user.Email,
-                IsActive = user.IsActive,
-                DepartmentSummary = departmentSummariesByUserId.GetValueOrDefault(user.Id)
-            })
+            .Select(user => VerbClassApplicationMappers.ToUserListItemDto(
+                user,
+                departmentSummariesByUserId.GetValueOrDefault(user.Id)))
             .ToArray();
     }
 
     public async Task<UserDetailDto> GetAsync(Guid userId)
     {
         var user = await _userRepository.FindAsync(userId)
-            ?? throw CreateUserNotFoundException();
+                   ?? throw CreateUserNotFoundException();
         var permissions = await GetPermissionsInternalAsync();
         var roles = await _userManager.GetRolesAsync(user);
         var departments = await BuildDepartmentDisplayItemsAsync(userId);
         var profile = await _userProfileRepository.FindAsync(x => x.UserId == userId);
 
-        return new UserDetailDto
-        {
-            Id = user.Id,
-            DisplayName = IdentityUserDisplayNameSupport.BuildDisplayName(user),
-            UserName = user.UserName ?? string.Empty,
-            Email = user.Email,
-            EmailConfirmed = user.EmailConfirmed,
-            PhoneNumber = user.PhoneNumber,
-            IsActive = user.IsActive,
-            Roles = roles.ToArray(),
-            Departments = departments,
-            HasAvatar = profile?.AvatarFileId.HasValue == true,
-            CanUpdate = permissions.CanUpdate,
-            CanDelete = permissions.CanDelete && CurrentUser.Id != userId
-        };
+        return VerbClassApplicationMappers.ToUserDetailDto(
+            user,
+            roles.ToArray(),
+            departments,
+            profile?.AvatarFileId.HasValue == true,
+            permissions.CanUpdate,
+            permissions.CanDelete && CurrentUser.Id != userId
+        );
     }
 
     [Authorize(VerbClassPermissions.Users.Update)]
     public async Task<UserEditorDto> GetEditorAsync(Guid userId)
     {
         var user = await _userRepository.FindAsync(userId)
-            ?? throw CreateUserNotFoundException();
+                   ?? throw CreateUserNotFoundException();
         var currentAssignments = await GetCurrentDepartmentAssignmentsAsync(userId);
-        var primaryDepartmentId = currentAssignments
-            .FirstOrDefault(x => x.IsPrimary)
-            ?.DepartmentId;
+        var roleNames = (await _userManager.GetRolesAsync(user))
+            .Where(VerbClassRoles.IsManagedRole)
+            .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+            .ToArray();
 
-        return new UserEditorDto
-        {
-            Id = userId,
-            UserName = user.UserName ?? string.Empty,
-            Surname = user.Surname ?? string.Empty,
-            Name = user.Name ?? string.Empty,
-            Email = user.Email ?? string.Empty,
-            PhoneNumber = user.PhoneNumber,
-            DepartmentIds = currentAssignments.Select(x => x.DepartmentId).ToArray(),
-            PrimaryDepartmentId = primaryDepartmentId ?? currentAssignments.FirstOrDefault()?.DepartmentId,
-            RoleNames = (await _userManager.GetRolesAsync(user))
-                .Where(VerbClassRoles.IsManagedRole)
-                .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
-                .ToArray(),
-            IsActive = user.IsActive,
-            ForcePasswordChangeOnNextLogin = user.ShouldChangePasswordOnNextLogin
-        };
+        return VerbClassApplicationMappers.ToUserEditorDto(user, currentAssignments, roleNames);
     }
 
     [Authorize(VerbClassPermissions.Users.AssignRoles)]
@@ -182,11 +154,7 @@ public class UserManagementAppService : VerbClassAppService, IUserManagementAppS
             await SyncUserRolesAsync(user, input.RoleNames);
         }
 
-        return new UserCommandResultDto
-        {
-            Id = user.Id,
-            DisplayName = IdentityUserDisplayNameSupport.BuildDisplayName(user)
-        };
+        return VerbClassApplicationMappers.ToUserCommandResultDto(user);
     }
 
     [Authorize(VerbClassPermissions.Users.Update)]
@@ -199,7 +167,7 @@ public class UserManagementAppService : VerbClassAppService, IUserManagementAppS
         EnsureCanAssignRoles(canAssignRoles, input.RoleNames);
 
         var user = await _userRepository.FindAsync(userId)
-            ?? throw CreateUserNotFoundException();
+                   ?? throw CreateUserNotFoundException();
 
         user.SetUserNameWithoutValidation(input.UserName, NormalizeLookupValue(input.UserName));
         user.SetEmailWithoutValidation(input.Email, NormalizeLookupValue(input.Email));
@@ -236,11 +204,7 @@ public class UserManagementAppService : VerbClassAppService, IUserManagementAppS
             await SyncUserRolesAsync(user, input.RoleNames);
         }
 
-        return new UserCommandResultDto
-        {
-            Id = user.Id,
-            DisplayName = IdentityUserDisplayNameSupport.BuildDisplayName(user)
-        };
+        return VerbClassApplicationMappers.ToUserCommandResultDto(user);
     }
 
     [Authorize(VerbClassPermissions.Users.Delete)]
@@ -252,7 +216,7 @@ public class UserManagementAppService : VerbClassAppService, IUserManagementAppS
         }
 
         var user = await _userRepository.FindAsync(userId)
-            ?? throw CreateUserNotFoundException();
+                   ?? throw CreateUserNotFoundException();
 
         await _userAvatarAppService.RemoveAsync(userId);
 
@@ -262,11 +226,7 @@ public class UserManagementAppService : VerbClassAppService, IUserManagementAppS
             throw new UserFriendlyException(string.Join("; ", deleteResult.Errors.Select(x => x.Description)));
         }
 
-        return new UserCommandResultDto
-        {
-            Id = user.Id,
-            DisplayName = IdentityUserDisplayNameSupport.BuildDisplayName(user)
-        };
+        return VerbClassApplicationMappers.ToUserCommandResultDto(user);
     }
 
     private async Task<Dictionary<Guid, string?>> BuildDepartmentSummariesByUserIdAsync(Guid[] userIds)
@@ -557,7 +517,7 @@ public class UserManagementAppService : VerbClassAppService, IUserManagementAppS
         }
 
         var tenantId = CurrentTenant.Id
-            ?? throw new UserFriendlyException("Department assignment requires a tenant context.");
+                       ?? throw new UserFriendlyException("Department assignment requires a tenant context.");
         var normalizedPrimaryDepartmentId = primaryDepartmentId ?? selectedDepartmentIds[0];
 
         foreach (var departmentId in selectedDepartmentIds)
@@ -653,13 +613,12 @@ public class UserManagementAppService : VerbClassAppService, IUserManagementAppS
 
     private async Task<UserPermissionsDto> GetPermissionsInternalAsync()
     {
-        return new UserPermissionsDto
-        {
-            CanCreate = await AuthorizationService.IsGrantedAsync(VerbClassPermissions.Users.Create),
-            CanUpdate = await AuthorizationService.IsGrantedAsync(VerbClassPermissions.Users.Update),
-            CanDelete = await AuthorizationService.IsGrantedAsync(VerbClassPermissions.Users.Delete),
-            CanAssignRoles = await AuthorizationService.IsGrantedAsync(VerbClassPermissions.Users.AssignRoles)
-        };
+        return VerbClassApplicationMappers.ToUserPermissionsDto(
+            await AuthorizationService.IsGrantedAsync(VerbClassPermissions.Users.Create),
+            await AuthorizationService.IsGrantedAsync(VerbClassPermissions.Users.Update),
+            await AuthorizationService.IsGrantedAsync(VerbClassPermissions.Users.Delete),
+            await AuthorizationService.IsGrantedAsync(VerbClassPermissions.Users.AssignRoles)
+        );
     }
 
     private async Task<bool> CanAssignRolesAsync()
@@ -728,6 +687,7 @@ public class UserManagementAppService : VerbClassAppService, IUserManagementAppS
     {
         return value.ToUpperInvariant();
     }
+
     private static UserFriendlyException CreateUserNotFoundException()
     {
         return new UserFriendlyException("User was not found.");

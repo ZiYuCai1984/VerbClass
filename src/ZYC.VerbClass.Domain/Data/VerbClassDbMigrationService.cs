@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics;
-using System.Runtime.InteropServices;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Volo.Abp.Data;
@@ -12,29 +12,31 @@ namespace ZYC.VerbClass.Domain.Data;
 
 public class VerbClassDbMigrationService : ITransientDependency
 {
+    private const string SeedSakuradaUniversityDemoDataConfigurationKey =
+        "VerbClass:DataSeed:SeedSakuradaUniversityDemoData";
+
+    private readonly IConfiguration _configuration;
     private readonly ICurrentTenant _currentTenant;
 
     private readonly IDataSeeder _dataSeeder;
     private readonly IEnumerable<IVerbClassDbSchemaMigrator> _dbSchemaMigrators;
-    private readonly VerbClassPermissionDataSeedContributor _permissionDataSeedContributor;
-
-    private readonly TenantManager _tenantManager;
+    private readonly SakuradaUniversityDemoDataSeeder _sakuradaUniversityDemoDataSeeder;
     private readonly ITenantRepository _tenantRepository;
 
     public VerbClassDbMigrationService(
-        TenantManager tenantManager,
+        IConfiguration configuration,
         IDataSeeder dataSeeder,
         ITenantRepository tenantRepository,
         ICurrentTenant currentTenant,
         IEnumerable<IVerbClassDbSchemaMigrator> dbSchemaMigrators,
-        VerbClassPermissionDataSeedContributor permissionDataSeedContributor)
+        SakuradaUniversityDemoDataSeeder sakuradaUniversityDemoDataSeeder)
     {
-        _tenantManager = tenantManager;
+        _configuration = configuration;
         _dataSeeder = dataSeeder;
         _tenantRepository = tenantRepository;
         _currentTenant = currentTenant;
         _dbSchemaMigrators = dbSchemaMigrators;
-        _permissionDataSeedContributor = permissionDataSeedContributor;
+        _sakuradaUniversityDemoDataSeeder = sakuradaUniversityDemoDataSeeder;
 
         Logger = NullLogger<VerbClassDbMigrationService>.Instance;
     }
@@ -42,36 +44,9 @@ public class VerbClassDbMigrationService : ITransientDependency
     public ILogger<VerbClassDbMigrationService> Logger { get; }
 
 
-    private async Task EnsureInitialTenantAsync()
-    {
-        //Create a tenant in the host context
-        using (_currentTenant.Change(null))
-        {
-            var tenant = await _tenantRepository.FindByNameAsync(SakuradaUniversitySeedData.InitialTenantName);
-            if (tenant == null)
-            {
-                tenant = await _tenantManager.CreateAsync(SakuradaUniversitySeedData.InitialTenantName);
-                await _tenantRepository.InsertAsync(tenant, true);
-
-                await _dataSeeder.SeedAsync(
-                    new DataSeedContext(tenant.Id)
-                        .WithProperty(
-                            IdentityDataSeedContributor.AdminEmailPropertyName,
-                            SakuradaUniversitySeedData.InitialTenantAdminEmail
-                        )
-                        .WithProperty(
-                            IdentityDataSeedContributor.AdminPasswordPropertyName,
-                            SakuradaUniversitySeedData.InitialAdminPassword
-                        )
-                );
-            }
-        }
-    }
-
     public async Task MigrateAsync()
     {
         var initialMigrationAdded = AddInitialMigrationIfNotExist();
-
         if (initialMigrationAdded)
         {
             return;
@@ -82,7 +57,11 @@ public class VerbClassDbMigrationService : ITransientDependency
         await MigrateDatabaseSchemaAsync();
         await SeedDataAsync();
 
-        await EnsureInitialTenantAsync();
+        var seedSakuradaUniversityDemoData = IsSakuradaUniversityDemoDataSeedEnabled();
+        if (seedSakuradaUniversityDemoData)
+        {
+            await _sakuradaUniversityDemoDataSeeder.SeedAsync();
+        }
 
         Logger.LogInformation("Successfully completed host database migrations.");
 
@@ -140,121 +119,119 @@ public class VerbClassDbMigrationService : ITransientDependency
             .WithProperty(IdentityDataSeedContributor.AdminPasswordPropertyName,
                 VerbClassConsts.AdminPasswordDefaultValue)
         );
+    }
 
-        if (tenant != null)
+    private bool IsSakuradaUniversityDemoDataSeedEnabled()
+    {
+        var configuredValue = _configuration[SeedSakuradaUniversityDemoDataConfigurationKey];
+        var enabled = false;
+        if (!string.IsNullOrWhiteSpace(configuredValue) && !bool.TryParse(configuredValue, out enabled))
         {
-            await _permissionDataSeedContributor.SyncTenantPermissionsAsync(tenant.Id);
+            throw new InvalidOperationException(
+                $"Configuration '{SeedSakuradaUniversityDemoDataConfigurationKey}' must be a boolean value."
+            );
         }
+
+        Logger.LogInformation(
+            "Sakurada University demo data seeding is {State}.",
+            enabled ? "enabled" : "disabled"
+        );
+
+        return enabled;
     }
 
     private bool AddInitialMigrationIfNotExist()
     {
-        try
-        {
-            if (!DbMigrationsProjectExists())
-            {
-                return false;
-            }
-        }
-        catch (Exception)
-        {
-            return false;
-        }
-
-        try
-        {
-            if (!MigrationsFolderExists())
-            {
-                AddInitialMigration();
-                return true;
-            }
-
-            return false;
-        }
-        catch (Exception e)
-        {
-            Logger.LogWarning("Couldn't determinate if any migrations exist : " + e.Message);
-            return false;
-        }
-    }
-
-    private bool DbMigrationsProjectExists()
-    {
         var dbMigrationsProjectFolder = GetEntityFrameworkCoreProjectFolderPath();
+        var migrationsFolder = Path.Combine(dbMigrationsProjectFolder, "Migrations");
+        if (Directory.Exists(migrationsFolder))
+        {
+            return false;
+        }
 
-        return dbMigrationsProjectFolder != null;
+        Logger.LogInformation(
+            "No migrations folder found under '{DbMigrationsProjectFolder}'. Creating initial migration.",
+            dbMigrationsProjectFolder
+        );
+
+        AddInitialMigration(dbMigrationsProjectFolder);
+        return true;
     }
 
-    private bool MigrationsFolderExists()
-    {
-        var dbMigrationsProjectFolder = GetEntityFrameworkCoreProjectFolderPath();
-
-        return dbMigrationsProjectFolder != null &&
-               Directory.Exists(Path.Combine(dbMigrationsProjectFolder, "Migrations"));
-    }
-
-    private void AddInitialMigration()
+    private void AddInitialMigration(string dbMigrationsProjectFolder)
     {
         Logger.LogInformation("Creating initial migration...");
 
-        string argumentPrefix;
-        string fileName;
-
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        var procStartInfo = new ProcessStartInfo
         {
-            argumentPrefix = "-c";
-            fileName = "/bin/bash";
-        }
-        else
-        {
-            argumentPrefix = "/C";
-            fileName = "cmd.exe";
-        }
+            FileName = "abp",
+            UseShellExecute = false
+        };
 
-        var procStartInfo = new ProcessStartInfo(fileName,
-            $"{argumentPrefix} \"abp create-migration-and-run-migrator \"{GetEntityFrameworkCoreProjectFolderPath()}\"\""
-        );
+        procStartInfo.ArgumentList.Add("create-migration-and-run-migrator");
+        procStartInfo.ArgumentList.Add(dbMigrationsProjectFolder);
 
         try
         {
-            Process.Start(procStartInfo);
+            _ = Process.Start(procStartInfo)
+                                ?? throw new InvalidOperationException("ABP CLI process could not be started.");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            throw new Exception("Couldn't run ABP CLI...");
+            throw new InvalidOperationException(
+                $"Failed to run ABP CLI for '{dbMigrationsProjectFolder}'.",
+                ex
+            );
         }
     }
 
-    private string? GetEntityFrameworkCoreProjectFolderPath()
+    private string GetEntityFrameworkCoreProjectFolderPath()
     {
         var slnDirectoryPath = GetSolutionDirectoryPath();
-
-        if (slnDirectoryPath == null)
+        if (slnDirectoryPath is null)
         {
-            throw new Exception("Solution folder not found!");
+            throw new InvalidOperationException(
+                $"Solution folder was not found from '{Directory.GetCurrentDirectory()}'."
+            );
         }
 
-        //TODO-zyc GetEntityFrameworkCoreProjectFolderPath
+        var dbMigrationsProjectFolder = Path.Combine(slnDirectoryPath, "ZYC.VerbClass.EntityFrameworkCore");
+        if (!Directory.Exists(dbMigrationsProjectFolder))
+        {
+            throw new InvalidOperationException(
+                $"EntityFrameworkCore project folder was not found at '{dbMigrationsProjectFolder}'."
+            );
+        }
 
-        return Directory.GetDirectories(slnDirectoryPath)
-            .FirstOrDefault(d => d.EndsWith("ZYC.VerbClass.EntityFrameworkCore"));
+        return dbMigrationsProjectFolder;
     }
 
     private string? GetSolutionDirectoryPath()
     {
         var currentDirectory = new DirectoryInfo(Directory.GetCurrentDirectory());
 
-        while (currentDirectory != null && Directory.GetParent(currentDirectory.FullName) != null)
+        while (currentDirectory != null)
         {
-            currentDirectory = Directory.GetParent(currentDirectory.FullName);
-
-            if (currentDirectory != null && Directory.GetFiles(currentDirectory.FullName)
-                    .FirstOrDefault(f => f.EndsWith(".sln") || f.EndsWith(".slnx")) != null)
+            if (ContainsSolutionFile(currentDirectory.FullName))
             {
                 return currentDirectory.FullName;
             }
+
+            var srcDirectoryPath = Path.Combine(currentDirectory.FullName, "src");
+            if (Directory.Exists(srcDirectoryPath) && ContainsSolutionFile(srcDirectoryPath))
+            {
+                return srcDirectoryPath;
+            }
+
+            currentDirectory = currentDirectory.Parent;
         }
 
         return null;
     }
+
+    private static bool ContainsSolutionFile(string directoryPath)
+    {
+        return Directory.GetFiles(directoryPath).Any(f => f.EndsWith(".sln") || f.EndsWith(".slnx"));
+    }
+
 }

@@ -1,0 +1,95 @@
+﻿@model ZYC.VerbClass.Web.Pages.Admin.UserManagerPartials.UserManagerContentModel
+
+<div class="page-master master-detail-page__master">
+    <section class="surface master-detail-page__list">
+        <div class="surface__head">
+            <strong>Users</strong>
+            <span class="u-muted">@Model.Users.Length user(s)</span>
+            @if (Model.CanCreate)
+            {
+                <button type="button"
+                        class="u-push-end"
+                        hx-get="@Url.Page(null, "Create", new { returnUserId = Model.ActiveUserId })"
+                        hx-target="#user-manager-content"
+                        hx-swap="innerHTML"
+                        hx-replace-url="@Url.Page(null, null)">
+                    New User
+                </button>
+            }
+        </div>
+        <div class="surface__body scroll-area">
+            @if (Model.Users.Length == 0)
+            {
+                <div class="master-detail-empty">
+                    <p>No users found in the current tenant.</p>
+                </div>
+            }
+            else
+            {
+                <table class="compact-table user-manager-table">
+                    <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Departments</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var user in Model.Users)
+                    {
+                        <tr class="user-manager-row@(Model.ActiveUserId == user.Id ? " is-selected" : string.Empty)"
+                            data-user-manager-row
+                            data-user-id="@user.Id"
+                            hx-get="@Url.Page(null, "Select", new { userId = user.Id })"
+                            hx-trigger="click"
+                            hx-target="#user-detail"
+                            hx-swap="innerHTML"
+                            hx-replace-url="@Url.Page(null, null, new { userId = user.Id })">
+                            <td>
+                                <div class="user-manager-cell">
+                                    <strong class="u-truncate">@user.DisplayName</strong>
+                                    <span class="user-manager-cell__secondary u-truncate">@user.UserName</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="u-truncate">@(user.DepartmentSummary ?? "-")</span>
+                            </td>
+                            <td>
+                                <span class="u-truncate">@(string.IsNullOrWhiteSpace(user.Email) ? "-" : user.Email)</span>
+                            </td>
+                            <td>
+                                <span class="tag @(user.IsActive ? "is-success" : "is-danger")">
+                                    @(user.IsActive ? "Active" : "Disabled")
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </section>
+
+    <section class="surface master-detail-page__detail">
+        <div class="surface__head">
+            <strong>@Model.DetailTitle</strong>
+        </div>
+        <div id="user-detail" class="surface__body scroll-area">
+            @if (Model.Editor is not null)
+            {
+                <partial name="~/Pages/Admin/UserManagerPartials/_UserEditor.cshtml" model="Model.Editor" />
+            }
+            else if (Model.SelectedUser is not null)
+            {
+                <partial name="~/Pages/Admin/UserManagerPartials/_UserInfo.cshtml" model="Model.SelectedUser" />
+            }
+            else
+            {
+                <div class="master-detail-empty">
+                    <p>Select a user from the list to view details.</p>
+                </div>
+            }
+        </div>
+    </section>
+</div>

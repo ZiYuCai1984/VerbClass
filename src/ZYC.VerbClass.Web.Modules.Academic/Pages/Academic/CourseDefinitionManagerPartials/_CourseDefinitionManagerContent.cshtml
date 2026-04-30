@@ -1,0 +1,78 @@
+@model ZYC.VerbClass.Web.Modules.Academic.Pages.Academic.CourseDefinitionManagerPartials.CourseDefinitionManagerContentModel
+
+<div class="page-master master-detail-page__master">
+    <section class="surface master-detail-page__list">
+        <div class="surface__head">
+            <strong>Course Definitions</strong>
+            <span class="u-muted">@Model.CourseDefinitions.Length course(s)</span>
+            <button type="button"
+                    class="u-push-end"
+                    hx-get="@Url.Page(null, "Create", new { ReturnCourseDefinitionId = Model.ActiveCourseDefinitionId })"
+                    hx-target="#course-definition-manager-content"
+                    hx-swap="innerHTML"
+                    hx-replace-url="@Url.Page(null, null)">
+                New Course
+            </button>
+        </div>
+        <div class="surface__body scroll-area">
+            @if (Model.CourseDefinitions.Length == 0)
+            {
+                <div class="master-detail-empty">
+                    <p>No course definitions are available.</p>
+                </div>
+            }
+            else
+            {
+                <div class="record-list">
+                    @foreach (var courseDefinition in Model.CourseDefinitions)
+                    {
+                        <button type="button"
+                                class="record-list__item academic-manager-item@(Model.ActiveCourseDefinitionId == courseDefinition.Id ? " is-selected" : string.Empty)"
+                                data-course-definition-item
+                                data-course-definition-id="@courseDefinition.Id"
+                                hx-get="@Url.Page(null, "Select", new { courseDefinitionId = courseDefinition.Id })"
+                                hx-trigger="click"
+                                hx-target="#course-definition-detail"
+                                hx-swap="innerHTML"
+                                hx-replace-url="@Url.Page(null, null, new { CourseDefinitionId = courseDefinition.Id })">
+                            <div class="record-list__main">
+                                <div class="academic-manager-item__title-row">
+                                    <strong class="record-list__title u-truncate">@courseDefinition.Name</strong>
+                                    @if (!courseDefinition.IsActive)
+                                    {
+                                        <span class="tag is-warning">Inactive</span>
+                                    }
+                                </div>
+                                <div class="academic-manager-item__meta">
+                                    <span class="u-mono">@courseDefinition.Code</span>
+                                </div>
+                            </div>
+                        </button>
+                    }
+                </div>
+            }
+        </div>
+    </section>
+
+    <section class="surface master-detail-page__detail">
+        <div class="surface__head">
+            <strong>@Model.DetailTitle</strong>
+        </div>
+        <div id="course-definition-detail" class="surface__body scroll-area">
+            @if (Model.Editor is not null)
+            {
+                <partial name="~/Pages/Academic/CourseDefinitionManagerPartials/_CourseDefinitionEditor.cshtml" model="Model.Editor"/>
+            }
+            else if (Model.SelectedCourseDefinition is not null)
+            {
+                <partial name="~/Pages/Academic/CourseDefinitionManagerPartials/_CourseDefinitionInfo.cshtml" model="Model.SelectedCourseDefinition"/>
+            }
+            else
+            {
+                <div class="master-detail-empty">
+                    <p>Select a course definition from the list.</p>
+                </div>
+            }
+        </div>
+    </section>
+</div>

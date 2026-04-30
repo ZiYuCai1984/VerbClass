@@ -1,4 +1,4 @@
-using ZYC.VerbClass.Application.Contracts.Departments;
+﻿using ZYC.VerbClass.Application.Contracts.Departments;
 using ZYC.VerbClass.Domain.DepartmentAssignments;
 using ZYC.VerbClass.Domain.Departments;
 
@@ -29,18 +29,11 @@ internal static class DepartmentAppServiceSupport
 
         var departmentsById = departments.ToDictionary(x => x.Id);
         return OrderDepartmentsCore(departments)
-            .Select(x => new DepartmentListItemDto
-            {
-                Id = x.Department.Id,
-                Name = x.Department.Name,
-                Code = x.Department.Code,
-                ShortName = x.Department.ShortName,
-                PathDisplay = BuildDepartmentDisplayPath(x.Department, departmentsById),
-                Depth = x.Depth,
-                IsActive = x.Department.IsActive,
-                CanAssignUsers = x.Department.CanAssignUsers,
-                CurrentUserCount = currentUserCounts.GetValueOrDefault(x.Department.Id)
-            })
+            .Select(x => VerbClassApplicationMappers.ToDepartmentListItemDto(
+                x.Department,
+                BuildDepartmentDisplayPath(x.Department, departmentsById),
+                x.Depth,
+                currentUserCounts.GetValueOrDefault(x.Department.Id)))
             .ToArray();
     }
 
@@ -67,12 +60,9 @@ internal static class DepartmentAppServiceSupport
     {
         return SelectCurrentAssignments(assignments, effectiveDate)
             .Select(assignment => departmentsById.TryGetValue(assignment.DepartmentId, out var department)
-                ? new UserDepartmentDisplayItemDto
-                {
-                    DepartmentId = assignment.DepartmentId,
-                    Path = BuildDepartmentDisplayPath(department, departmentsById),
-                    IsPrimary = assignment.IsPrimary
-                }
+                ? VerbClassApplicationMappers.ToUserDepartmentDisplayItemDto(
+                    assignment,
+                    BuildDepartmentDisplayPath(department, departmentsById))
                 : null)
             .Where(x => x is not null)
             .Select(x => x!)

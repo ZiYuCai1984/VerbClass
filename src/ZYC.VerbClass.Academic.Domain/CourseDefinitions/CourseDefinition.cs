@@ -1,10 +1,12 @@
-using Volo.Abp;
+﻿using Volo.Abp;
+using Volo.Abp.Auditing;
 using Volo.Abp.Domain.Entities.Auditing;
 using Volo.Abp.MultiTenancy;
 using ZYC.VerbClass.Academic.Domain.Shared;
 
 namespace ZYC.VerbClass.Academic.Domain.CourseDefinitions;
 
+[Audited]
 public class CourseDefinition : FullAuditedAggregateRoot<Guid>, IMultiTenant
 {
     protected CourseDefinition()
@@ -16,7 +18,6 @@ public class CourseDefinition : FullAuditedAggregateRoot<Guid>, IMultiTenant
         Guid tenantId,
         string code,
         string name,
-        string? shortName = null,
         string? description = null) : base(id)
     {
         if (tenantId == Guid.Empty)
@@ -25,10 +26,9 @@ public class CourseDefinition : FullAuditedAggregateRoot<Guid>, IMultiTenant
         }
 
         TenantId = tenantId;
-        SetCode(code);
-        SetName(name);
-        SetShortName(shortName);
-        SetDescription(description);
+        ChangeCode(code);
+        ChangeName(name);
+        ChangeDescription(description);
         IsActive = true;
     }
 
@@ -38,67 +38,74 @@ public class CourseDefinition : FullAuditedAggregateRoot<Guid>, IMultiTenant
 
     public string Name { get; private set; } = string.Empty;
 
-    public string? ShortName { get; private set; }
-
-    public string? Description { get; private set; }
+    public string Description { get; private set; } = string.Empty;
 
     public bool IsActive { get; private set; }
 
-    public void SetCode(string code)
+    public void ChangeCode(string code)
     {
-        Code = Check.NotNullOrWhiteSpace(
-            code,
-            nameof(code),
-            CourseDefinitionConsts.MaxCodeLength
-        );
+        Code = NormalizeCode(code);
     }
 
-    public void SetName(string name)
+    public void ChangeName(string name)
     {
-        Name = Check.NotNullOrWhiteSpace(
-            name,
-            nameof(name),
-            CourseDefinitionConsts.MaxNameLength
-        );
+        Name = NormalizeName(name);
     }
 
-    public void SetShortName(string? shortName)
+    public void ChangeDescription(string? description)
     {
-        if (shortName.IsNullOrWhiteSpace())
-        {
-            ShortName = null;
-            return;
-        }
-
-        ShortName = Check.Length(
-            shortName.Trim(),
-            nameof(shortName),
-            CourseDefinitionConsts.MaxShortNameLength
-        );
+        Description = NormalizeDescription(description);
     }
 
-    public void SetDescription(string? description)
-    {
-        if (description.IsNullOrWhiteSpace())
-        {
-            Description = null;
-            return;
-        }
-
-        Description = Check.Length(
-            description.Trim(),
-            nameof(description),
-            CourseDefinitionConsts.MaxDescriptionLength
-        );
-    }
-
-    public void Enable()
+    public void Activate()
     {
         IsActive = true;
     }
 
-    public void Disable()
+    public void Deactivate()
     {
         IsActive = false;
+    }
+
+    public void EnsureActiveForOffering()
+    {
+        if (!IsActive)
+        {
+            throw new BusinessException(CourseDefinitionErrorCodes.CourseDefinitionInactive)
+                .WithData(nameof(Id), Id)
+                .WithData(nameof(Code), Code);
+        }
+    }
+
+    internal static string NormalizeCode(string code)
+    {
+        return Check.NotNullOrWhiteSpace(
+                code,
+                nameof(code),
+                CourseDefinitionConsts.MaxCodeLength
+            )
+            .Trim();
+    }
+
+    internal static string NormalizeName(string name)
+    {
+        return Check.NotNullOrWhiteSpace(
+                name,
+                nameof(name),
+                CourseDefinitionConsts.MaxNameLength
+            )
+            .Trim();
+    }
+
+    private static string NormalizeDescription(string? description)
+    {
+        var normalizedDescription = description?.Trim() ?? string.Empty;
+        if (normalizedDescription.Length > CourseDefinitionConsts.MaxDescriptionLength)
+        {
+            throw new BusinessException(CourseDefinitionErrorCodes.DescriptionTooLong)
+                .WithData(nameof(Description), normalizedDescription.Length);
+        }
+
+        return normalizedDescription;
     }
 }

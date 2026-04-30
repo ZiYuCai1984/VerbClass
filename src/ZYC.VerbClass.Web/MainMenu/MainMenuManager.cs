@@ -11,13 +11,11 @@ public partial class MainMenuManager : IMainMenuManager, ISingletonDependency
     {
         LifetimeScope = lifetimeScope;
 
-        RegisterItem<MyCoursesMainMenuItem>();
-        RegisterItem<CourseManagerMainMenuItem>();
-        RegisterItem<CourseOfferingsMainMenuItem>();
         RegisterItem<RoleManagerMainMenuItem>();
         RegisterItem<UserManagerMainMenuItem>();
         RegisterItem<DepartmentManagerMainMenuItem>();
         RegisterItem<AuditLogMainMenuItem>();
+        RegisterItem<SettingsMainMenuItem>();
         RegisterItem<SwitchAccountMainMenuItem>();
     }
 

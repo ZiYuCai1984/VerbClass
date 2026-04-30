@@ -1,0 +1,166 @@
+﻿@model ZYC.VerbClass.Web.Modules.Academic.Pages.Academic.TermManagerPartials.TermEditorModel
+@{
+    var submitUrl = Model.IsCreate
+        ? Url.Page(null, "Create")
+        : Url.Page(null, "Update", new { termId = Model.TermId });
+    var cancelUrl = Url.Page(
+        null,
+        "View",
+        Model.IsCreate
+            ? new { termId = Model.ReturnTermId }
+            : new { termId = Model.TermId });
+}
+
+<form method="post"
+      hx-post="@submitUrl"
+      hx-target="#academic-term-manager-content"
+      hx-swap="innerHTML"
+      class="academic-term-editor"
+      data-academic-term-editor>
+    <input type="hidden" asp-for="ReturnTermId"/>
+
+    @if (Model.HasErrors)
+    {
+        <div class="academic-term-editor__summary">
+            @if (Model.SummaryErrors.Count == 0)
+            {
+                <div>Please correct the highlighted fields.</div>
+            }
+            else
+            {
+                <ul>
+                    @foreach (var error in Model.SummaryErrors)
+                    {
+                        <li>@error</li>
+                    }
+                </ul>
+            }
+        </div>
+    }
+
+    <div class="academic-term-editor__body form-layout">
+        <section class="form-section">
+            <div class="form-section__title">Basic</div>
+            <div class="form-grid form-grid--two">
+                <div class="field">
+                    <label class="field__label" asp-for="AcademicYear"></label>
+                    <input asp-for="AcademicYear" inputmode="numeric"/>
+                    @foreach (var error in Model.GetErrors(nameof(Model.AcademicYear)))
+                    {
+                        <div class="academic-term-editor__field-error">@error</div>
+                    }
+                </div>
+
+                <div class="field">
+                    <label class="field__label" asp-for="Code"></label>
+                    <input asp-for="Code" autocomplete="off"/>
+                    @foreach (var error in Model.GetErrors(nameof(Model.Code)))
+                    {
+                        <div class="academic-term-editor__field-error">@error</div>
+                    }
+                </div>
+
+                <div class="field">
+                    <label class="field__label" asp-for="Name"></label>
+                    <input asp-for="Name" autocomplete="off"/>
+                    @foreach (var error in Model.GetErrors(nameof(Model.Name)))
+                    {
+                        <div class="academic-term-editor__field-error">@error</div>
+                    }
+                </div>
+
+                <div class="field">
+                    <label class="field__label" asp-for="StartDate"></label>
+                    <input asp-for="StartDate"/>
+                    @foreach (var error in Model.GetErrors(nameof(Model.StartDate)))
+                    {
+                        <div class="academic-term-editor__field-error">@error</div>
+                    }
+                </div>
+
+                <div class="field">
+                    <label class="field__label" asp-for="EndDate"></label>
+                    <input asp-for="EndDate"/>
+                    @foreach (var error in Model.GetErrors(nameof(Model.EndDate)))
+                    {
+                        <div class="academic-term-editor__field-error">@error</div>
+                    }
+                </div>
+            </div>
+        </section>
+
+        <section class="form-section">
+            <div class="form-section__title">Time Definition</div>
+            @if (Model.IsCreate)
+            {
+                <div class="form-grid form-grid--full">
+                    <div class="field">
+                        <label class="field__label" asp-for="TimeTemplateId"></label>
+                        <select asp-for="TimeTemplateId" data-academic-template-selector>
+                            <option value="">Select template</option>
+                            @foreach (var option in Model.TemplateOptions)
+                            {
+                                var encodedPeriods = string.Join(";", option.Periods
+                                    .Select(period => $"{period.PeriodNo}|{period.Label}|{period.StartTime}|{period.EndTime}"));
+                                <option value="@option.Id" data-periods="@encodedPeriods">
+                                    @option.Name (@option.Code)
+                                </option>
+                            }
+                        </select>
+                        @foreach (var error in Model.GetErrors(nameof(Model.TimeTemplateId)))
+                        {
+                            <div class="academic-term-editor__field-error">@error</div>
+                        }
+                        <div class="academic-editor__hint">
+                            The selected template is copied into the term and cannot be replaced later.
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="academic-editor__hint">
+                    Periods were copied when this term was created and remain read-only here.
+                </div>
+            }
+
+            <div class="academic-editor__preview-head">
+                <strong>Period Preview</strong>
+                <span class="u-muted" data-academic-term-period-count>@Model.Periods.Length period(s)</span>
+            </div>
+            <div class="academic-period-table-wrap">
+                <table class="compact-table">
+                    <thead>
+                    <tr>
+                        <th>Period</th>
+                        <th>Label</th>
+                        <th>Start</th>
+                        <th>End</th>
+                    </tr>
+                    </thead>
+                    <tbody data-academic-term-period-preview>
+                    @foreach (var period in Model.Periods)
+                    {
+                        <tr>
+                            <td>@period.PeriodNo</td>
+                            <td>@period.Label</td>
+                            <td class="u-mono">@period.StartTime</td>
+                            <td class="u-mono">@period.EndTime</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <div class="academic-term-editor__foot">
+        <button type="submit" class="is-primary">@Model.SubmitText</button>
+        <button type="button"
+                hx-get="@cancelUrl"
+                hx-target="#academic-term-manager-content"
+                hx-swap="innerHTML">
+            Cancel
+        </button>
+    </div>
+</form>

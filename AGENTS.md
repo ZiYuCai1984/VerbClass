@@ -1,3 +1,6 @@
+AGENTS.md
+
+
 # Repository Rules
 
 ## General Coding Rules
@@ -25,6 +28,8 @@
 - Do not broaden nullability or optionality purely to avoid errors.
 - Do not auto-create default tenant, user, config, or placeholder entities unless explicitly required.
 - Do not add retry or fallback chains unless they are part of the requested design.
+- Do not add new tests or test projects.
+- Do not run test commands.
 
 ## Before Coding
 
@@ -53,16 +58,15 @@ If fallback behavior is truly required:
 
 Before considering a task complete:
 - run the relevant build command,
-- run the relevant tests for the changed area when tests exist,
 - run format, lint, or type checks when the touched stack has them configured,
-- add or update regression tests when behavior changes,
+- do not add tests or run test commands unless the user explicitly asks for that work,
 - review the diff for hidden fallback paths, swallowed exceptions, weakened invariants, and accidental cross-layer leakage.
 
 ## Build / Test Commands
 
 - Full build: `dotnet build src/ZYC.VerbClass.slnx`
-- When the repository or changed area contains a test project: `dotnet test src/ZYC.VerbClass.slnx`
-- Do not claim automated tests passed when no test project exists for the changed area. State that explicitly and describe the manual verification performed.
+- Database migration: do not invoke `dotnet ef` commands unless the user explicitly asks for them; run the `ZYC.VerbClass.DbMigrator` project instead.
+- Do not run `dotnet test` or any other test command unless the user explicitly requests it.
 
 ## Review
 
@@ -77,7 +81,7 @@ Before considering a task complete:
 
 A task is not done unless:
 - the relevant build succeeds,
-- relevant tests pass or their absence is explicitly called out,
+- no tests were added or run unless the user explicitly requested them,
 - invariants remain explicit,
 - no hidden fallback path was introduced,
 - failure behavior is intentional and observable,

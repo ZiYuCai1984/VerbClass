@@ -1,6 +1,11 @@
 ﻿@page
 @model ZYC.VerbClass.Web.Pages.IndexModel
-@{
-    ViewData["Title"] = "Home";
+
+@section Styles {
+    <link rel="stylesheet" href="/css/admin-master-detail.css"/>
+    <link rel="stylesheet" href="/css/academic-master-detail.css"/>
 }
 
+<div id="academic-timetable-content" class="academic-timetable-page">
+    <partial name="~/Pages/Academic/TimetableManagerPartials/_TimetableContent.cshtml" model="Model.TimetableState" />
+</div>

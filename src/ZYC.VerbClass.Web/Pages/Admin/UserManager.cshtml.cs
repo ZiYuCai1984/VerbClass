@@ -7,6 +7,7 @@ using ZYC.VerbClass.Application.Contracts.Departments;
 using ZYC.VerbClass.Application.Contracts.UserProfiles;
 using ZYC.VerbClass.Application.Contracts.Users;
 using ZYC.VerbClass.Domain.Shared;
+using ZYC.VerbClass.Web.Pages.Admin.UserManagerPartials;
 
 namespace ZYC.VerbClass.Web.Pages.Admin;
 
@@ -238,7 +239,7 @@ public class UserManagerModel : VerbClassPageModel
     private async Task<PartialViewResult> BuildUserInfoPartialAsync(Guid userId)
     {
         var model = await BuildUserInfoModelAsync(userId);
-        return Partial("_UserInfo", model);
+        return Partial("~/Pages/Admin/UserManagerPartials/_UserInfo.cshtml", model);
     }
 
     private async Task<UserInfoModel> BuildUserInfoModelAsync(Guid userId)
@@ -270,7 +271,7 @@ public class UserManagerModel : VerbClassPageModel
         UserEditorModel? editor = null)
     {
         var model = await BuildUserManagerContentAsync(activeUserId, editor);
-        return Partial("_UserManagerContent", model);
+        return Partial("~/Pages/Admin/UserManagerPartials/_UserManagerContent.cshtml", model);
     }
 
     private async Task<UserManagerContentModel> BuildUserManagerContentAsync(

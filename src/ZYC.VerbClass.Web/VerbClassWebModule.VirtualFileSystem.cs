@@ -4,6 +4,7 @@ using ZYC.VerbClass.Application.Contracts;
 using ZYC.VerbClass.Domain;
 using ZYC.VerbClass.Domain.Shared;
 using ZYC.VerbClass.HttpApi;
+using ZYC.VerbClass.Web.Modules.Academic;
 using ZYC.VerbClass.Web.Modules.Mock;
 
 namespace ZYC.VerbClass.Web;
@@ -33,6 +34,9 @@ public partial class VerbClassWebModule
                 options.FileSets.ReplaceEmbeddedByPhysical<VerbClassHttpApiModule>(
                     Path.Combine(hostingEnvironment.ContentRootPath,
                         $"..{Path.DirectorySeparatorChar}ZYC.VerbClass.HttpApi"));
+                options.FileSets.ReplaceEmbeddedByPhysical<AcademicModule>(
+                    Path.Combine(hostingEnvironment.ContentRootPath,
+                        $"..{Path.DirectorySeparatorChar}ZYC.VerbClass.Web.Modules.Academic"));
                 options.FileSets.ReplaceEmbeddedByPhysical<MockModule>(
                     Path.Combine(hostingEnvironment.ContentRootPath,
                         $"..{Path.DirectorySeparatorChar}ZYC.VerbClass.Web.Modules.Mock"));

@@ -1,0 +1,148 @@
+﻿@model ZYC.VerbClass.Web.Pages.Admin.DepartmentManagerPartials.DepartmentEditorModel
+@{
+    var submitUrl = Model.IsCreate
+        ? Url.Page(null, "Create")
+        : Url.Page(null, "Update", new { departmentId = Model.DepartmentId });
+    var cancelUrl = Url.Page(
+        null,
+        "View",
+        Model.IsCreate
+            ? new { departmentId = Model.ReturnDepartmentId }
+            : new { departmentId = Model.DepartmentId }
+    );
+}
+
+<form method="post"
+      hx-post="@submitUrl"
+      hx-target="#department-manager-content"
+      hx-swap="innerHTML"
+      class="department-editor">
+    <input type="hidden" asp-for="ReturnDepartmentId"/>
+
+    @if (Model.HasErrors)
+    {
+        <div class="department-editor__summary">
+            @if (Model.SummaryErrors.Count == 0)
+            {
+                <div>Please correct the highlighted fields.</div>
+            }
+            else
+            {
+                <ul>
+                    @foreach (var error in Model.SummaryErrors)
+                    {
+                        <li>@error</li>
+                    }
+                </ul>
+            }
+        </div>
+    }
+
+    <div class="department-editor__body form-layout">
+        <section class="form-section">
+            <div class="form-section__title">Basic</div>
+            <div class="form-grid form-grid--two">
+                <div class="field">
+                    <label class="field__label" asp-for="Code"></label>
+                    <input asp-for="Code" autocomplete="off"/>
+                    @foreach (var error in Model.GetErrors(nameof(Model.Code)))
+                    {
+                        <div class="department-editor__field-error">@error</div>
+                    }
+                </div>
+
+                <div class="field">
+                    <label class="field__label" asp-for="Name"></label>
+                    <input asp-for="Name" autocomplete="off"/>
+                    @foreach (var error in Model.GetErrors(nameof(Model.Name)))
+                    {
+                        <div class="department-editor__field-error">@error</div>
+                    }
+                </div>
+
+                <div class="field">
+                    <label class="field__label" asp-for="ShortName"></label>
+                    <input asp-for="ShortName" autocomplete="off"/>
+                    @foreach (var error in Model.GetErrors(nameof(Model.ShortName)))
+                    {
+                        <div class="department-editor__field-error">@error</div>
+                    }
+                </div>
+
+                <div class="field">
+                    <label class="field__label" asp-for="ParentDepartmentId"></label>
+                    <select asp-for="ParentDepartmentId">
+                        @foreach (var option in Model.ParentOptions)
+                        {
+                            <option value="@(option.Id?.ToString() ?? string.Empty)">
+                                @option.Label
+                            </option>
+                        }
+                    </select>
+                    @foreach (var error in Model.GetErrors(nameof(Model.ParentDepartmentId)))
+                    {
+                        <div class="department-editor__field-error">@error</div>
+                    }
+                </div>
+
+                <div class="field">
+                    <label class="field__label" asp-for="Sort"></label>
+                    <input asp-for="Sort"/>
+                    @foreach (var error in Model.GetErrors(nameof(Model.Sort)))
+                    {
+                        <div class="department-editor__field-error">@error</div>
+                    }
+                </div>
+
+                <div class="field department-editor__checkbox-field">
+                    <span class="field__label">@Html.DisplayNameFor(x => x.IsActive)</span>
+                    <label class="department-editor__checkbox">
+                        <input asp-for="IsActive"/>
+                        <span>Enable this department</span>
+                    </label>
+                </div>
+
+                <div class="field department-editor__checkbox-field">
+                    <span class="field__label">@Html.DisplayNameFor(x => x.CanAssignUsers)</span>
+                    <label class="department-editor__checkbox">
+                        <input asp-for="CanAssignUsers"/>
+                        <span>Allow users to be assigned directly</span>
+                    </label>
+                </div>
+            </div>
+        </section>
+
+        <section class="form-section">
+            <div class="form-section__title">Availability</div>
+            <div class="form-grid form-grid--two">
+                <div class="field">
+                    <label class="field__label" asp-for="EffectiveFrom"></label>
+                    <input asp-for="EffectiveFrom"/>
+                    @foreach (var error in Model.GetErrors(nameof(Model.EffectiveFrom)))
+                    {
+                        <div class="department-editor__field-error">@error</div>
+                    }
+                </div>
+
+                <div class="field">
+                    <label class="field__label" asp-for="EffectiveTo"></label>
+                    <input asp-for="EffectiveTo"/>
+                    @foreach (var error in Model.GetErrors(nameof(Model.EffectiveTo)))
+                    {
+                        <div class="department-editor__field-error">@error</div>
+                    }
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="department-editor__foot">
+        <button type="submit" class="is-primary">@Model.SubmitText</button>
+        <button type="button"
+                hx-get="@cancelUrl"
+                hx-target="#department-manager-content"
+                hx-swap="innerHTML">
+            Cancel
+        </button>
+    </div>
+</form>

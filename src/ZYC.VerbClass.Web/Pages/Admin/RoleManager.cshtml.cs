@@ -4,6 +4,7 @@ using Volo.Abp;
 using Volo.Abp.Validation;
 using ZYC.VerbClass.Application.Contracts.Roles;
 using ZYC.VerbClass.Domain.Shared;
+using ZYC.VerbClass.Web.Pages.Admin.RoleManagerPartials;
 
 namespace ZYC.VerbClass.Web.Pages.Admin;
 
@@ -107,7 +108,7 @@ public class RoleManagerModel : VerbClassPageModel
 
     private async Task<PartialViewResult> BuildRoleInfoPartialAsync(string roleName)
     {
-        return Partial("_RoleInfo", await BuildRoleInfoModelAsync(roleName));
+        return Partial("~/Pages/Admin/RoleManagerPartials/_RoleInfo.cshtml", await BuildRoleInfoModelAsync(roleName));
     }
 
     private async Task<RoleInfoModel> BuildRoleInfoModelAsync(string roleName)
@@ -131,7 +132,7 @@ public class RoleManagerModel : VerbClassPageModel
         string? activeRoleName = null,
         RolePermissionEditorModel? editor = null)
     {
-        return Partial("_RoleManagerContent", await BuildRoleManagerContentAsync(activeRoleName, editor));
+        return Partial("~/Pages/Admin/RoleManagerPartials/_RoleManagerContent.cshtml", await BuildRoleManagerContentAsync(activeRoleName, editor));
     }
 
     private async Task<RoleManagerContentModel> BuildRoleManagerContentAsync(

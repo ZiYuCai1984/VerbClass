@@ -18,6 +18,12 @@ using Volo.Abp.Swashbuckle;
 using Volo.Abp.TenantManagement.Web;
 using Volo.Abp.UI.Navigation.Urls;
 using Volo.Abp.Users;
+using ZYC.VerbClass.Academic.Application;
+using ZYC.VerbClass.Academic.Application.Contracts;
+using ZYC.VerbClass.Academic.Domain;
+using ZYC.VerbClass.Academic.Domain.Shared;
+using ZYC.VerbClass.Academic.EntityFrameworkCore;
+using ZYC.VerbClass.Academic.HttpApi;
 using ZYC.VerbClass.Application;
 using ZYC.VerbClass.Application.Contracts;
 using ZYC.VerbClass.Domain;
@@ -25,12 +31,17 @@ using ZYC.VerbClass.Domain.Shared;
 using ZYC.VerbClass.Domain.Shared.Localization;
 using ZYC.VerbClass.EntityFrameworkCore;
 using ZYC.VerbClass.HttpApi;
+using ZYC.VerbClass.Web.Modules.Academic;
 using ZYC.VerbClass.Web.Modules.Mock;
 
 namespace ZYC.VerbClass.Web;
 
 [DependsOn(
+    typeof(AcademicModule),
     typeof(MockModule),
+    typeof(AcademicHttpApiModule),
+    typeof(AcademicApplicationModule),
+    typeof(AcademicEntityFrameworkCoreModule),
     typeof(VerbClassHttpApiModule),
     typeof(VerbClassApplicationModule),
     typeof(VerbClassEntityFrameworkCoreModule),
@@ -53,6 +64,10 @@ public partial class VerbClassWebModule : AbpModule
         {
             options.AddAssemblyResource(
                 typeof(VerbClassResource),
+                typeof(AcademicDomainModule).Assembly,
+                typeof(AcademicDomainSharedModule).Assembly,
+                typeof(AcademicApplicationModule).Assembly,
+                typeof(AcademicApplicationContractsModule).Assembly,
                 typeof(VerbClassDomainModule).Assembly,
                 typeof(VerbClassDomainSharedModule).Assembly,
                 typeof(VerbClassApplicationModule).Assembly,
@@ -120,8 +135,8 @@ public partial class VerbClassWebModule : AbpModule
             .AddRazorRuntimeCompilation()
             .AddRazorPagesOptions(options =>
             {
-                //!WARNING IgnoreAntiforgeryTokenAttribute
-                //options.Conventions.ConfigureFilter(new IgnoreAntiforgeryTokenAttribute());
+                //TODO-zyc IgnoreAntiforgeryTokenAttribute
+                options.Conventions.ConfigureFilter(new IgnoreAntiforgeryTokenAttribute());
 
                 ConfigurePageRoutes(options);
             });
@@ -166,6 +181,7 @@ public partial class VerbClassWebModule : AbpModule
     {
         Configure<AbpAspNetCoreMvcOptions>(options =>
         {
+            options.ConventionalControllers.Create(typeof(AcademicApplicationModule).Assembly);
             options.ConventionalControllers.Create(typeof(VerbClassApplicationModule).Assembly);
         });
     }

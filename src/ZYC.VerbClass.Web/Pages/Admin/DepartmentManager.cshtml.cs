@@ -4,6 +4,7 @@ using Volo.Abp;
 using Volo.Abp.Validation;
 using ZYC.VerbClass.Application.Contracts.Departments;
 using ZYC.VerbClass.Domain.Shared;
+using ZYC.VerbClass.Web.Pages.Admin.DepartmentManagerPartials;
 
 namespace ZYC.VerbClass.Web.Pages.Admin;
 
@@ -167,7 +168,7 @@ public class DepartmentManagerModel : VerbClassPageModel
     private async Task<PartialViewResult> BuildDepartmentInfoPartialAsync(Guid departmentId)
     {
         var model = await BuildDepartmentInfoModelAsync(departmentId);
-        return Partial("_DepartmentInfo", model);
+        return Partial("~/Pages/Admin/DepartmentManagerPartials/_DepartmentInfo.cshtml", model);
     }
 
     private async Task<DepartmentInfoModel> BuildDepartmentInfoModelAsync(Guid departmentId)
@@ -202,7 +203,7 @@ public class DepartmentManagerModel : VerbClassPageModel
         DepartmentEditorModel? editor = null)
     {
         var model = await BuildDepartmentManagerContentAsync(activeDepartmentId, editor);
-        return Partial("_DepartmentManagerContent", model);
+        return Partial("~/Pages/Admin/DepartmentManagerPartials/_DepartmentManagerContent.cshtml", model);
     }
 
     private async Task<DepartmentManagerContentModel> BuildDepartmentManagerContentAsync(

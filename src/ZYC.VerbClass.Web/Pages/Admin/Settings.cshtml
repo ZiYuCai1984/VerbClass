@@ -1,0 +1,177 @@
+﻿@page
+@model ZYC.VerbClass.Web.Pages.Admin.SettingsModel
+
+@section Styles {
+    <link rel="stylesheet" href="/css/settings-layout.css"/>
+}
+
+<div class="shell__workspace">
+    <header class="shell__workspace-header">
+        <div class="page-heading">
+            <div class="page-heading__title">Settings</div>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(Model.TenantName))
+        {
+            <span class="tag">Tenant: @Model.TenantName</span>
+        }
+    </header>
+
+    <div class="shell__workspace-body settings-page" data-settings-page>
+        <div class="settings-layout">
+            <aside class="settings-sidebar scroll-area">
+                <nav class="settings-nav">
+                    <div class="settings-nav__group">Tenant</div>
+                    <a class="settings-nav__item is-current" href="#security">Password policy</a>
+
+                    <div class="settings-nav__group">Academic</div>
+                    <a class="settings-nav__item" href="#academic">Current term</a>
+                </nav>
+            </aside>
+
+            <main class="settings-content scroll-area">
+                <form id="security"
+                      method="post"
+                      asp-page-handler="PasswordPolicy"
+                      class="surface form-shell settings-panel">
+                    <div class="surface__head">
+                        <strong>Password policy</strong>
+                        @if (!Model.CanUpdatePasswordPolicy)
+                        {
+                            <span class="tag u-push-end">Read only</span>
+                        }
+                    </div>
+
+                    <div class="form-shell__body">
+                        <fieldset class="form-layout" disabled="@(!Model.CanUpdatePasswordPolicy)">
+                            <div asp-validation-summary="ModelOnly"></div>
+
+                            <section class="form-section">
+                                <div class="form-section__title">Password Policy</div>
+
+                                <div class="form-grid form-grid--two">
+                                    <div class="field">
+                                        <label class="field__label" asp-for="PasswordPolicyInput.RequiredLength"></label>
+                                        <input asp-for="PasswordPolicyInput.RequiredLength" min="1" max="128"/>
+                                        <span asp-validation-for="PasswordPolicyInput.RequiredLength"></span>
+                                    </div>
+
+                                    <div class="field">
+                                        <label class="field__label" asp-for="PasswordPolicyInput.RequiredUniqueChars"></label>
+                                        <input asp-for="PasswordPolicyInput.RequiredUniqueChars" min="1" max="128"/>
+                                        <span asp-validation-for="PasswordPolicyInput.RequiredUniqueChars"></span>
+                                    </div>
+
+                                    <div class="field">
+                                        <label class="l-cluster">
+                                            <input asp-for="PasswordPolicyInput.RequireDigit"/>
+                                            <span class="field__label">Require digit</span>
+                                        </label>
+                                        <span asp-validation-for="PasswordPolicyInput.RequireDigit"></span>
+                                    </div>
+
+                                    <div class="field">
+                                        <label class="l-cluster">
+                                            <input asp-for="PasswordPolicyInput.RequireLowercase"/>
+                                            <span class="field__label">Require lowercase</span>
+                                        </label>
+                                        <span asp-validation-for="PasswordPolicyInput.RequireLowercase"></span>
+                                    </div>
+
+                                    <div class="field">
+                                        <label class="l-cluster">
+                                            <input asp-for="PasswordPolicyInput.RequireUppercase"/>
+                                            <span class="field__label">Require uppercase</span>
+                                        </label>
+                                        <span asp-validation-for="PasswordPolicyInput.RequireUppercase"></span>
+                                    </div>
+
+                                    <div class="field">
+                                        <label class="l-cluster">
+                                            <input asp-for="PasswordPolicyInput.RequireNonAlphanumeric"/>
+                                            <span class="field__label">Require non-alphanumeric</span>
+                                        </label>
+                                        <span asp-validation-for="PasswordPolicyInput.RequireNonAlphanumeric"></span>
+                                    </div>
+                                </div>
+                            </section>
+                        </fieldset>
+                    </div>
+
+                    @if (Model.CanUpdatePasswordPolicy)
+                    {
+                        <div class="form-shell__footer surface__foot">
+                            <button type="submit" class="is-primary">Save Security</button>
+                            <button type="submit"
+                                    formmethod="get"
+                                    formaction="@Routes.Admin_Settings"
+                                    formnovalidate>
+                                Cancel
+                            </button>
+                        </div>
+                    }
+                </form>
+
+                <form id="academic"
+                      method="post"
+                      asp-page-handler="CurrentAcademicTerm"
+                      class="surface form-shell settings-panel">
+                    <div class="surface__head">
+                        <strong>Current term</strong>
+                        @if (!Model.CanUpdateAcademicSettings)
+                        {
+                            <span class="tag u-push-end">Read only</span>
+                        }
+                    </div>
+
+                    <div class="form-shell__body">
+                        <fieldset class="form-layout" disabled="@(!Model.CanUpdateAcademicSettings)">
+                            <div asp-validation-summary="ModelOnly"></div>
+
+                            <section class="form-section">
+                                <div class="form-section__title">Current Term</div>
+
+                                <div class="form-grid form-grid--two">
+                                    <div class="field">
+                                        <label class="field__label" asp-for="CurrentAcademicTermInput.CurrentTermId"></label>
+                                        <select asp-for="CurrentAcademicTermInput.CurrentTermId">
+                                            <option value="">Not set</option>
+                                            @foreach (var term in Model.AcademicTermOptions)
+                                            {
+                                                if (Model.CurrentAcademicTermInput.CurrentTermId == term.Id)
+                                                {
+                                                    <option value="@term.Id" selected>@term.DisplayName</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@term.Id">@term.DisplayName</option>
+                                                }
+                                            }
+                                        </select>
+                                        <span asp-validation-for="CurrentAcademicTermInput.CurrentTermId"></span>
+                                    </div>
+                                </div>
+                            </section>
+                        </fieldset>
+                    </div>
+
+                    @if (Model.CanUpdateAcademicSettings)
+                    {
+                        <div class="form-shell__footer surface__foot">
+                            <button type="submit" class="is-primary">Save Academic</button>
+                            <button type="submit"
+                                    formmethod="get"
+                                    formaction="@Routes.Admin_Settings"
+                                    formnovalidate>
+                                Cancel
+                            </button>
+                        </div>
+                    }
+                </form>
+            </main>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="/js/settings-layout.js"></script>
+}

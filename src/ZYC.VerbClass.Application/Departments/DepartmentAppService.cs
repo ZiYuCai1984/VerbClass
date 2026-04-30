@@ -50,30 +50,21 @@ public class DepartmentAppService : VerbClassAppService, IDepartmentAppService
         var departmentsById = departments.ToDictionary(x => x.Id);
         var permissions = await GetPermissionsInternalAsync();
 
-        return new DepartmentDetailDto
-        {
-            Id = department.Id,
-            Code = department.Code,
-            Name = department.Name,
-            ShortName = department.ShortName,
-            ParentDepartmentName = department.ParentDepartmentId.HasValue &&
+        var parentDepartmentName = department.ParentDepartmentId.HasValue &&
                                    departmentsById.TryGetValue(department.ParentDepartmentId.Value, out var parent)
-                ? parent.Name
-                : null,
-            PathDisplay = DepartmentAppServiceSupport.BuildDepartmentDisplayPath(department, departmentsById),
-            Sort = department.Sort,
-            IsActive = department.IsActive,
-            CanAssignUsers = department.CanAssignUsers,
-            CurrentUserCount = currentUserCounts.GetValueOrDefault(department.Id),
-            EffectiveFrom = department.EffectiveFrom,
-            EffectiveTo = department.EffectiveTo,
-            CreationTime = department.CreationTime,
-            LastModificationTime = department.LastModificationTime,
-            HasChildren = departments.Any(x => x.ParentDepartmentId == department.Id),
-            CanCreateChild = permissions.CanCreate && department.IsActive,
-            CanUpdate = permissions.CanUpdate,
-            CanDelete = permissions.CanDelete
-        };
+            ? parent.Name
+            : null;
+
+        return VerbClassApplicationMappers.ToDepartmentDetailDto(
+            department,
+            parentDepartmentName,
+            DepartmentAppServiceSupport.BuildDepartmentDisplayPath(department, departmentsById),
+            currentUserCounts.GetValueOrDefault(department.Id),
+            departments.Any(x => x.ParentDepartmentId == department.Id),
+            permissions.CanCreate && department.IsActive,
+            permissions.CanUpdate,
+            permissions.CanDelete
+        );
     }
 
     [Authorize(VerbClassPermissions.Departments.Update)]
@@ -82,19 +73,7 @@ public class DepartmentAppService : VerbClassAppService, IDepartmentAppService
         var department = await _departmentRepository.FindAsync(departmentId)
             ?? throw CreateDepartmentNotFoundException();
 
-        return new DepartmentEditorDto
-        {
-            Id = department.Id,
-            Code = department.Code,
-            Name = department.Name,
-            ShortName = department.ShortName,
-            ParentDepartmentId = department.ParentDepartmentId,
-            Sort = department.Sort,
-            IsActive = department.IsActive,
-            CanAssignUsers = department.CanAssignUsers,
-            EffectiveFrom = department.EffectiveFrom,
-            EffectiveTo = department.EffectiveTo
-        };
+        return VerbClassApplicationMappers.ToDepartmentEditorDto(department);
     }
 
     public async Task<DepartmentParentOptionDto[]> GetParentOptionsAsync(Guid? departmentId = null)
@@ -103,11 +82,7 @@ public class DepartmentAppService : VerbClassAppService, IDepartmentAppService
         var departmentsById = departments.ToDictionary(x => x.Id);
         var options = new List<DepartmentParentOptionDto>
         {
-            new()
-            {
-                Id = null,
-                Label = "Root"
-            }
+            VerbClassApplicationMappers.ToDepartmentParentOptionDto(null, "Root")
         };
 
         var excludedIds = departmentId.HasValue
@@ -125,11 +100,9 @@ public class DepartmentAppService : VerbClassAppService, IDepartmentAppService
                 continue;
             }
 
-            options.Add(new DepartmentParentOptionDto
-            {
-                Id = department.Id,
-                Label = DepartmentAppServiceSupport.BuildDepartmentDisplayPath(department, departmentsById)
-            });
+            options.Add(VerbClassApplicationMappers.ToDepartmentParentOptionDto(
+                department.Id,
+                DepartmentAppServiceSupport.BuildDepartmentDisplayPath(department, departmentsById)));
         }
 
         return options.ToArray();
@@ -160,11 +133,7 @@ public class DepartmentAppService : VerbClassAppService, IDepartmentAppService
 
             await _departmentRepository.InsertAsync(department, true);
 
-            return new DepartmentCommandResultDto
-            {
-                Id = department.Id,
-                Name = department.Name
-            };
+            return VerbClassApplicationMappers.ToDepartmentCommandResultDto(department);
         }
         catch (BusinessException ex)
         {
@@ -216,11 +185,7 @@ public class DepartmentAppService : VerbClassAppService, IDepartmentAppService
                 await RefreshDescendantPathsAsync(department);
             }
 
-            return new DepartmentCommandResultDto
-            {
-                Id = department.Id,
-                Name = department.Name
-            };
+            return VerbClassApplicationMappers.ToDepartmentCommandResultDto(department);
         }
         catch (BusinessException ex)
         {
@@ -248,11 +213,7 @@ public class DepartmentAppService : VerbClassAppService, IDepartmentAppService
 
         await _departmentRepository.DeleteAsync(department, true);
 
-        return new DepartmentCommandResultDto
-        {
-            Id = department.Id,
-            Name = department.Name
-        };
+        return VerbClassApplicationMappers.ToDepartmentCommandResultDto(department);
     }
 
     public async Task<Guid[]> GetExistingIdsAsync(Guid[] departmentIds)
@@ -301,11 +262,7 @@ public class DepartmentAppService : VerbClassAppService, IDepartmentAppService
                     label += " (current unavailable department)";
                 }
 
-                return new UserDepartmentOptionDto
-                {
-                    Id = department.Id,
-                    Label = label
-                };
+                return VerbClassApplicationMappers.ToUserDepartmentOptionDto(department.Id, label);
             })
             .ToArray();
     }
@@ -359,11 +316,9 @@ public class DepartmentAppService : VerbClassAppService, IDepartmentAppService
                     departmentsById
                 );
 
-                return new UserDepartmentSummaryDto
-                {
-                    UserId = group.Key,
-                    Summary = DepartmentAppServiceSupport.BuildDepartmentSummary(items)
-                };
+                return VerbClassApplicationMappers.ToUserDepartmentSummaryDto(
+                    group.Key,
+                    DepartmentAppServiceSupport.BuildDepartmentSummary(items));
             })
             .ToArray();
     }
@@ -415,12 +370,11 @@ public class DepartmentAppService : VerbClassAppService, IDepartmentAppService
 
     private async Task<DepartmentPermissionsDto> GetPermissionsInternalAsync()
     {
-        return new DepartmentPermissionsDto
-        {
-            CanCreate = await AuthorizationService.IsGrantedAsync(VerbClassPermissions.Departments.Create),
-            CanUpdate = await AuthorizationService.IsGrantedAsync(VerbClassPermissions.Departments.Update),
-            CanDelete = await AuthorizationService.IsGrantedAsync(VerbClassPermissions.Departments.Delete)
-        };
+        return VerbClassApplicationMappers.ToDepartmentPermissionsDto(
+            await AuthorizationService.IsGrantedAsync(VerbClassPermissions.Departments.Create),
+            await AuthorizationService.IsGrantedAsync(VerbClassPermissions.Departments.Update),
+            await AuthorizationService.IsGrantedAsync(VerbClassPermissions.Departments.Delete)
+        );
     }
 
     private static void ValidateInput(DepartmentInputBase input)

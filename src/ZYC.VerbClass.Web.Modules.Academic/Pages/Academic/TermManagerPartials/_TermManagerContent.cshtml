@@ -1,0 +1,80 @@
+﻿@model ZYC.VerbClass.Web.Modules.Academic.Pages.Academic.TermManagerPartials.TermManagerContentModel
+
+<div class="page-master master-detail-page__master">
+    <section class="surface master-detail-page__list">
+        <div class="surface__head">
+            <strong>Terms</strong>
+            <span class="u-muted">@Model.Terms.Length term(s)</span>
+            <button type="button"
+                    class="u-push-end"
+                    hx-get="@Url.Page(null, "Create", new { ReturnTermId = Model.ActiveTermId })"
+                    hx-target="#academic-term-manager-content"
+                    hx-swap="innerHTML"
+                    hx-replace-url="@Url.Page(null, null)">
+                New Term
+            </button>
+        </div>
+        <div class="surface__body scroll-area">
+            @if (Model.Terms.Length == 0)
+            {
+                <div class="master-detail-empty">
+                    <p>No terms are available.</p>
+                </div>
+            }
+            else
+            {
+                <div class="record-list">
+                    @foreach (var term in Model.Terms)
+                    {
+                        <button type="button"
+                                class="record-list__item academic-manager-item@(Model.ActiveTermId == term.Id ? " is-selected" : string.Empty)"
+                                data-academic-term-item
+                                data-term-id="@term.Id"
+                                hx-get="@Url.Page(null, "Select", new { termId = term.Id })"
+                                hx-trigger="click"
+                                hx-target="#academic-term-detail"
+                                hx-swap="innerHTML"
+                                hx-replace-url="@Url.Page(null, null, new { TermId = term.Id })">
+                            <div class="record-list__main">
+                                <div class="academic-manager-item__title-row">
+                                    <strong class="record-list__title u-truncate">@term.Title</strong>
+                                    @if (term.IsLocked)
+                                    {
+                                        <span class="tag is-warning">Locked</span>
+                                    }
+                                </div>
+                                <div class="academic-manager-item__meta">
+                                    <span class="u-mono">@term.Code</span>
+                                    <span>@term.DateRangeDisplay</span>
+                                    <span>@term.PeriodCount period(s)</span>
+                                </div>
+                            </div>
+                        </button>
+                    }
+                </div>
+            }
+        </div>
+    </section>
+
+    <section class="surface master-detail-page__detail">
+        <div class="surface__head">
+            <strong>@Model.DetailTitle</strong>
+        </div>
+        <div id="academic-term-detail" class="surface__body scroll-area">
+            @if (Model.Editor is not null)
+            {
+                <partial name="~/Pages/Academic/TermManagerPartials/_TermEditor.cshtml" model="Model.Editor"/>
+            }
+            else if (Model.SelectedTerm is not null)
+            {
+                <partial name="~/Pages/Academic/TermManagerPartials/_TermInfo.cshtml" model="Model.SelectedTerm"/>
+            }
+            else
+            {
+                <div class="master-detail-empty">
+                    <p>Select a term from the list to view details.</p>
+                </div>
+            }
+        </div>
+    </section>
+</div>

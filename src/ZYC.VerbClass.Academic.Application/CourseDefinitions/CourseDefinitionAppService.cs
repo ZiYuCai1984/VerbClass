@@ -1,7 +1,7 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authorization;
 using Volo.Abp;
 using Volo.Abp.Application.Services;
-using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Validation;
 using ZYC.VerbClass.Academic.Application.Contracts.CourseDefinitions;
 using ZYC.VerbClass.Academic.Domain.CourseDefinitions;
@@ -10,20 +10,21 @@ using ZYC.VerbClass.Academic.Domain.Shared;
 
 namespace ZYC.VerbClass.Academic.Application.CourseDefinitions;
 
+[Authorize]
 public class CourseDefinitionAppService : ApplicationService, ICourseDefinitionAppService
 {
+    private readonly ICourseDefinitionRepository _courseDefinitionRepository;
+    private readonly ICourseOfferingRepository _courseOfferingRepository;
     private readonly CourseDefinitionManager _courseDefinitionManager;
-    private readonly IRepository<CourseDefinition, Guid> _courseDefinitionRepository;
-    private readonly IRepository<CourseOffering, Guid> _courseOfferingRepository;
 
     public CourseDefinitionAppService(
-        CourseDefinitionManager courseDefinitionManager,
-        IRepository<CourseDefinition, Guid> courseDefinitionRepository,
-        IRepository<CourseOffering, Guid> courseOfferingRepository)
+        ICourseDefinitionRepository courseDefinitionRepository,
+        ICourseOfferingRepository courseOfferingRepository,
+        CourseDefinitionManager courseDefinitionManager)
     {
-        _courseDefinitionManager = courseDefinitionManager;
         _courseDefinitionRepository = courseDefinitionRepository;
         _courseOfferingRepository = courseOfferingRepository;
+        _courseDefinitionManager = courseDefinitionManager;
     }
 
     public async Task<CourseDefinitionListItemDto[]> GetListAsync()
@@ -31,39 +32,47 @@ public class CourseDefinitionAppService : ApplicationService, ICourseDefinitionA
         var courseDefinitions = await _courseDefinitionRepository.GetListAsync();
 
         return courseDefinitions
-            .OrderBy(x => x.Code)
-            .ThenBy(x => x.Name)
-            .Select(x => new CourseDefinitionListItemDto
-            {
-                Id = x.Id,
-                Code = x.Code,
-                Name = x.Name,
-                ShortName = x.ShortName,
-                Description = x.Description,
-                IsActive = x.IsActive
-            })
+            .OrderBy(x => x.Code, StringComparer.OrdinalIgnoreCase)
+            .ThenBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
+            .Select(AcademicApplicationDtoMapper.ToCourseDefinitionListItemDto)
+            .ToArray();
+    }
+
+    public async Task<CourseDefinitionDetailDto> GetAsync(Guid courseDefinitionId)
+    {
+        var courseDefinition = await _courseDefinitionRepository.FindAsync(courseDefinitionId)
+            ?? throw CreateCourseDefinitionNotFoundException();
+
+        return AcademicApplicationDtoMapper.ToCourseDefinitionDetailDto(courseDefinition);
+    }
+
+    public async Task<CourseDefinitionOptionDto[]> GetActiveOptionsAsync()
+    {
+        var courseDefinitions = await _courseDefinitionRepository.GetListAsync();
+
+        return courseDefinitions
+            .Where(x => x.IsActive)
+            .OrderBy(x => x.Code, StringComparer.OrdinalIgnoreCase)
+            .ThenBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
+            .Select(AcademicApplicationDtoMapper.ToCourseDefinitionOptionDto)
             .ToArray();
     }
 
     public async Task<CourseDefinitionCommandResultDto> CreateAsync(CreateCourseDefinitionInput input)
     {
+        ValidateInput(input);
+
         try
         {
             var courseDefinition = await _courseDefinitionManager.CreateAsync(
                 input.Code,
                 input.Name,
-                input.ShortName,
                 input.Description
             );
 
-            if (!input.IsActive)
-            {
-                courseDefinition.Disable();
-            }
-
             await _courseDefinitionRepository.InsertAsync(courseDefinition, true);
 
-            return MapCommandResult(courseDefinition);
+            return AcademicApplicationDtoMapper.ToCourseDefinitionCommandResultDto(courseDefinition);
         }
         catch (BusinessException ex)
         {
@@ -71,11 +80,15 @@ public class CourseDefinitionAppService : ApplicationService, ICourseDefinitionA
         }
     }
 
-    public async Task<CourseDefinitionCommandResultDto> UpdateAsync(Guid id, UpdateCourseDefinitionInput input)
+    public async Task<CourseDefinitionCommandResultDto> UpdateAsync(
+        Guid courseDefinitionId,
+        UpdateCourseDefinitionInput input)
     {
+        ValidateInput(input);
+
         try
         {
-            var courseDefinition = await _courseDefinitionRepository.FindAsync(id)
+            var courseDefinition = await _courseDefinitionRepository.FindAsync(courseDefinitionId)
                 ?? throw CreateCourseDefinitionNotFoundException();
 
             if (!string.Equals(courseDefinition.Code, input.Code, StringComparison.Ordinal))
@@ -83,22 +96,12 @@ public class CourseDefinitionAppService : ApplicationService, ICourseDefinitionA
                 await _courseDefinitionManager.ChangeCodeAsync(courseDefinition, input.Code);
             }
 
-            courseDefinition.SetName(input.Name);
-            courseDefinition.SetShortName(input.ShortName);
-            courseDefinition.SetDescription(input.Description);
-
-            if (input.IsActive)
-            {
-                courseDefinition.Enable();
-            }
-            else
-            {
-                courseDefinition.Disable();
-            }
+            courseDefinition.ChangeName(input.Name);
+            courseDefinition.ChangeDescription(input.Description);
 
             await _courseDefinitionRepository.UpdateAsync(courseDefinition, true);
 
-            return MapCommandResult(courseDefinition);
+            return AcademicApplicationDtoMapper.ToCourseDefinitionCommandResultDto(courseDefinition);
         }
         catch (BusinessException ex)
         {
@@ -106,44 +109,67 @@ public class CourseDefinitionAppService : ApplicationService, ICourseDefinitionA
         }
     }
 
-    public async Task<CourseDefinitionCommandResultDto> DeleteAsync(Guid id)
+    public async Task<CourseDefinitionCommandResultDto> ActivateAsync(Guid courseDefinitionId)
     {
-        var courseDefinition = await _courseDefinitionRepository.FindAsync(id)
+        var courseDefinition = await _courseDefinitionRepository.FindAsync(courseDefinitionId)
             ?? throw CreateCourseDefinitionNotFoundException();
 
-        var offerings = await _courseOfferingRepository.GetListAsync(x => x.CourseDefinitionId == id);
-        if (offerings.Count > 0)
+        courseDefinition.Activate();
+        await _courseDefinitionRepository.UpdateAsync(courseDefinition, true);
+
+        return AcademicApplicationDtoMapper.ToCourseDefinitionCommandResultDto(courseDefinition);
+    }
+
+    public async Task<CourseDefinitionCommandResultDto> DeactivateAsync(Guid courseDefinitionId)
+    {
+        var courseDefinition = await _courseDefinitionRepository.FindAsync(courseDefinitionId)
+            ?? throw CreateCourseDefinitionNotFoundException();
+
+        courseDefinition.Deactivate();
+        await _courseDefinitionRepository.UpdateAsync(courseDefinition, true);
+
+        return AcademicApplicationDtoMapper.ToCourseDefinitionCommandResultDto(courseDefinition);
+    }
+
+    public async Task<CourseDefinitionCommandResultDto> DeleteAsync(Guid courseDefinitionId)
+    {
+        var courseDefinition = await _courseDefinitionRepository.FindAsync(courseDefinitionId)
+            ?? throw CreateCourseDefinitionNotFoundException();
+
+        if (await _courseOfferingRepository.HasCourseDefinitionAsync(courseDefinition.Id))
         {
-            throw new UserFriendlyException("Delete course offerings before deleting this course definition.");
+            throw new UserFriendlyException("Course definitions with offerings cannot be deleted. Deactivate it instead.");
         }
 
         await _courseDefinitionRepository.DeleteAsync(courseDefinition, true);
 
-        return MapCommandResult(courseDefinition);
+        return AcademicApplicationDtoMapper.ToCourseDefinitionCommandResultDto(courseDefinition);
     }
 
-    private static CourseDefinitionCommandResultDto MapCommandResult(CourseDefinition courseDefinition)
+    private static void ValidateInput(CourseDefinitionInputBase input)
     {
-        return new CourseDefinitionCommandResultDto
+        var validationErrors = new List<ValidationResult>();
+        Validator.TryValidateObject(input, new ValidationContext(input), validationErrors, true);
+
+        if (validationErrors.Count > 0)
         {
-            Id = courseDefinition.Id,
-            Code = courseDefinition.Code,
-            Name = courseDefinition.Name,
-            IsActive = courseDefinition.IsActive
-        };
+            throw new AbpValidationException("Course definition input is invalid.", validationErrors);
+        }
     }
 
     private static Exception CreateValidationException(BusinessException ex)
     {
         var message = ex.Code switch
         {
-            AcademicErrorCodes.CourseDefinitionCodeAlreadyExists => "Course definition code already exists.",
+            CourseDefinitionErrorCodes.CodeAlreadyExists => "Course code already exists.",
+            CourseDefinitionErrorCodes.DescriptionTooLong => "Description is too long.",
             _ => string.IsNullOrWhiteSpace(ex.Message) ? "Course definition operation failed." : ex.Message
         };
 
         var fieldName = ex.Code switch
         {
-            AcademicErrorCodes.CourseDefinitionCodeAlreadyExists => nameof(CourseDefinitionInputBase.Code),
+            CourseDefinitionErrorCodes.CodeAlreadyExists => nameof(CourseDefinitionInputBase.Code),
+            CourseDefinitionErrorCodes.DescriptionTooLong => nameof(CourseDefinitionInputBase.Description),
             _ => null
         };
 

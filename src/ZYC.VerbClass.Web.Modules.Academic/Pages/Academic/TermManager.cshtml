@@ -1,0 +1,111 @@
+﻿@page
+@model ZYC.VerbClass.Web.Modules.Academic.Pages.Academic.TermManagerModel
+
+@section Styles {
+    <link rel="stylesheet" href="/css/admin-master-detail.css"/>
+    <link rel="stylesheet" href="/css/academic-master-detail.css"/>
+}
+
+<div id="academic-term-manager-content" class="master-detail-page">
+    <partial name="~/Pages/Academic/TermManagerPartials/_TermManagerContent.cshtml" model="Model.State"/>
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const itemSelector = '[data-academic-term-item]';
+            const templateSelector = '[data-academic-template-selector]';
+
+            function setSelectedItem(termId) {
+                document.querySelectorAll(itemSelector).forEach(item => {
+                    item.classList.toggle('is-selected', item.dataset.termId === termId);
+                });
+            }
+
+            function buildPeriodRows(encodedPeriods) {
+                if (!encodedPeriods) {
+                    return '';
+                }
+
+                return encodedPeriods
+                    .split(';')
+                    .filter(Boolean)
+                    .map(entry => {
+                        const [periodNo, label, startTime, endTime] = entry.split('|');
+                        return `
+                            <tr>
+                                <td>${periodNo ?? ''}</td>
+                                <td>${label ?? ''}</td>
+                                <td class="u-mono">${startTime ?? ''}</td>
+                                <td class="u-mono">${endTime ?? ''}</td>
+                            </tr>`;
+                    })
+                    .join('');
+            }
+
+            function renderTemplatePreview(select) {
+                const container = select.closest('[data-academic-term-editor]');
+                if (!container) {
+                    return;
+                }
+
+                const target = container.querySelector('[data-academic-term-period-preview]');
+                const countTarget = container.querySelector('[data-academic-term-period-count]');
+                const selectedOption = select.options[select.selectedIndex];
+                if (!target || !countTarget || !selectedOption) {
+                    return;
+                }
+
+                const encodedPeriods = selectedOption.dataset.periods ?? '';
+                target.innerHTML = buildPeriodRows(encodedPeriods);
+                countTarget.textContent = `${target.querySelectorAll('tr').length} period(s)`;
+            }
+
+            function initializeTemplatePreviews(root = document) {
+                root.querySelectorAll(templateSelector).forEach(renderTemplatePreview);
+            }
+
+            document.addEventListener('click', event => {
+                const item = event.target.closest(itemSelector);
+                if (!item) {
+                    return;
+                }
+
+                setSelectedItem(item.dataset.termId ?? '');
+            });
+
+            document.addEventListener('change', event => {
+                const select = event.target.closest(templateSelector);
+                if (!select) {
+                    return;
+                }
+
+                renderTemplatePreview(select);
+            });
+
+            document.addEventListener('htmx:afterSwap', event => {
+                if (!(event.target instanceof HTMLElement)) {
+                    return;
+                }
+
+                if (event.target.id === 'academic-term-manager-content') {
+                    initializeTemplatePreviews(event.target);
+                }
+            });
+
+            window.addEventListener('popstate', () => {
+                const query = new URLSearchParams(window.location.search);
+                setSelectedItem(query.get('TermId') ?? '');
+            });
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const query = new URLSearchParams(window.location.search);
+                setSelectedItem(query.get('TermId') ?? '');
+                initializeTemplatePreviews();
+
+                const selected = document.querySelector('.academic-manager-item.is-selected');
+                selected?.scrollIntoView({ block: 'nearest' });
+            });
+        })();
+    </script>
+}

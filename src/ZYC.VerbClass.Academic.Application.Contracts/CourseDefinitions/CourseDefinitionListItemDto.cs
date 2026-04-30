@@ -8,9 +8,5 @@ public class CourseDefinitionListItemDto
 
     public string Name { get; set; } = string.Empty;
 
-    public string? ShortName { get; set; }
-
-    public string? Description { get; set; }
-
     public bool IsActive { get; set; }
 }

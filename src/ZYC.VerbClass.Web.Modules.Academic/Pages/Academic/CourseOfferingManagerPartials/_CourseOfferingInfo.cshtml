@@ -1,0 +1,90 @@
+@model ZYC.VerbClass.Web.Modules.Academic.Pages.Academic.CourseOfferingManagerPartials.CourseOfferingInfoModel
+
+<div class="academic-course-offering-info">
+    <section class="academic-course-offering-info__summary">
+        <div class="academic-course-offering-info__title">
+            <strong class="user-info__name">@Model.Title</strong>
+            <span class="u-mono academic-course-offering-info__code">@Model.CourseCodeSnapshot</span>
+        </div>
+        <div class="academic-course-offering-info__meta">
+            <span class="tag">@(Model.ScheduleSlots.Length == 0 ? "Unscheduled" : $"{Model.ScheduleSlots.Length} slot(s)")</span>
+        </div>
+        <div class="academic-course-offering-info__actions">
+            <button type="button"
+                    hx-get="@Url.Page(null, "Edit", new { offeringId = Model.Id })"
+                    hx-target="#course-offering-manager-content"
+                    hx-swap="innerHTML">
+                Edit Offering
+            </button>
+            <button type="button"
+                    hx-post="@Url.Page(null, "Delete", new { offeringId = Model.Id })"
+                    hx-target="#course-offering-manager-content"
+                    hx-swap="innerHTML"
+                    hx-confirm="Delete this offering?">
+                Delete Offering
+            </button>
+        </div>
+    </section>
+
+    <div class="academic-course-offering-info__sections">
+        <section class="detail-section">
+            <div class="detail-section__title">Offering</div>
+            <div class="kv-grid academic-course-offering-info__kv">
+                <div class="kv-grid__row">
+                    <div class="kv-grid__key">Term</div>
+                    <div>@Model.AcademicTermTitle</div>
+                </div>
+                <div class="kv-grid__row">
+                    <div class="kv-grid__key">Offering Code</div>
+                    <div class="u-mono">@Model.OfferingCode</div>
+                </div>
+                <div class="kv-grid__row">
+                    <div class="kv-grid__key">Course</div>
+                    <div>@Model.CourseNameSnapshot</div>
+                </div>
+                <div class="kv-grid__row">
+                    <div class="kv-grid__key">Course Code</div>
+                    <div class="u-mono">@Model.CourseCodeSnapshot</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="detail-section">
+            <div class="detail-section__title">Schedule</div>
+            @if (Model.ScheduleSlots.Length == 0)
+            {
+                <div class="master-detail-empty">
+                    <p>Unscheduled.</p>
+                </div>
+            }
+            else
+            {
+                <div class="academic-period-table-wrap">
+                    <table class="compact-table">
+                        <thead>
+                        <tr>
+                            <th>Weekday</th>
+                            <th>Period</th>
+                            <th>Label</th>
+                            <th>Start</th>
+                            <th>End</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var slot in Model.ScheduleSlots)
+                        {
+                            <tr>
+                                <td>@slot.Weekday</td>
+                                <td>@slot.PeriodNo</td>
+                                <td>@slot.PeriodLabel</td>
+                                <td class="u-mono">@slot.StartTime</td>
+                                <td class="u-mono">@slot.EndTime</td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </section>
+    </div>
+</div>

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Volo.Abp.EntityFrameworkCore.Modeling;
+using ZYC.VerbClass.Academic.Domain;
 using ZYC.VerbClass.Academic.Domain.CourseDefinitions;
 using ZYC.VerbClass.Academic.Domain.Shared;
 
@@ -10,10 +11,7 @@ public class CourseDefinitionConfiguration : IEntityTypeConfiguration<CourseDefi
 {
     public void Configure(EntityTypeBuilder<CourseDefinition> builder)
     {
-        builder.ToTable(
-            AcademicDbProperties.DbTablePrefix + "CourseDefinitions",
-            AcademicDbProperties.DbSchema
-        );
+        builder.ToTable($"{AcademicConsts.DbTablePrefix}CourseDefinitions", AcademicConsts.DbSchema);
 
         builder.ConfigureByConvention();
 
@@ -28,10 +26,8 @@ public class CourseDefinitionConfiguration : IEntityTypeConfiguration<CourseDefi
             .IsRequired()
             .HasMaxLength(CourseDefinitionConsts.MaxNameLength);
 
-        builder.Property(x => x.ShortName)
-            .HasMaxLength(CourseDefinitionConsts.MaxShortNameLength);
-
         builder.Property(x => x.Description)
+            .IsRequired()
             .HasMaxLength(CourseDefinitionConsts.MaxDescriptionLength);
 
         builder.Property(x => x.IsActive)
@@ -39,7 +35,5 @@ public class CourseDefinitionConfiguration : IEntityTypeConfiguration<CourseDefi
 
         builder.HasIndex(x => new { x.TenantId, x.Code })
             .IsUnique();
-
-        builder.HasIndex(x => new { x.TenantId, x.Name });
     }
 }

@@ -8,7 +8,7 @@ internal partial class SakuradaUniversitySeedData
     {
         return
         [
-            new(
+            new UniversityUserSeedItem(
                 "rei.sakurada",
                 "rei.sakurada@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
@@ -19,7 +19,7 @@ internal partial class SakuradaUniversitySeedData
                 "Sakurada",
                 "Rei",
                 new DateTime(1968, 4, 12),
-                Gender.Male,
+                Gender.Female,
                 "O",
                 "日本",
                 "日本",
@@ -32,7 +32,7 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2018, 4, 1),
                 ["Manager"]
             ),
-            new(
+            new UniversityUserSeedItem(
                 "haruka.ichikawa",
                 "haruka.ichikawa@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
@@ -56,16 +56,16 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2020, 4, 1),
                 ["Manager"]
             ),
-            new(
-                "naoki.fujimoto",
-                "naoki.fujimoto@sakurada-u.ac.jp",
+            new UniversityUserSeedItem(
+                "daiki.ishikawa",
+                "daiki.ishikawa@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
-                "藤本",
-                "直樹",
-                "フジモト",
-                "ナオキ",
-                "Fujimoto",
-                "Naoki",
+                "石川",
+                "大樹",
+                "イシカワ",
+                "ダイキ",
+                "Ishikawa",
+                "Daiki",
                 new DateTime(1982, 2, 22),
                 Gender.Male,
                 "B",
@@ -80,18 +80,18 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2021, 4, 1),
                 []
             ),
-            new(
-                "misaki.kuroda",
-                "misaki.kuroda@sakurada-u.ac.jp",
+            new UniversityUserSeedItem(
+                "takeaki.yasuda",
+                "takeaki.yasuda@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
-                "黒田",
-                "美咲",
-                "クロダ",
-                "ミサキ",
-                "Kuroda",
-                "Misaki",
+                "安田",
+                "竹秋",
+                "ヤスダ",
+                "タケアキ",
+                "Yasuda",
+                "Takeaki",
                 new DateTime(1987, 7, 15),
-                Gender.Female,
+                Gender.Male,
                 "AB",
                 "日本",
                 "日本",
@@ -104,7 +104,7 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2022, 4, 1),
                 []
             ),
-            new(
+            new UniversityUserSeedItem(
                 "mina.lee",
                 "mina.lee@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
@@ -128,7 +128,7 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2023, 4, 1),
                 []
             ),
-            new(
+            new UniversityUserSeedItem(
                 "daichi.shimada",
                 "daichi.shimada@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
@@ -152,7 +152,7 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2021, 10, 1),
                 []
             ),
-            new(
+            new UniversityUserSeedItem(
                 "aoi.morita",
                 "aoi.morita@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
@@ -176,7 +176,7 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2016, 4, 1),
                 ["Manager"]
             ),
-            new(
+            new UniversityUserSeedItem(
                 "kei.shibata",
                 "kei.shibata@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
@@ -200,7 +200,7 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2015, 4, 1),
                 ["Manager"]
             ),
-            new(
+            new UniversityUserSeedItem(
                 "yuina.ito",
                 "yuina.ito@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
@@ -224,7 +224,7 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2024, 4, 1),
                 []
             ),
-            new(
+            new UniversityUserSeedItem(
                 "ren.watanabe",
                 "ren.watanabe@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
@@ -248,7 +248,7 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2023, 4, 1),
                 []
             ),
-            new(
+            new UniversityUserSeedItem(
                 "sora.nagase",
                 "sora.nagase@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
@@ -272,7 +272,7 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2025, 4, 1),
                 []
             ),
-            new(
+            new UniversityUserSeedItem(
                 "takashi.okabe",
                 "takashi.okabe@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
@@ -296,7 +296,7 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2020, 4, 1),
                 ["Manager"]
             ),
-            new(
+            new UniversityUserSeedItem(
                 "nana.hoshino",
                 "nana.hoshino@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
@@ -320,7 +320,7 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2021, 4, 1),
                 ["Manager"]
             ),
-            new(
+            new UniversityUserSeedItem(
                 "yuta.kobayashi",
                 "yuta.kobayashi@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
@@ -344,7 +344,7 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2019, 4, 1),
                 ["Manager"]
             ),
-            new(
+            new UniversityUserSeedItem(
                 "emi.nakajima",
                 "emi.nakajima@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
@@ -368,7 +368,7 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2022, 4, 1),
                 ["Manager"]
             ),
-            new(
+            new UniversityUserSeedItem(
                 "rika.seno",
                 "rika.seno@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
@@ -392,7 +392,7 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2018, 4, 1),
                 ["Manager"]
             ),
-            new(
+            new UniversityUserSeedItem(
                 "kohei.matsuda",
                 "kohei.matsuda@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
@@ -416,7 +416,7 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2014, 4, 1),
                 ["Manager"]
             ),
-            new(
+            new UniversityUserSeedItem(
                 "ayaka.okuno",
                 "ayaka.okuno@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
@@ -440,7 +440,7 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2017, 4, 1),
                 ["Manager"]
             ),
-            new(
+            new UniversityUserSeedItem(
                 "shun.ando",
                 "shun.ando@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
@@ -464,7 +464,7 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2013, 4, 1),
                 ["Manager"]
             ),
-            new(
+            new UniversityUserSeedItem(
                 "erika.hayashi",
                 "erika.hayashi@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
@@ -488,7 +488,7 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2016, 4, 1),
                 ["Manager"]
             ),
-            new(
+            new UniversityUserSeedItem(
                 "tsubasa.kimura",
                 "tsubasa.kimura@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
@@ -512,7 +512,7 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2018, 4, 1),
                 ["Manager"]
             ),
-            new(
+            new UniversityUserSeedItem(
                 "saya.aizawa",
                 "saya.aizawa@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
@@ -536,7 +536,7 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2020, 4, 1),
                 ["Manager"]
             ),
-            new(
+            new UniversityUserSeedItem(
                 "masato.horie",
                 "masato.horie@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
@@ -560,7 +560,7 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2012, 4, 1),
                 ["Manager"]
             ),
-            new(
+            new UniversityUserSeedItem(
                 "hinata.yoshida",
                 "hinata.yoshida@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
@@ -584,7 +584,7 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2023, 4, 1),
                 []
             ),
-            new(
+            new UniversityUserSeedItem(
                 "ryohei.tanaka",
                 "ryohei.tanaka@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
@@ -608,7 +608,7 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2022, 10, 1),
                 []
             ),
-            new(
+            new UniversityUserSeedItem(
                 "mei.fukumoto",
                 "mei.fukumoto@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
@@ -632,7 +632,7 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2024, 4, 1),
                 []
             ),
-            new(
+            new UniversityUserSeedItem(
                 "kota.inoue",
                 "kota.inoue@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
@@ -656,7 +656,7 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2021, 10, 1),
                 []
             ),
-            new(
+            new UniversityUserSeedItem(
                 "miho.kawasaki",
                 "miho.kawasaki@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
@@ -680,7 +680,7 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2023, 10, 1),
                 []
             ),
-            new(
+            new UniversityUserSeedItem(
                 "yui.hara",
                 "yui.hara@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
@@ -704,7 +704,7 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2025, 4, 1),
                 []
             ),
-            new(
+            new UniversityUserSeedItem(
                 "kento.nishimura",
                 "kento.nishimura@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
@@ -728,7 +728,7 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2024, 4, 1),
                 []
             ),
-            new(
+            new UniversityUserSeedItem(
                 "noa.sugiyama",
                 "noa.sugiyama@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
@@ -752,7 +752,7 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2026, 4, 1),
                 []
             ),
-            new(
+            new UniversityUserSeedItem(
                 "arata.okada",
                 "arata.okada@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
@@ -776,7 +776,7 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2025, 4, 1),
                 []
             ),
-            new(
+            new UniversityUserSeedItem(
                 "yuka.mizuno",
                 "yuka.mizuno@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
@@ -800,7 +800,7 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2025, 4, 1),
                 []
             ),
-            new(
+            new UniversityUserSeedItem(
                 "rin.ishii",
                 "rin.ishii@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
@@ -824,7 +824,7 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2026, 4, 1),
                 []
             ),
-            new(
+            new UniversityUserSeedItem(
                 "haruto.sasaki",
                 "haruto.sasaki@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
@@ -848,7 +848,7 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2024, 4, 1),
                 []
             ),
-            new(
+            new UniversityUserSeedItem(
                 "mao.kanda",
                 "mao.kanda@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
@@ -872,7 +872,7 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2023, 4, 1),
                 []
             ),
-            new(
+            new UniversityUserSeedItem(
                 "luna.chen",
                 "luna.chen@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
@@ -896,7 +896,7 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2024, 4, 1),
                 []
             ),
-            new(
+            new UniversityUserSeedItem(
                 "junpei.morikawa",
                 "junpei.morikawa@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
@@ -920,7 +920,7 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2022, 4, 1),
                 []
             ),
-            new(
+            new UniversityUserSeedItem(
                 "anna.petrova",
                 "anna.petrova@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
@@ -944,7 +944,7 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2024, 4, 1),
                 []
             ),
-            new(
+            new UniversityUserSeedItem(
                 "takumi.fukuda",
                 "takumi.fukuda@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
@@ -968,7 +968,7 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2023, 4, 1),
                 []
             ),
-            new(
+            new UniversityUserSeedItem(
                 "karin.mori",
                 "karin.mori@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
@@ -992,7 +992,7 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2022, 4, 1),
                 []
             ),
-            new(
+            new UniversityUserSeedItem(
                 "seina.yamamoto",
                 "seina.yamamoto@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
@@ -1016,7 +1016,7 @@ internal partial class SakuradaUniversitySeedData
                 new DateTime(2024, 10, 1),
                 []
             ),
-            new(
+            new UniversityUserSeedItem(
                 "leo.martin",
                 "leo.martin@sakurada-u.ac.jp",
                 VerbClassConsts.AdminPasswordDefaultValue,
